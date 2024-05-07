@@ -125,6 +125,7 @@ Parser::~Parser()
 
 Parser::Parser(std::string name)
 {
+  std::cerr << "GMAD::Parser::ctor(std::string)" << std::endl;
   instance = this;
 #ifdef BDSDEBUG
   std::cout << "gmad_parser> opening file" << std::endl;
@@ -586,12 +587,13 @@ void Parser::add_sampler(const std::string& name, int count, ElementType type, s
 
 Element& Parser::find_element(const std::string& element_name)
 {
+  std::cerr << "GMAD::Parser::find_element " << std::endl;
   std::list<Element>::iterator it = element_list.find(element_name);
   std::list<Element>::const_iterator iterEnd = element_list.end();
 
   if(it == iterEnd)
     {
-      std::cerr << "parser.h> Error: element (type) \"" << element_name
+      std::cerr << "parser.h> Error: AA element (type) \"" << element_name
 		<< "\" has not been defined." << std::endl;
       exit(1);
     }

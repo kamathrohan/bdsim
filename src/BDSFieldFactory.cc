@@ -1321,6 +1321,7 @@ G4double BDSFieldFactory::GetOuterScaling(const BDSMagnetStrength* st) const
 BDSFieldEM* BDSFieldFactory::CreateMuonCoolerField(const BDSFieldInfo& info,
                                                    G4double brho) const
 {
+  std::cerr << "BDSFieldFactory::CreateMuonCoolerField " << std::endl;
   BDSFieldInfoExtra* extraInfo = info.ExtraInfo();
   BDSFieldInfoExtraMuonCooler* mcExtraInfo = dynamic_cast<BDSFieldInfoExtraMuonCooler*>(extraInfo);
   if (!mcExtraInfo) // shouldn't happen, but just for safety

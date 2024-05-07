@@ -63,6 +63,7 @@ void CoolingChannel::clear()
   rfCavityVacuumMaterial.clear();
   rfCavityRadius.clear();
   rfCavityThickness.clear();
+  rfTimeOffset.clear();
   integrator = "g4classicalrk4";
   magneticFieldModel = "solenoidblock";
   electricFieldModel = "rfcavity";
@@ -73,6 +74,10 @@ void CoolingChannel::PublishMembers()
   publish("name",                 &CoolingChannel::name);
 
   publish("surroundingMaterial",  &CoolingChannel::surroundingMaterial);
+
+  publish("nCells",               &CoolingChannel::nCells);
+  publish("cellLengthZ",          &CoolingChannel::cellLengthZ);
+
   
   publish("nCoils",               &CoolingChannel::nCoils);
   publish("coilInnerRadius",      &CoolingChannel::coilInnerRadius);
@@ -109,6 +114,7 @@ void CoolingChannel::PublishMembers()
   publish("rfCavityVacuumMaterial", &CoolingChannel::rfCavityVacuumMaterial);
   publish("rfCavityRadius",    &CoolingChannel::rfCavityRadius);
   publish("rfCavityThickness", &CoolingChannel::rfCavityThickness);
+  publish("rfTimeOffset",      &CoolingChannel::rfTimeOffset);
 
   publish("integrator",        &CoolingChannel::integrator);
   publish("magneticFieldModel",&CoolingChannel::magneticFieldModel);
@@ -143,6 +149,7 @@ void CoolingChannel::PublishMembers()
   attribute_map_list_string["rfCavityMaterial"]    = &rfCavityMaterial;
   attribute_map_list_double["rfCavityRadius"]      = &rfCavityRadius;
   attribute_map_list_double["rfCavityThickness"]   = &rfCavityThickness;
+  attribute_map_list_double["rfTimeOffset"]        = &rfTimeOffset;
   // integrator, magneticFieldModel and electricFieldModel can't be lists or arrays, so don't include here
 }
 
@@ -186,6 +193,7 @@ void CoolingChannel::print()const
 	    << "rfCavityMaterial "           << rfCavityMaterial           << std::endl
 	    << "rfCavityRadius "             << rfCavityRadius             << std::endl
 	    << "rfCavityThickness "          << rfCavityThickness          << std::endl
+      << "rfTimeOffset "               << rfTimeOffset               << std::endl
 	    << "integrator "                 << integrator                 << std::endl
 	    << "magneticFieldModel "         << magneticFieldModel         << std::endl
 	    << "electricFieldModel "         << electricFieldModel         << std::endl;

@@ -52,6 +52,8 @@ BDSMuonCooler* BDS::BuildMuonCooler(const GMAD::Element* element,
 {
   // retrieve definition from parser
   const GMAD::CoolingChannel* definition = BDSParser::Instance()->GetCoolingChannel(element->coolingDefinition);
+  std::cerr << "BDS::BuildMuonCoolder \n";
+  definition->print();
   if (!definition)
     {throw BDSException(__METHOD_NAME__, "no such cooling definition \"" + element->coolingDefinition + "\" defined in input.");}
   
@@ -329,7 +331,8 @@ std::vector<BDS::MuonCoolerCavityInfo> BDS::BuildMuonCoolerCavityInfos(const GMA
                                            "rfWindowThickness",
                                            "rfWindowRadius",
                                            "rfCavityRadius",
-                                           "rfCavityThickness"};
+                                           "rfCavityThickness",
+                                           "rfTimeOffset"};
   std::vector<const std::list<double>*> rfVars = {&(definition->rfOffsetZ),
                                                   &(definition->rfLength),
                                                   &(definition->rfVoltage),
@@ -338,7 +341,8 @@ std::vector<BDS::MuonCoolerCavityInfo> BDS::BuildMuonCoolerCavityInfos(const GMA
                                                   &(definition->rfWindowThickness),
                                                   &(definition->rfWindowRadius),
                                                   &(definition->rfCavityRadius),
-                                                  &(definition->rfCavityThickness)};
+                                                  &(definition->rfCavityThickness),
+                                                  &(definition->rfTimeOffset)};
   std::vector<std::vector<double> > rfVarsV;
   BDS::MuonParamsToVector(definition->name,
                           rfVars,
@@ -366,9 +370,12 @@ std::vector<BDS::MuonCoolerCavityInfo> BDS::BuildMuonCoolerCavityInfos(const GMA
 
   // build cavity infos
   for (G4int i = 0; i < nRFCavities; i++)
-    {
+    { // BUG: CHECK system of units
       BDS::MuonCoolerCavityInfo info = {rfVarsV[0][i] * CLHEP::m, // offsetZ
                                         rfVarsV[1][i] * CLHEP::m, // lengthZ
+                                        rfVarsV[2][i] * CLHEP::megavolt / CLHEP::meter, // peakEfield
+                                        0.704, /* BUUUGGGGG */           // frequency
+                                        rfVarsV[4][i], // phaseOffset [radians]
                                         cavityVacuumMaterials[i], // cavity vacuum material
                                         rfVarsV[5][i] * CLHEP::m, // windowThickness
                                         windowMaterials[i],       // window material
@@ -376,8 +383,10 @@ std::vector<BDS::MuonCoolerCavityInfo> BDS::BuildMuonCoolerCavityInfos(const GMA
                                         cavityMaterials[i],       // cavity material
                                         rfVarsV[7][i] * CLHEP::m, // cavityRadius
                                         rfVarsV[8][i] * CLHEP::m, // cavityThickness
-                                        nullptr};                 // no field recipe for now
+                                        rfVarsV[9][i], // timeOffset [radians]
+                                        };
       result.push_back(info);
+      std::cerr << "BDSMuonCoolerBuilder " << info.frequency << std::endl;
     }
   
   return result;

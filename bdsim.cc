@@ -37,6 +37,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 int main(int argc, char** argv)
 {
   BDSIM* bds = nullptr;
+  std::cerr << "bdsim.cc" << std::endl;
   try
     {
       bds = new BDSIM(argc, argv);

@@ -25,6 +25,8 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSFieldMagSolenoidLoop.hh"
 #include "BDSFieldMagVectorSum.hh"
 #include "BDSFieldMag.hh"
+#include "BDSFieldEMVectorSum.hh"
+#include "BDSFieldEMRFCavity.hh"
 #include "BDSFieldType.hh"
 #include "BDSMuonCoolerStructs.hh"
 #include "BDSUtilities.hh"
@@ -40,6 +42,11 @@ BDSFieldEMMuonCooler::BDSFieldEMMuonCooler(const BDSFieldInfoExtraMuonCooler* in
   coilField(nullptr),
   rfField(nullptr)
 {
+  BuildMagnets(info);
+  BuildRF(info);
+}
+
+void BDSFieldEMMuonCooler::BuildMagnets(const BDSFieldInfoExtraMuonCooler* info) {
   switch (info->magneticFieldType.underlying())
     {
     case BDSFieldType::solenoidblock:
@@ -100,6 +107,26 @@ BDSFieldEMMuonCooler::BDSFieldEMMuonCooler(const BDSFieldInfoExtraMuonCooler* in
     }
 }
 
+void BDSFieldEMMuonCooler::BuildRF(const BDSFieldInfoExtraMuonCooler* info) {
+      const auto& cavityInfos = info->cavityInfos;
+      std::vector<G4ThreeVector> fieldOffsets;
+      BDSFieldEMVectorSum* emSum = new BDSFieldEMVectorSum();
+      for (const auto& ci : cavityInfos)
+        {
+          BDSFieldEMRFCavity* rfCav = new BDSFieldEMRFCavity(
+               ci.peakEField,
+               ci.frequency,
+               ci.phaseOffset,
+               ci.cavityRadius);
+          double lengthZ = ci.lengthZ;
+          std::cerr << "BDSFieldEMMuonCoolder::BuildRF " << ci.offsetZ << std::endl;
+          G4ThreeVector posOffset(0.0, 0.0, ci.offsetZ);
+          double tOffset = ci.timeOffset;
+          emSum->PushBackField(posOffset, tOffset, lengthZ, rfCav);
+        }
+      rfField = emSum;
+}
+
 BDSFieldEMMuonCooler::~BDSFieldEMMuonCooler()
 {
   delete coilField;
@@ -109,12 +136,8 @@ BDSFieldEMMuonCooler::~BDSFieldEMMuonCooler()
 std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMMuonCooler::GetField(const G4ThreeVector& position,
                                                                        const G4double       t) const
 {
-  auto cf  = coilField->GetField(position, t);
-  //auto rff = rfField->GetField(position, t);
-  auto rff = std::make_pair(G4ThreeVector(), G4ThreeVector());
-  // only rf has E field, but both have B -> sum B field
-  G4ThreeVector b  = cf + rff.first;
-  
-  auto result = std::make_pair(b, rff.second);
+  auto result = rfField->GetField(position, t); // result is a pair like <Bfield, Efield>
+  G4ThreeVector bfieldOut = coilField->GetField(position, t);
+  result.first += bfieldOut;
   return result;
 }

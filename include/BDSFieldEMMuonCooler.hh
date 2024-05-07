@@ -23,7 +23,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "G4ThreeVector.hh"
 #include "G4Types.hh"
-
+#include <vector>
 #include <utility>
 
 class BDSFieldEM;
@@ -44,13 +44,17 @@ public:
                        G4double brho);
   virtual ~BDSFieldEMMuonCooler();
 
+  virtual void BuildMagnets(const BDSFieldInfoExtraMuonCooler* info);
+  virtual void BuildRF(const BDSFieldInfoExtraMuonCooler* info);
+
   /// Accessor to get B and E field.
   virtual std::pair<G4ThreeVector, G4ThreeVector> GetField(const G4ThreeVector& position,
                                                            const G4double       t) const;
   
 private:
   BDSFieldMag* coilField;
-  BDSFieldEM*  rfField;
+  BDSFieldEM* rfField;
+  std::vector< std::pair<G4ThreeVector, BDSFieldEM*> >  rfFieldVector;
 };
 
 #endif

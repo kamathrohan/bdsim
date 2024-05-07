@@ -1,0 +1,387 @@
+diff --git a/bdsim.cc b/bdsim.cc
+index 48da5c9bb..a393059a1 100644
+--- a/bdsim.cc
++++ b/bdsim.cc
+@@ -37,6 +37,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
+ int main(int argc, char** argv)
+ {
+   BDSIM* bds = nullptr;
++  std::cerr << "bdsim.cc" << std::endl;
+   try
+     {
+       bds = new BDSIM(argc, argv);
+diff --git a/include/BDSFieldEMMuonCooler.hh b/include/BDSFieldEMMuonCooler.hh
+index eaa468ee0..0b76059e1 100644
+--- a/include/BDSFieldEMMuonCooler.hh
++++ b/include/BDSFieldEMMuonCooler.hh
+@@ -44,13 +44,17 @@ public:
+                        G4double brho);
+   virtual ~BDSFieldEMMuonCooler();
+ 
++  virtual void BuildMagnets(const BDSFieldInfoExtraMuonCooler* info);
++  virtual void BuildRF(const BDSFieldInfoExtraMuonCooler* info);
++
+   /// Accessor to get B and E field.
+   virtual std::pair<G4ThreeVector, G4ThreeVector> GetField(const G4ThreeVector& position,
+                                                            const G4double       t) const;
+   
+ private:
+   BDSFieldMag* coilField;
+-  BDSFieldEM*  rfField;
++  BDSFieldEM* rfField;
++  std::vector< std::pair<G4ThreeVector, BDSFieldEM*> >  rfFieldVector;
+ };
+ 
+ #endif
+diff --git a/include/BDSFieldInfoExtra.hh b/include/BDSFieldInfoExtra.hh
+index 8b916598f..6507341fd 100644
+--- a/include/BDSFieldInfoExtra.hh
++++ b/include/BDSFieldInfoExtra.hh
+@@ -71,8 +71,8 @@ public:
+ 
+   BDSFieldType magneticFieldType; ///< Type of the magnetic sub-field.
+   BDSFieldType electricFieldType; ///< Type of the electric sub-field.
+-  std::vector<BDS::MuonCoolerCoilInfo> coilInfos;
+-  std::vector<BDS::MuonCoolerCavityInfo> cavityInfos;
++  std::vector<BDS::MuonCoolerCoilInfo> coilInfos; // defined in BDSMuonCooliderStructs
++  std::vector<BDS::MuonCoolerCavityInfo> cavityInfos; // defined in BDSMuonCooliderStructs
+ 
+   virtual BDSFieldInfoExtra* Clone() const {return new BDSFieldInfoExtraMuonCooler(*this);}
+ };
+diff --git a/include/BDSMuonCoolerStructs.hh b/include/BDSMuonCoolerStructs.hh
+index 499a6c746..66837142f 100644
+--- a/include/BDSMuonCoolerStructs.hh
++++ b/include/BDSMuonCoolerStructs.hh
+@@ -43,6 +43,9 @@ namespace BDS
+   {
+     G4double    offsetZ;
+     G4double    lengthZ;
++    G4double    peakEField;
++    G4double    frequency;
++    G4double    phaseOffset;
+     G4Material* vacuumMaterial;
+     G4double    windowThickness;
+     G4Material* windowMaterial;
+@@ -50,7 +53,7 @@ namespace BDS
+     G4Material* cavityMaterial;
+     G4double    cavityRadius;
+     G4double    cavityThickness;
+-    BDSFieldInfo* fieldRecipe;
++    G4double    timeOffset;
+   };
+ 
+   struct MuonCoolerAbsorberInfo
+diff --git a/parser/coolingchannel.cc b/parser/coolingchannel.cc
+index ab9feae0f..cca1c943f 100644
+--- a/parser/coolingchannel.cc
++++ b/parser/coolingchannel.cc
+@@ -63,6 +63,7 @@ void CoolingChannel::clear()
+   rfCavityVacuumMaterial.clear();
+   rfCavityRadius.clear();
+   rfCavityThickness.clear();
++  rfTimeOffset.clear();
+   integrator = "g4classicalrk4";
+   magneticFieldModel = "solenoidblock";
+   electricFieldModel = "rfcavity";
+@@ -73,6 +74,10 @@ void CoolingChannel::PublishMembers()
+   publish("name",                 &CoolingChannel::name);
+ 
+   publish("surroundingMaterial",  &CoolingChannel::surroundingMaterial);
++
++  publish("nCells",               &CoolingChannel::nCells);
++  publish("cellLengthZ",          &CoolingChannel::cellLengthZ);
++
+   
+   publish("nCoils",               &CoolingChannel::nCoils);
+   publish("coilInnerRadius",      &CoolingChannel::coilInnerRadius);
+@@ -109,6 +114,7 @@ void CoolingChannel::PublishMembers()
+   publish("rfCavityVacuumMaterial", &CoolingChannel::rfCavityVacuumMaterial);
+   publish("rfCavityRadius",    &CoolingChannel::rfCavityRadius);
+   publish("rfCavityThickness", &CoolingChannel::rfCavityThickness);
++  publish("rfTimeOffset",      &CoolingChannel::rfTimeOffset);
+ 
+   publish("integrator",        &CoolingChannel::integrator);
+   publish("magneticFieldModel",&CoolingChannel::magneticFieldModel);
+@@ -143,6 +149,7 @@ void CoolingChannel::PublishMembers()
+   attribute_map_list_string["rfCavityMaterial"]    = &rfCavityMaterial;
+   attribute_map_list_double["rfCavityRadius"]      = &rfCavityRadius;
+   attribute_map_list_double["rfCavityThickness"]   = &rfCavityThickness;
++  attribute_map_list_double["rfTimeOffset"]        = &rfTimeOffset;
+   // integrator, magneticFieldModel and electricFieldModel can't be lists or arrays, so don't include here
+ }
+ 
+@@ -186,6 +193,7 @@ void CoolingChannel::print()const
+ 	    << "rfCavityMaterial "           << rfCavityMaterial           << std::endl
+ 	    << "rfCavityRadius "             << rfCavityRadius             << std::endl
+ 	    << "rfCavityThickness "          << rfCavityThickness          << std::endl
++      << "rfTimeOffset "               << rfTimeOffset               << std::endl
+ 	    << "integrator "                 << integrator                 << std::endl
+ 	    << "magneticFieldModel "         << magneticFieldModel         << std::endl
+ 	    << "electricFieldModel "         << electricFieldModel         << std::endl;
+diff --git a/parser/coolingchannel.h b/parser/coolingchannel.h
+index f8d7e6c21..38644d6dd 100644
+--- a/parser/coolingchannel.h
++++ b/parser/coolingchannel.h
+@@ -42,6 +42,9 @@ namespace GMAD
+ 
+     std::string surroundingMaterial;
+     
++    int                    nCells;
++    double                 cellLengthZ;
++
+     int                    nCoils;
+     std::list<double>      coilInnerRadius;
+     std::list<double>      coilRadialThickness;
+@@ -77,6 +80,7 @@ namespace GMAD
+     std::list<std::string> rfCavityVacuumMaterial;
+     std::list<double>      rfCavityRadius;
+     std::list<double>      rfCavityThickness;
++    std::list<double>      rfTimeOffset;
+   
+     std::string integrator;
+     std::string magneticFieldModel;
+diff --git a/parser/parser.cc b/parser/parser.cc
+index 636399b06..2ea1d00a1 100644
+--- a/parser/parser.cc
++++ b/parser/parser.cc
+@@ -125,6 +125,7 @@ Parser::~Parser()
+ 
+ Parser::Parser(std::string name)
+ {
++  std::cerr << "GMAD::Parser::ctor(std::string)" << std::endl;
+   instance = this;
+ #ifdef BDSDEBUG
+   std::cout << "gmad_parser> opening file" << std::endl;
+@@ -586,12 +587,13 @@ void Parser::add_sampler(const std::string& name, int count, ElementType type, s
+ 
+ Element& Parser::find_element(const std::string& element_name)
+ {
++  std::cerr << "GMAD::Parser::find_element " << std::endl;
+   std::list<Element>::iterator it = element_list.find(element_name);
+   std::list<Element>::const_iterator iterEnd = element_list.end();
+ 
+   if(it == iterEnd)
+     {
+-      std::cerr << "parser.h> Error: element (type) \"" << element_name
++      std::cerr << "parser.h> Error: AA element (type) \"" << element_name
+ 		<< "\" has not been defined." << std::endl;
+       exit(1);
+     }
+diff --git a/src/BDSComponentFactory.cc b/src/BDSComponentFactory.cc
+index a8abd92a2..06def7d24 100644
+--- a/src/BDSComponentFactory.cc
++++ b/src/BDSComponentFactory.cc
+@@ -123,6 +123,7 @@ BDSComponentFactory::BDSComponentFactory(const BDSParticleDefinition* designPart
+   currentArcLength(0),
+   integratorSetType(BDSGlobalConstants::Instance()->IntegratorSet())
+ {
++  std::cerr << "BDSComponentFactory ctor" << std::endl;
+   if (!designParticle)
+     {throw BDSException(__METHOD_NAME__, "no valid design particle - required.");}
+   brho  = designParticle->BRho();
+diff --git a/src/BDSFieldEMMuonCooler.cc b/src/BDSFieldEMMuonCooler.cc
+index 416379ca2..056ad925b 100644
+--- a/src/BDSFieldEMMuonCooler.cc
++++ b/src/BDSFieldEMMuonCooler.cc
+@@ -25,6 +25,8 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
+ #include "BDSFieldMagSolenoidLoop.hh"
+ #include "BDSFieldMagVectorSum.hh"
+ #include "BDSFieldMag.hh"
++#include "BDSFieldEMVectorSum.hh"
++#include "BDSFieldEMRFCavity.hh"
+ #include "BDSFieldType.hh"
+ #include "BDSMuonCoolerStructs.hh"
+ #include "BDSUtilities.hh"
+@@ -40,6 +42,11 @@ BDSFieldEMMuonCooler::BDSFieldEMMuonCooler(const BDSFieldInfoExtraMuonCooler* in
+   coilField(nullptr),
+   rfField(nullptr)
+ {
++  BuildMagnets(info);
++  BuildRF(info);
++}
++
++void BDSFieldEMMuonCooler::BuildMagnets(const BDSFieldInfoExtraMuonCooler* info) {
+   switch (info->magneticFieldType.underlying())
+     {
+     case BDSFieldType::solenoidblock:
+@@ -100,6 +107,26 @@ BDSFieldEMMuonCooler::BDSFieldEMMuonCooler(const BDSFieldInfoExtraMuonCooler* in
+     }
+ }
+ 
++void BDSFieldEMMuonCooler::BuildRF(const BDSFieldInfoExtraMuonCooler* info) {
++      const auto& cavityInfos = info->cavityInfos;
++      std::vector<G4ThreeVector> fieldOffsets;
++      BDSFieldEMVectorSum* emSum = new BDSFieldEMVectorSum();
++      for (const auto& ci : cavityInfos)
++        {
++          BDSFieldEMRFCavity* rfCav = new BDSFieldEMRFCavity(
++               ci.peakEField,
++               ci.frequency,
++               ci.phaseOffset,
++               ci.cavityRadius);
++          double lengthZ = ci.lengthZ;
++          std::cerr << "BDSFieldEMMuonCoolder::BuildRF " << ci.offsetZ << std::endl;
++          G4ThreeVector posOffset(0.0, 0.0, ci.offsetZ);
++          double tOffset = ci.timeOffset;
++          emSum->PushBackField(posOffset, tOffset, lengthZ, rfCav);
++        }
++      rfField = emSum;
++}
++
+ BDSFieldEMMuonCooler::~BDSFieldEMMuonCooler()
+ {
+   delete coilField;
+@@ -109,12 +136,8 @@ BDSFieldEMMuonCooler::~BDSFieldEMMuonCooler()
+ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMMuonCooler::GetField(const G4ThreeVector& position,
+                                                                        const G4double       t) const
+ {
+-  auto cf  = coilField->GetField(position, t);
+-  //auto rff = rfField->GetField(position, t);
+-  auto rff = std::make_pair(G4ThreeVector(), G4ThreeVector());
+-  // only rf has E field, but both have B -> sum B field
+-  G4ThreeVector b  = cf + rff.first;
+-  
+-  auto result = std::make_pair(b, rff.second);
++  auto result = rfField->GetField(position, t); // result is a pair like <Bfield, Efield>
++  G4ThreeVector bfieldOut = coilField->GetField(position, t);
++  result.first += bfieldOut;
+   return result;
+ }
+diff --git a/src/BDSFieldEMRFCavity.cc b/src/BDSFieldEMRFCavity.cc
+index fb21239ef..4d3570f12 100644
+--- a/src/BDSFieldEMRFCavity.cc
++++ b/src/BDSFieldEMRFCavity.cc
+@@ -60,6 +60,7 @@ BDSFieldEMRFCavity::BDSFieldEMRFCavity(G4double eFieldAmplitude,
+   // this would cause NANs to be propagated into tracking which is really bad
+   if (!BDS::IsFinite(cavityRadiusIn) || std::isnan(normalisedCavityRadius) || std::isinf(normalisedCavityRadius))
+     {throw BDSException(__METHOD_NAME__, "no cavity radius supplied - required for pill box model");}
++  std::cerr << "BDSFieldEMRFCavity::Ctor " << angularFrequency << " " << frequencyIn << std::endl;
+ }
+ 
+ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMRFCavity::GetField(const G4ThreeVector& position,
+@@ -86,7 +87,7 @@ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMRFCavity::GetField(const G4Thr
+   G4double Bmax = hMax * CLHEP::mu0;
+ 
+   // Calculating field components.
+-  G4double zFactor = std::cos(CLHEP::twopi*position.z() / wavelength);
++  G4double zFactor = 1.0; //std::cos(CLHEP::twopi*position.z() / wavelength); CHECK - I don't think this is right (Rogers)
+   G4double Ez   = eFieldMax * J0r * std::cos(angularFrequency*t + phase) * zFactor;
+   G4double Bphi = Bmax * J1r * std::sin(angularFrequency*t + phase) * zFactor;
+ 
+diff --git a/src/BDSFieldFactory.cc b/src/BDSFieldFactory.cc
+index 4ece732c5..6f48d5561 100644
+--- a/src/BDSFieldFactory.cc
++++ b/src/BDSFieldFactory.cc
+@@ -1321,6 +1321,7 @@ G4double BDSFieldFactory::GetOuterScaling(const BDSMagnetStrength* st) const
+ BDSFieldEM* BDSFieldFactory::CreateMuonCoolerField(const BDSFieldInfo& info,
+                                                    G4double brho) const
+ {
++  std::cerr << "BDSFieldFactory::CreateMuonCoolerField " << std::endl;
+   BDSFieldInfoExtra* extraInfo = info.ExtraInfo();
+   BDSFieldInfoExtraMuonCooler* mcExtraInfo = dynamic_cast<BDSFieldInfoExtraMuonCooler*>(extraInfo);
+   if (!mcExtraInfo) // shouldn't happen, but just for safety
+diff --git a/src/BDSIMClass.cc b/src/BDSIMClass.cc
+index f874a9c5a..ab7e87153 100644
+--- a/src/BDSIMClass.cc
++++ b/src/BDSIMClass.cc
+@@ -124,6 +124,7 @@ int BDSIM::Initialise(int argc, char** argv, bool usualPrintOutIn)
+ 
+ int BDSIM::Initialise()
+ {
++  std::cerr << "BDSIM::Initialise" << std::endl;
+   /// Initialize executable command line options reader object
+   const BDSExecOptions* execOptions = new BDSExecOptions(argcCache,argvCache);
+   if (usualPrintOut)
+@@ -134,9 +135,11 @@ int BDSIM::Initialise()
+ #ifdef BDSDEBUG
+   G4cout << __METHOD_NAME__ << "DEBUG mode is on." << G4endl;
+ #endif
++  std::cerr << "BDSParser::Instance" << std::endl;
+ 
+   /// Parse lattice file
+   parser = BDSParser::Instance(execOptions->InputFileName());
++  std::cerr << "BDSParser::Instance Done" << std::endl;
+   /// Update options generated by parser with those from executable options.
+   parser->AmalgamateOptions(execOptions->Options());
+   parser->AmalgamateBeam(execOptions->Beam(), execOptions->Options().recreate);
+diff --git a/src/BDSMuonCoolerBuilder.cc b/src/BDSMuonCoolerBuilder.cc
+index a759761b9..0b4faaf42 100644
+--- a/src/BDSMuonCoolerBuilder.cc
++++ b/src/BDSMuonCoolerBuilder.cc
+@@ -52,6 +52,8 @@ BDSMuonCooler* BDS::BuildMuonCooler(const GMAD::Element* element,
+ {
+   // retrieve definition from parser
+   const GMAD::CoolingChannel* definition = BDSParser::Instance()->GetCoolingChannel(element->coolingDefinition);
++  std::cerr << "BDS::BuildMuonCoolder \n";
++  definition->print();
+   if (!definition)
+     {throw BDSException(__METHOD_NAME__, "no such cooling definition \"" + element->coolingDefinition + "\" defined in input.");}
+   
+@@ -329,7 +331,8 @@ std::vector<BDS::MuonCoolerCavityInfo> BDS::BuildMuonCoolerCavityInfos(const GMA
+                                            "rfWindowThickness",
+                                            "rfWindowRadius",
+                                            "rfCavityRadius",
+-                                           "rfCavityThickness"};
++                                           "rfCavityThickness",
++                                           "rfTimeOffset"};
+   std::vector<const std::list<double>*> rfVars = {&(definition->rfOffsetZ),
+                                                   &(definition->rfLength),
+                                                   &(definition->rfVoltage),
+@@ -338,7 +341,8 @@ std::vector<BDS::MuonCoolerCavityInfo> BDS::BuildMuonCoolerCavityInfos(const GMA
+                                                   &(definition->rfWindowThickness),
+                                                   &(definition->rfWindowRadius),
+                                                   &(definition->rfCavityRadius),
+-                                                  &(definition->rfCavityThickness)};
++                                                  &(definition->rfCavityThickness),
++                                                  &(definition->rfTimeOffset)};
+   std::vector<std::vector<double> > rfVarsV;
+   BDS::MuonParamsToVector(definition->name,
+                           rfVars,
+@@ -366,9 +370,12 @@ std::vector<BDS::MuonCoolerCavityInfo> BDS::BuildMuonCoolerCavityInfos(const GMA
+ 
+   // build cavity infos
+   for (G4int i = 0; i < nRFCavities; i++)
+-    {
++    { // BUG: CHECK system of units
+       BDS::MuonCoolerCavityInfo info = {rfVarsV[0][i] * CLHEP::m, // offsetZ
+                                         rfVarsV[1][i] * CLHEP::m, // lengthZ
++                                        rfVarsV[2][i] * CLHEP::megavolt / CLHEP::meter, // peakEfield
++                                        0.704, /* BUUUGGGGG */           // frequency
++                                        rfVarsV[4][i], // phaseOffset [radians]
+                                         cavityVacuumMaterials[i], // cavity vacuum material
+                                         rfVarsV[5][i] * CLHEP::m, // windowThickness
+                                         windowMaterials[i],       // window material
+@@ -376,8 +383,10 @@ std::vector<BDS::MuonCoolerCavityInfo> BDS::BuildMuonCoolerCavityInfos(const GMA
+                                         cavityMaterials[i],       // cavity material
+                                         rfVarsV[7][i] * CLHEP::m, // cavityRadius
+                                         rfVarsV[8][i] * CLHEP::m, // cavityThickness
+-                                        nullptr};                 // no field recipe for now
++                                        rfVarsV[9][i], // timeOffset [radians]
++                                        };
+       result.push_back(info);
++      std::cerr << "BDSMuonCoolerBuilder " << info.frequency << std::endl;
+     }
+   
+   return result;
+diff --git a/src/BDSParser.cc b/src/BDSParser.cc
+index 1f13f008c..bcff5f2fb 100644
+--- a/src/BDSParser.cc
++++ b/src/BDSParser.cc
+@@ -44,7 +44,9 @@ BDSParser* BDSParser::Instance(const std::string& name)
+       std::cerr << "WARNING BDSParser was already initialised!" << std::endl;
+       delete instance;
+     }
++  std::cerr << "BDSParser::instance(std::string)" << std::endl;
+   instance = new BDSParser(name);
++  std::cerr << "BDSParser::instance(std::string) done" << std::endl;
+   return instance;
+ }
+ 
+@@ -63,6 +65,7 @@ BDSParser::BDSParser(const std::string& name):
+   GMAD::Parser(name),
+   coolingChannelObjectMap(nullptr)
+ {
++  std::cerr << "BDSParser::ctor(std::string)" << std::endl;
+   std::cout << __METHOD_NAME__ << "Using input file: "<< name << std::endl;
+ }
+ 

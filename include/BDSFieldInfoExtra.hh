@@ -71,8 +71,8 @@ public:
 
   BDSFieldType magneticFieldType; ///< Type of the magnetic sub-field.
   BDSFieldType electricFieldType; ///< Type of the electric sub-field.
-  std::vector<BDS::MuonCoolerCoilInfo> coilInfos;
-  std::vector<BDS::MuonCoolerCavityInfo> cavityInfos;
+  std::vector<BDS::MuonCoolerCoilInfo> coilInfos; // defined in BDSMuonCooliderStructs
+  std::vector<BDS::MuonCoolerCavityInfo> cavityInfos; // defined in BDSMuonCooliderStructs
 
   virtual BDSFieldInfoExtra* Clone() const {return new BDSFieldInfoExtraMuonCooler(*this);}
 };

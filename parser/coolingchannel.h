@@ -42,6 +42,9 @@ namespace GMAD
 
     std::string surroundingMaterial;
     
+    int                    nCells;
+    double                 cellLengthZ;
+
     int                    nCoils;
     std::list<double>      coilInnerRadius;
     std::list<double>      coilRadialThickness;
@@ -77,6 +80,7 @@ namespace GMAD
     std::list<std::string> rfCavityVacuumMaterial;
     std::list<double>      rfCavityRadius;
     std::list<double>      rfCavityThickness;
+    std::list<double>      rfTimeOffset;
   
     std::string integrator;
     std::string magneticFieldModel;

@@ -44,7 +44,9 @@ BDSParser* BDSParser::Instance(const std::string& name)
       std::cerr << "WARNING BDSParser was already initialised!" << std::endl;
       delete instance;
     }
+  std::cerr << "BDSParser::instance(std::string)" << std::endl;
   instance = new BDSParser(name);
+  std::cerr << "BDSParser::instance(std::string) done" << std::endl;
   return instance;
 }
 
@@ -63,6 +65,7 @@ BDSParser::BDSParser(const std::string& name):
   GMAD::Parser(name),
   coolingChannelObjectMap(nullptr)
 {
+  std::cerr << "BDSParser::ctor(std::string)" << std::endl;
   std::cout << __METHOD_NAME__ << "Using input file: "<< name << std::endl;
 }
 

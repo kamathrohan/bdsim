@@ -60,6 +60,7 @@ BDSFieldEMRFCavity::BDSFieldEMRFCavity(G4double eFieldAmplitude,
   // this would cause NANs to be propagated into tracking which is really bad
   if (!BDS::IsFinite(cavityRadiusIn) || std::isnan(normalisedCavityRadius) || std::isinf(normalisedCavityRadius))
     {throw BDSException(__METHOD_NAME__, "no cavity radius supplied - required for pill box model");}
+  std::cerr << "BDSFieldEMRFCavity::Ctor " << angularFrequency << " " << frequencyIn << std::endl;
 }
 
 std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMRFCavity::GetField(const G4ThreeVector& position,
@@ -86,7 +87,7 @@ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMRFCavity::GetField(const G4Thr
   G4double Bmax = hMax * CLHEP::mu0;
 
   // Calculating field components.
-  G4double zFactor = std::cos(CLHEP::twopi*position.z() / wavelength);
+  G4double zFactor = 1.0; //std::cos(CLHEP::twopi*position.z() / wavelength); CHECK - I don't think this is right (Rogers)
   G4double Ez   = eFieldMax * J0r * std::cos(angularFrequency*t + phase) * zFactor;
   G4double Bphi = Bmax * J1r * std::sin(angularFrequency*t + phase) * zFactor;
 

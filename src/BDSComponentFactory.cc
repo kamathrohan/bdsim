@@ -123,6 +123,7 @@ BDSComponentFactory::BDSComponentFactory(const BDSParticleDefinition* designPart
   currentArcLength(0),
   integratorSetType(BDSGlobalConstants::Instance()->IntegratorSet())
 {
+  std::cerr << "BDSComponentFactory ctor" << std::endl;
   if (!designParticle)
     {throw BDSException(__METHOD_NAME__, "no valid design particle - required.");}
   brho  = designParticle->BRho();
