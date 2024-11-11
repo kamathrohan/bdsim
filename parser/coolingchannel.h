@@ -56,6 +56,13 @@ namespace GMAD
     double                 onAxisTolerance;
     int                    nSheets;
 
+    int                    nDipoles;
+    std::list<double>      dipoleAperture;
+    std::list<double>      dipoleLengthZ;
+    std::list<double>      dipoleCurrent;
+    std::list<double>      dipoleOffsetZ;
+    std::list<std::string> dipoleMaterial;
+
     int                    nAbsorbers;
     std::list<std::string> absorberType;
     std::list<std::string> absorberMaterial;

@@ -43,8 +43,16 @@ void CoolingChannel::clear()
   coilMaterial.clear();
   mirrorCoils = false;
   onAxisTolerance = 0;
-  nAbsorbers = 0;
   nSheets = 0;
+
+  nDipoles = 0;
+  dipoleAperture.clear();
+  dipoleLengthZ.clear();
+  dipoleCurrent.clear();
+  dipoleOffsetZ.clear();
+  dipoleMaterial.clear();
+ 
+  nAbsorbers = 0;
   absorberType.clear();
   absorberMaterial.clear();
   absorberOffsetZ.clear();
