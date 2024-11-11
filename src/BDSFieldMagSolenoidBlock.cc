@@ -68,7 +68,7 @@ BDSFieldMagSolenoidBlock::BDSFieldMagSolenoidBlock(G4double strength,
       B0 = strength;
       I = B0 * 2 * a / CLHEP::mu0;
     }
-  currentDensity = I*radialThickness*fullLengthZ/nSheetsBlock; //TODO: Check and change!
+  currentDensity = I*radialThickness*fullLengthZ/nSheetsBlock; // Current density in A/m^2 (TODO:Check)
 }
 
 G4ThreeVector BDSFieldMagSolenoidBlock::GetField(const G4ThreeVector& position,
