@@ -19,8 +19,9 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BDSCOMPONENTCONSTRUCTOR_H
 #define BDSCOMPONENTCONSTRUCTOR_H
 
+#include "globals.hh"
+
 class BDSAcceleratorComponent;
-class BDSBeamlineIntegral;
 namespace GMAD
 {
   struct Element;
@@ -29,12 +30,12 @@ namespace GMAD
 /**
  * @brief Interface class the developer should derive to construct their element.
  * 
- * One BDSComponentConstructor per one class that inherits BDSAcceleratorComponent.
- *
  * When creating a custom beam line component that inherits BDSAcceleratorComponent,
  * the developer should also create a class that inherits this one. This will implement
  * the one pure virtual method Construct() that will specify how to construct their
  * component from the parser element class (GMAD::Element) provided by the parser.
+ *
+ * One BDSComponentConstructer per one class that inherits BDSAcceleratorComponent.
  * 
  * @author Laurie Nevay
  */
@@ -52,7 +53,9 @@ public:
   virtual BDSAcceleratorComponent* Construct(GMAD::Element const* elementIn,
 					     GMAD::Element const* prevElementIn,
 					     GMAD::Element const* nextElementIn,
-					     const BDSBeamlineIntegral& integral) = 0;
+					     G4double currentArcLengthIn,
+					     G4double brhoIn,
+					     G4double beta0In) = 0;
 };
 
 #endif

@@ -132,8 +132,6 @@ public:
   inline G4bool              IsThin()                   const {return isThin;}
   inline BDSFieldInfoExtra*  ExtraInfo()                const {return extraInfo;}
   /// @}
-
-  G4double SynchronousT() const;
   
   G4Transform3D Transform() const;         ///< Transform for the field definition only.
   G4Transform3D TransformBeamline() const; ///< Transform from the curvilinear coordinates to the beam line component.

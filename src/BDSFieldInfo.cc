@@ -291,14 +291,6 @@ void BDSFieldInfo::Translate(const G4ThreeVector& translationIn)
   transform = newTransform;
 }
 
-G4double BDSFieldInfo::SynchronousT() const
-{
-  if (!magnetStrength)
-    {return 0;}
-  else
-    {return (*magnetStrength)["synchronousT0"];}
-}
-
 G4Transform3D BDSFieldInfo::Transform() const
 {
   return transform ? *transform : G4Transform3D::Identity;

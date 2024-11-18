@@ -20,24 +20,20 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "UDipoleConstructor.hh"
 
 #include "BDSAcceleratorComponent.hh"
-#include "BDSBeamlineIntegral.hh"
 #include "parser/element.h" // for GMAD::Element
 
-//#include "CLHEP/Units/PhysicalConstants.h"  // for c_light etc
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "G4String.hh"
-#include "G4Types.hh"  // for G4double, G4bool etc
+#include "G4Types.hh" // for G4String etc
 
 BDSAcceleratorComponent* UDipoleConstructor::Construct(GMAD::Element const* element,
 						       GMAD::Element const* /*prevElement*/,
 						       GMAD::Element const* /*nextElement*/,
-						       const BDSBeamlineIntegral& /*integral*/)
+						       G4double /*currentArcLength*/,
+						       G4double /*brhoIn*/,
+						       G4double /*beta0In*/)
 {
   G4String params = G4String(element->userParameters);
-
-  //G4double currentIntegratedArcLength = integral.arcLength;
-  //G4double synchronousGlobalTAtEndOfPreviousElement = integral.synchronousTAtEnd;
   
   // Here we pull out the information we want from the parser element and construct
   // one of our components and return it. BDSIM will delete this at the end.

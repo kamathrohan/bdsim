@@ -44,6 +44,9 @@ BDSIntegratorQuadrupole::BDSIntegratorQuadrupole(BDSMagnetStrength const* streng
   bPrime = std::abs(brho) * (*strength)["k1"] / CLHEP::m2;
 
   zeroStrength = !BDS::IsFiniteStrength(bPrime);
+#ifdef BDSDEBUG
+  G4cout << __METHOD_NAME__ << "B' = " << bPrime << G4endl;
+#endif
 }
 
 void BDSIntegratorQuadrupole::Stepper(const G4double yIn[],

@@ -72,8 +72,6 @@ namespace GMAD
 class BDSOutput: protected BDSOutputStructures
 {
 public:
-  /// No default constructor.
-  BDSOutput() = delete;
   /// Constructor with base file name (without extension or number suffix).
   BDSOutput(const G4String& baseFileNameIn,
             const G4String& fileExtentionIn,
@@ -290,6 +288,9 @@ private:
   void CopyFromHistToHist1D(const G4String& sourceName,
                             const G4String& destinationName,
                             const std::vector<G4int>& indices);
+
+  /// No default constructor.
+  BDSOutput() = delete;
   
   const G4String baseFileName;  ///< Base file name.
   const G4String fileExtension; ///< File extension to add to each file.

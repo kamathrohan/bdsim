@@ -37,7 +37,8 @@ BDSPhysicsGammaToMuMu::~BDSPhysicsGammaToMuMu()
 
 void BDSPhysicsGammaToMuMu::ConstructParticle()
 { 
-  G4LeptonConstructor::ConstructParticle();
+  G4LeptonConstructor leptons;
+  leptons.ConstructParticle();
 }
 
 void BDSPhysicsGammaToMuMu::ConstructProcess()

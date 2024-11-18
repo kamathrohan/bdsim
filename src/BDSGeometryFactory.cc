@@ -113,14 +113,10 @@ BDSGeometryExternal* BDSGeometryFactory::BuildGeometry(G4String               co
   // use it cautiously knowing all the instances will be identical
   // therefore we use a fixed nonsense name that someone is prevented from calling
   // a component (because it's an option)
-  G4String searchComponentName = componentName;
   if (dontReloadGeometry)
-    {searchComponentName = "dontReloadGeometry";}
-  // we must still build it with component name in case it's preprocessed. If we used
-  // 'dontReloadGeometry' then variables / stuff in that file could be degeneratively
-  // named in other unique geometry files that are loaded.
+    {componentName = "dontReloadGeometry";}
   
-  auto nameAndField = std::make_pair((std::string)searchName, searchComponentName);
+  auto nameAndField = std::make_pair(searchName, componentName);
   const auto search = registry.find(nameAndField);
   if (search != registry.end())
     {return search->second;}// it was found already in registry
@@ -153,7 +149,7 @@ BDSGeometryExternal* BDSGeometryFactory::BuildGeometry(G4String               co
         {result->StripOuterAndMakeAssemblyVolume();}
 
       // cache using optionally modified name
-      auto key = std::make_pair((std::string)searchName, searchComponentName);
+      auto key = std::make_pair((std::string)searchName, componentName);
       registry[key] = result;
       storage.insert(result);
     }

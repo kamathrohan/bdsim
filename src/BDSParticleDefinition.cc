@@ -268,8 +268,6 @@ void BDSParticleDefinition::CalculateLorentzFactors()
 
 void BDSParticleDefinition::ApplyChangeInKineticEnergy(G4double dEk)
 {
-  if (!BDS::IsFinite(dEk))
-    {return;}
   G4double newEk = kineticEnergy + dEk;
   if (newEk < 0)
     {

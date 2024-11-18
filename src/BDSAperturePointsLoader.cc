@@ -29,8 +29,6 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 #include <array>
-#include <exception>
-#include <fstream>
 #include <regex>
 #include <sstream>
 #include <string>

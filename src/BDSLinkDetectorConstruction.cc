@@ -19,7 +19,6 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSAcceleratorModel.hh"
 #include "BDSBeamline.hh"
 #include "BDSBeamlineElement.hh"
-#include "BDSBeamlineIntegral.hh"
 #include "BDSCollimatorJaw.hh"
 #include "BDSComponentFactory.hh"
 #include "BDSCrystalInfo.hh"
@@ -73,8 +72,7 @@ BDSLinkDetectorConstruction::BDSLinkDetectorConstruction():
 #if G4VERSION_NUMBER > 1039
   crystalBiasing(nullptr),
 #endif
-  samplerWorldID(-1),
-  integral(nullptr)
+  samplerWorldID(-1)
 {
   linkRegistry = new BDSLinkRegistry();
   BDSSDManager::Instance()->SetLinkRegistry(linkRegistry);
@@ -87,26 +85,20 @@ BDSLinkDetectorConstruction::~BDSLinkDetectorConstruction()
 #if G4VERSION_NUMBER > 1039
   delete crystalBiasing;
 #endif
-  delete integral;
 }
 
 G4VPhysicalVolume* BDSLinkDetectorConstruction::Construct()
 {
   BDSGlobalConstants* globalConstants = BDSGlobalConstants::Instance();
 
-  auto componentFactory = new BDSComponentFactory(nullptr, false);
+  auto componentFactory = new BDSComponentFactory(designParticle, nullptr, false);
   auto beamline = BDSParser::Instance()->GetBeamline();
 
   std::vector<BDSLinkOpaqueBox*> opaqueBoxes = {};
   linkBeamline = new BDSBeamline();
   
   auto acceleratorModel = BDSAcceleratorModel::Instance();
-  if (!integral)
-    {
-      if (!designParticle)
-        {throw BDSException(__METHOD_NAME__, "designParticle must be set first");}
-      integral = new BDSBeamlineIntegral(*designParticle);
-    }
+
   for (const auto& element : beamline)
     {
       GMAD::ElementType eType = element.type;
@@ -127,7 +119,7 @@ G4VPhysicalVolume* BDSLinkDetectorConstruction::Construct()
       BDSAcceleratorComponent* component = componentFactory->CreateComponent(&element,
 									     nullptr,
 									     nullptr,
-									     *integral);
+									     0);
 
       BDSTiltOffset* to = new BDSTiltOffset(element.offsetX * CLHEP::m,
                                             element.offsetY * CLHEP::m,
@@ -200,15 +192,8 @@ G4int BDSLinkDetectorConstruction::AddLinkCollimatorJaw(const std::string& colli
                                                         G4double crystalAngle,
                                                         G4bool   /*sampleIn*/)
 {
-  auto componentFactory = new BDSComponentFactory(nullptr, false);
-  if (!integral)
-    {
-      if (!designParticle)
-        {throw BDSException(__METHOD_NAME__, "designParticle must be set first");}
-      integral = new BDSBeamlineIntegral(*designParticle);
-    }
-  // TBC - here we could just update the synchronous time in the integral object if we need it
-  
+  auto componentFactory = new BDSComponentFactory(designParticle, nullptr, false);
+
   std::map<std::string, std::string> collimatorToCrystal =
     {
      {"cry.mio.b1", "stf75"},   // b1 h
@@ -305,7 +290,7 @@ G4int BDSLinkDetectorConstruction::AddLinkCollimatorJaw(const std::string& colli
     
   BDSAcceleratorComponent* component = nullptr;
   try
-    {component = componentFactory->CreateComponent(&el, nullptr, nullptr, *integral);}
+    {component = componentFactory->CreateComponent(&el, nullptr, nullptr, 0);}
   catch (const BDSException& e)
     {
       G4cout << e.what() << G4endl;
@@ -313,7 +298,7 @@ G4int BDSLinkDetectorConstruction::AddLinkCollimatorJaw(const std::string& colli
       // well it didn't work (maybe ridiculous unphysical gap - so replace it with a drift
       el.type = GMAD::ElementType::_DRIFT;
       el.apertureType = "circularvacuum";
-      component = componentFactory->CreateComponent(&el, nullptr, nullptr, *integral);
+      component = componentFactory->CreateComponent(&el, nullptr, nullptr, 0);
     }
 
   // wrap in box

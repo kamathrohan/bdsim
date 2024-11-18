@@ -86,13 +86,11 @@ BDSParticleCoords BDSParticleCoords::ApplyOffset(const G4ThreeVector& offset) co
 			   xp, yp, zp, T);
 }
 
-void BDSParticleCoords::AddOffset(const G4ThreeVector& offset,
-                                  G4double offsetT)
+void BDSParticleCoords::AddOffset(const G4ThreeVector& offset)
 {
   x += offset.x();
   y += offset.y();
   z += offset.z();
-  T += offsetT;
 }
 
 std::ostream& operator<< (std::ostream& out, BDSParticleCoords const& p)

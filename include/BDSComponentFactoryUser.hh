@@ -19,7 +19,6 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BDSCOMPONENTFACTORYUSER_H
 #define BDSCOMPONENTFACTORYUSER_H
 
-#include "BDSBeamlineIntegral.hh"
 #include "BDSFieldType.hh"
 #include "BDSMagnetStrength.hh"
 #include "BDSMagnetType.hh"
@@ -77,10 +76,18 @@ public:
 					      GMAD::Element const* elementIn,
 					      GMAD::Element const* prevElementIn,
 					      GMAD::Element const* nextElementIn,
-                const BDSBeamlineIntegral& integral);
+					      G4double currentArcLength = 0);
+
+
+  /// Update values for nominal rigidity and relativisitic beta of the beam particle.
+  void SetDesignParticle(const BDSParticleDefinition* designParticleIn);  
   
 private:
   /// Map of user component name with constructors to build a component.
   std::map<G4String, BDSComponentConstructor*> userFunctions;
+
+  const BDSParticleDefinition* designParticle; ///< Particle w.r.t. which elements are built.
+  G4double brho;  ///< Cache of nominal beam rigidity.
+  G4double beta0; ///< Cache of nominal relativistic beta for the beam particle.
 };
 #endif

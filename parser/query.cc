@@ -45,7 +45,7 @@ void Query::clear()
   outfileMagnetic = "";
   outfileElectric = "";
 
-  queryMagneticField = false;
+  queryMagneticField = true;
   queryElectricField = false;
   
   overwriteExistingFiles = true;

@@ -159,11 +159,6 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 BDSModularPhysicsList::BDSModularPhysicsList(const G4String& physicsList):
-  constructedAllLeptons(false),
-  constructedAllShortLived(false),
-  constructedAllMesons(false),
-  constructedAllBaryons(false),
-  constructedAllIons(false),
   temporaryName(""),
   opticalPhysics(nullptr),
   emWillBeUsed(false),
@@ -207,7 +202,6 @@ BDSModularPhysicsList::BDSModularPhysicsList(const G4String& physicsList):
   physicsConstructors.insert(std::make_pair("ion_elastic_qmd",        &BDSModularPhysicsList::IonElasticQMD));
   physicsConstructors.insert(std::make_pair("ion_em_dissociation",    &BDSModularPhysicsList::IonEMDissociation));
   physicsConstructors.insert(std::make_pair("ion_inclxx",             &BDSModularPhysicsList::IonINCLXX));
-  physicsConstructors.insert(std::make_pair("ionisation",             &BDSModularPhysicsList::Ionisation));
   physicsConstructors.insert(std::make_pair("ionisation",             &BDSModularPhysicsList::Ionisation));
   physicsConstructors.insert(std::make_pair("lw",                     &BDSModularPhysicsList::LaserWire));
   physicsConstructors.insert(std::make_pair("muon",                   &BDSModularPhysicsList::Muon));
@@ -298,7 +292,6 @@ BDSModularPhysicsList::BDSModularPhysicsList(const G4String& physicsList):
   incompatible["hadronic_elastic_lend"] = {"hadronic_elastic",   "hadronic_elastic_d", "hadronic_elastic_h",  "hadronic_elastic_hp",   "hadronic_elastic_xs"};
   incompatible["hadronic_elastic_xs"]   = {"hadronic_elastic",   "hadronic_elastic_d", "hadronic_elastic_h",  "hadronic_elastic_hp",   "hadronic_elastic_lend"};
   incompatible["ion_elastic"] = {"ion_elastic_qmd"};
-  incompatible["ionisation"] = {"em", "em_ss", "em_1", "em_2", "em_3", "em_4", "em_livermore"};
   incompatible["ionisation"] = {"em", "em_ss", "em_1", "em_2", "em_3", "em_4", "em_livermore"};
   incompatible["qgsp_bert"]    = {"ftfp_bert", "ftfp_bert_hp", "qgsp_bert_hp", "qgsp_bic",     "qgsp_bic_hp"};
   incompatible["qgsp_bert_hp"] = {"ftfp_bert", "ftfp_bert_hp", "qgsp_bert",    "qgsp_bic",     "qgsp_bic_hp"};
@@ -418,44 +411,29 @@ void BDSModularPhysicsList::ParsePhysicsList(const G4String& physListName)
 
 void BDSModularPhysicsList::ConstructAllLeptons()
 {
-  if (constructedAllLeptons)
-    {return;}
   G4LeptonConstructor::ConstructParticle();
-  constructedAllLeptons = true;
 }
 
 void BDSModularPhysicsList::ConstructAllShortLived()
 {
-  if (constructedAllShortLived)
-    {return;}
   G4ShortLivedConstructor::ConstructParticle();
-  constructedAllShortLived = true;
 }
 
 void BDSModularPhysicsList::ConstructAllMesons()
 {
-  if (constructedAllMesons)
-    {return;}
   G4MesonConstructor::ConstructParticle();
-  constructedAllMesons = true;
 }
 
 void BDSModularPhysicsList::ConstructAllBaryons()
 {
-  if (constructedAllBaryons)
-    {return;}
   G4BaryonConstructor::ConstructParticle();
-  constructedAllBaryons = true;
 }
 
 void BDSModularPhysicsList::ConstructAllIons()
 {
-  if (constructedAllIons)
-    {return;}
   usingIons = true; // all physics lists that use ions call this function so put this here
   G4GenericIon::GenericIonDefinition();
   G4IonConstructor::ConstructParticle();
-  constructedAllIons = true;
 }
 
 void BDSModularPhysicsList::ConfigurePhysics()
@@ -928,6 +906,7 @@ void BDSModularPhysicsList::Ionisation()
       physicsActivated["ionisation"] = true;
     }
 }
+
 
 void BDSModularPhysicsList::LaserWire()
 {

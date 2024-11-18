@@ -1,3 +1,0 @@
-include rigidity-w-acceleration.gmad;
-
-option, integratorSet="geant4";

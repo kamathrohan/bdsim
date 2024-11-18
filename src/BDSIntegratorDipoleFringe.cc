@@ -47,7 +47,7 @@ BDSIntegratorDipoleFringe::BDSIntegratorDipoleFringe(BDSMagnetStrength const* st
   if (thinElementLength < 0)
     {thinElementLength = BDSGlobalConstants::Instance()->ThinElementLength();}
 
-  if (G4bool((*strengthIn)["isentrance"]))
+  if ((*strengthIn)["isentrance"])
     {
       polefaceAngle = (*strengthIn)["e1"];
       polefaceCurvature = (*strengthIn)["h1"];

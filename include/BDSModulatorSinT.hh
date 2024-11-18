@@ -36,7 +36,6 @@ public:
   BDSModulatorSinT() = delete;
   explicit BDSModulatorSinT(G4double frequencyIn,
                             G4double phaseIn            = 0,
-                            G4double synchronousTIn     = 0,
                             G4double amplitudeOffsetIn  = 0,
                             G4double amplitudeScaleIn   = 1.0);
   virtual ~BDSModulatorSinT() = default;
@@ -47,13 +46,12 @@ public:
   
   virtual G4bool VariesWithTime() const {return true;}
   
-  /// Return the wavelength / 20 of the oscillator.
+  /// Return the wavlength / 20 of the oscillator.
   virtual G4double RecommendedMaxStepLength() const;
 
 private:
   G4double angularFrequency;
   G4double phase;
-  G4double synchronousT;
   G4double offset;
   G4double scale;
 };

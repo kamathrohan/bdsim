@@ -62,7 +62,7 @@ public:
   int GetNbinsE() const;
   const char* GetName() const override;
   const char* GetTitle() const override;
-  unsigned long GetEntries_BDSBH4D() const;
+  unsigned long GetEntries_BDSBH4D();
   
   void SetName(const char*) override;
   void SetTitle(const char*) override;

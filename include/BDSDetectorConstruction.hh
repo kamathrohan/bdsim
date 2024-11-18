@@ -49,7 +49,6 @@ namespace GMAD {
 
 class BDSAcceleratorModel;
 class BDSBeamline;
-class BDSBeamlineIntegral;
 class BDSBeamlineSet;
 class BDSComponentFactoryUser;
 class BDSFieldObjects;
@@ -94,7 +93,7 @@ public:
   /// constructed as we go along in the component factory.
   void BuildPhysicsBias();
 
-  /// Set the (initial) design particle definition.
+  /// Set the design particle definition.
   inline void SetDesignParticle(const BDSParticleDefinition* defIn) {designParticle = defIn;}
 
   /// Public access to the world extent.
@@ -196,12 +195,11 @@ private:
   /// BDSComponentFactory and put in a BDSBeamline container that calculates coordinates
   /// and extents of the beamline.
   BDSBeamlineSet BuildBeamline(const GMAD::FastList<GMAD::Element>& beamLine,
-                               const G4String&            name,
-                               const BDSBeamlineIntegral& startingIntegral,
-                               BDSBeamlineIntegral*&      integral,
-                               const G4Transform3D&       initialTransform    = G4Transform3D(),
-                               G4bool                     beamlineIsCircular  = false,
-                               G4bool                     isPlacementBeamline = false);
+			       const G4String&      name,
+			       const G4Transform3D& initialTransform   = G4Transform3D(),
+			       G4double             initialS           = 0.0,
+			       G4bool               beamlineIsCircular = false,
+			       G4bool               isPlacementBeamline= false);
 
   /// Build the tunnel around the already constructed flat beam line.
   void BuildTunnel();
