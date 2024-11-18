@@ -1,0 +1,3 @@
+include rigidity-w-acceleration.gmad;
+
+option, integrateKineticEnergyAlongBeamline=0;

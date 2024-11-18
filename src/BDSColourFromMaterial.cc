@@ -81,7 +81,6 @@ BDSColourFromMaterial::BDSColourFromMaterial()
   defines["sulphur"]     = c->GetColour("yellow");
   defines["s"]           = defines["sulphur"];
   defines["vacuum"]      = defines["air"];
-  defines["water"]       = c->GetColour("water:0 102 204 0.5");
   
   // for older versions of Geant4 < V11 we have to use G4DataVector which
   // can't use list initialisation. In V11 onwards, G4PhysicsFreeVector
@@ -101,7 +100,6 @@ G4Colour* BDSColourFromMaterial::GetColour(const G4Material* material,
 {
   G4String materialName = material->GetName();
   materialName = BDS::LowerCase(materialName);
-  //G4cout << "original material name " << materialName << G4endl;
 
   // strip off g4 so we don't have to define duplicates of everything
   std::string toErase = "g4_";

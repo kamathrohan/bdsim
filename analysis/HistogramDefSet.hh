@@ -50,6 +50,12 @@ public:
   std::string RemoveSubString(const std::string& stringIn,
                               const std::string& wordToRemove) const;
 
+  void ReplaceStringInVariable(const std::string& match,
+                               const std::string& replacement);
+
+  enum class samplertype {plane, cylindrical, spherical};
+  void SetSamplerType(samplertype stIn) {samplerType = stIn;}
+
   friend std::ostream& operator<< (std::ostream &out, const HistogramDefSet& s);
 
   std::string   branchName;
@@ -64,6 +70,7 @@ public:
   int           topN;
 
   std::string   definitionLine; ///< Original definition line purely for print out.
+  samplertype samplerType;
 };
 
 #endif

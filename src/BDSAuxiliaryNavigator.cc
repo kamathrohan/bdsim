@@ -200,10 +200,10 @@ BDSStep BDSAuxiliaryNavigator::ConvertToLocal(const G4ThreeVector& globalPositio
   // else pass: point = globalPosition
   
   auto selectedVol = LocateGlobalPointAndSetup(point,
-					       &globalDirection,
-					       true,  // relative search
-					       false, // don't ignore direction, ie use it
-					       useCurvilinear);
+                                               &globalDirection,
+                                               true,  // relative search
+                                               false, // don't ignore direction, ie use it
+                                               useCurvilinear);
 #ifdef BDSDEBUGNAV
   G4cout << __METHOD_NAME__ << selectedVol->GetName() << G4endl;
 #endif

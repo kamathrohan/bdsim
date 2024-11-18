@@ -261,6 +261,8 @@ void Options::PublishMembers()
   publish("yokeFieldsMatchLHCGeometry", &Options::yokeFieldsMatchLHCGeometry);
   publish("useOldMultipoleOuterFields", &Options::useOldMultipoleOuterFields);
   publish("scalingFieldOuter",    &Options::scalingFieldOuter);
+  publish("integrateKineticEnergyAlongBeamline", &Options::integrateKineticEnergyAlongBeamline);
+  publish("cavityFieldType",      &Options::cavityFieldType);
   publish("includeFringeFields",  &Options::includeFringeFields);
   publish("includeFringeFieldsCavities", &Options::includeFringeFieldsCavities);
   publish("beampipeRadius",       &Options::aper1);

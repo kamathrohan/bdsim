@@ -48,16 +48,16 @@ public:
   
   /// Constructor intended for use to construct an event analysis object.
   EventAnalysis(Event*   eventIn,
-		TChain*  chain,
-		bool     perEntryAnalysis    = true,
-		bool     processSamplersIn   = true,
-		bool     debugIn             = false,
-    bool     printOutIn          = true,
-		double   printModuloFraction = 0.01,
-		bool     emittanceOnTheFlyIn = false,
-		long int eventStartIn        = 0,
-		long int eventEndIn          = -1,
-		const std::string& primaryParticleName = "");
+                TChain*  chain,
+                bool     perEntryAnalysis    = true,
+                bool     processSamplersIn   = true,
+                bool     debugIn             = false,
+                bool     printOutIn          = true,
+                double   printModuloFraction = 0.01,
+                bool     emittanceOnTheFlyIn = false,
+                long int eventStartIn        = 0,
+                long int eventEndIn          = -1,
+                const std::string& primaryParticleName = "");
 
   virtual ~EventAnalysis() noexcept;
 
@@ -99,6 +99,13 @@ private:
 
   /// Process each sampler analysis object.
   void ProcessSamplers(bool firstTime = false);
+
+  /// The data is different for different sampler types and therefore we must
+  /// specialise the PerEntryHistogramSet. This delegator function constructs
+  /// the right one.
+  PerEntryHistogramSet* ConstructPerEntryHistogramSet(const HistogramDefSet* definitionIn,
+                                                      Event*                 eventIn,
+                                                      TChain*                chainIn) const;
 
   bool printOut;          ///< Whether to print out at all per-event.
   int  printModulo;       ///< Cache of print modulo fraction

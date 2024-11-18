@@ -353,7 +353,8 @@ BDSBeamline* BDSTunnelBuilder::BuildTunnelSections(const BDSBeamline* flatBeamli
                                                                      endRot2,        // referenceRotationEnd
                                                                      sStart,         // sPositionStart
                                                                      sMid,           // sPositionMiddle
-                                                                     sEnd);          // sPositionEnd
+                                                                     sEnd,           // sPositionEnd
+                                                                     0.0);
 
           // store segment in tunnel beam line
           tunnelLine->AddBeamlineElement(tunnelElement);

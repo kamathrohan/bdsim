@@ -18,30 +18,18 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSComponentConstructor.hh"
 #include "BDSComponentFactoryUser.hh"
-#include "BDSParticleDefinition.hh"
 
-#include "globals.hh"
+#include "G4Types.hh"
 
 #include <map>
-#include <string>
 
-BDSComponentFactoryUser::BDSComponentFactoryUser():
-  designParticle(nullptr),
-  brho(0),
-  beta0(0)
+BDSComponentFactoryUser::BDSComponentFactoryUser()
 {;}
 
 BDSComponentFactoryUser::~BDSComponentFactoryUser()
 {
   for (auto& constructor : userFunctions)
     {delete constructor.second;}
-}
-
-void BDSComponentFactoryUser::SetDesignParticle(const BDSParticleDefinition* designParticleIn)
-{
-  designParticle = designParticleIn;
-  brho  = designParticle->BRho();
-  beta0 = designParticle->Beta();
 }
 
 void BDSComponentFactoryUser::RegisterComponent(const G4String& componentTypeName,
@@ -59,12 +47,10 @@ BDSAcceleratorComponent* BDSComponentFactoryUser::ConstructComponent(const G4Str
 								     GMAD::Element const* elementIn,
 								     GMAD::Element const* prevElementIn,
 								     GMAD::Element const* nextElementIn,
-								     G4double currentArcLengthIn)
+                     const BDSBeamlineIntegral& integral)
 {
   return userFunctions[componentTypeName]->Construct(elementIn,
 						     prevElementIn,
 						     nextElementIn,
-						     currentArcLengthIn,
-						     brho,
-						     beta0);
+                 integral);
 }

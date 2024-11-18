@@ -36,24 +36,23 @@ const G4double BDSFieldEMRFCavity::j0FirstZero = 2.404825557695772768622;
 
 const G4double BDSFieldEMRFCavity::Z0 = CLHEP::mu0 * CLHEP::c_light;
 
-BDSFieldEMRFCavity::BDSFieldEMRFCavity(BDSMagnetStrength const* strength,
-				       G4double                 brho):
+BDSFieldEMRFCavity::BDSFieldEMRFCavity(BDSMagnetStrength const* strength):
   BDSFieldEMRFCavity((*strength)["efield"],
-		     (*strength)["frequency"],
-		     (*strength)["phase"],
-		     (*strength)["equatorradius"])
-{
-  eFieldMax *= BDS::Sign(brho);
-}
+                     (*strength)["frequency"],
+                     (*strength)["phase"],
+                     (*strength)["equatorradius"],
+                     (*strength)["synchronousT0"])
+{;}
 
 BDSFieldEMRFCavity::BDSFieldEMRFCavity(G4double eFieldAmplitude,
                                        G4double frequencyIn,
                                        G4double phaseOffset,
-                                       G4double cavityRadiusIn):
+                                       G4double cavityRadiusIn,
+                                       G4double synchronousTIn):
   eFieldMax(eFieldAmplitude),
   phase(phaseOffset),
   cavityRadius(cavityRadiusIn),
-  wavelength(CLHEP::c_light / frequencyIn),
+  synchronousT(synchronousTIn),
   normalisedCavityRadius(j0FirstZero/cavityRadius),
   angularFrequency(CLHEP::twopi * frequencyIn)
 {
@@ -75,9 +74,6 @@ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMRFCavity::GetField(const G4Thr
   if (rNormalised > j0FirstZero)
     {rNormalised = j0FirstZero - 1e-6;}
 
-  // Source for calculating the TM010 mode: Gerigk, Frank.
-  // "Cavity types." arXiv preprint arXiv:1111.4897 (2011).
-
   G4double J0r = TMath::BesselJ0(rNormalised);
   G4double J1r = TMath::BesselJ1(rNormalised);
 
@@ -86,8 +82,9 @@ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMRFCavity::GetField(const G4Thr
   G4double Bmax = hMax * CLHEP::mu0;
 
   // Calculating field components.
-  G4double Ez   = eFieldMax * J0r * std::cos(angularFrequency*t + phase);
-  G4double Bphi = Bmax * J1r * std::sin(angularFrequency*t + phase);
+  G4double arg = angularFrequency*(t - synchronousT) + phase;
+  G4double Ez   = eFieldMax * J0r * std::cos(arg);
+  G4double Bphi = Bmax * J1r * std::sin(arg);
 
   // Converting Bphi into cartesian coordinates:
   G4TwoVector bxby(0,Bphi); // this is equivalent to a pi/2 rotation of (1,0)
@@ -101,4 +98,15 @@ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMRFCavity::GetField(const G4Thr
   
   auto result = std::make_pair(LocalB, LocalE);
   return result;
+}
+
+G4double BDSFieldEMRFCavity::TransitTimeFactor(G4double frequency,
+                                               G4double phase,
+                                               G4double zLength,
+                                               G4double beta)
+{
+  G4double rfWavelength = CLHEP::c_light / frequency;
+  G4double piGOverBetaLambda = (CLHEP::pi * zLength) / (beta * rfWavelength);
+  G4double transitTimeFactor = std::sin(piGOverBetaLambda + phase) / piGOverBetaLambda;
+  return transitTimeFactor;
 }

@@ -1,0 +1,27 @@
+! test the integration of energy along the beamline as it's built
+! the rigidity brho that we use with normalised strengths such as k1
+! and angle in a bend should also update and therefore the fields
+! should constructed with the new brho
+
+! also, our reusing of components by name is tested as the same
+! component cannot be reused if used with a different rigidity
+! and therefore must be reconstructed
+
+qf: quadrupole, k1=0.2, l=0.5;
+qd: quadrupole, k1=-0.2, l=1.0;
+! need 4m of drift in betweeen each for a matched fodo cell
+
+d1: drift, l=0.5*m;
+
+rf1: rf, l=1.0*m, gradient=10*MV/m;
+
+sb1: sbend, l=1.5*m, angle=0.2*rad;
+
+! fodo with bends and rf in it
+l1: line=(qf,d1,rf1,d1,sb1,d1,qd,d1,rf1,d1,sb1,d1,qf);
+use, l1;
+
+! 1st quad is +ve k1 -> horizontally focussing -> expect small y size with large yp
+beam, particle="e-",
+      kineticEnergy=100*MeV,
+      Yp0=1e-4;

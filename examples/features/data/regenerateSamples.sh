@@ -29,3 +29,5 @@ $BDSIM --file=../beam/eventgeneratorfile/eventgeneratorfile-hepmc2.gmad --batch 
 
 # more complex data for spectra
 $BDSIM --file=originalmodels/shower.gmad --batch --outfile=shower
+$BDSIM --file=originalmodels/shower_cyl_sph.gmad --batch --outfile=shower_cyl_sph
+

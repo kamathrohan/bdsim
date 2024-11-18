@@ -105,12 +105,6 @@ public:
 
   /// Suggest a default interpolator.
   static BDSInterpolatorType DefaultInterpolatorType(G4int numberOfDimensions);
-  
-  static G4double CalculateGlobalPhase(G4double oscillatorFrequency,
-                                       G4double tOffsetIn);
-  
-  static G4double CalculateGlobalPhase(const BDSModulatorInfo& modulatorInfo,
-                                       const BDSFieldInfo& fieldInfo);
 
 private:
   /// Create a purely magnetic field.

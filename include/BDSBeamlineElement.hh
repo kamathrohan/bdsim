@@ -82,6 +82,9 @@ public:
 		     G4double                 sPositionStartIn,
 		     G4double                 sPositionMiddleIn,
 		     G4double                 sPositionEndIn,
+         G4double                 synchronousTMiddleIn,
+         G4double                 startMomentumIn = 0,
+         G4double                 startKineticEnergyIn = 0,
 		     BDSTiltOffset*           tiltOffsetIn  = nullptr,
 		     BDSSamplerInfo*          samplerInfoIn = nullptr,
 		     G4int                    indexIn       = -1);
@@ -125,6 +128,9 @@ public:
   inline G4double          GetSPositionStart()            const {return sPositionStart;}
   inline G4double          GetSPositionMiddle()           const {return sPositionMiddle;}
   inline G4double          GetSPositionEnd()              const {return sPositionEnd;}
+  inline G4double          GetSynchronousTMiddle()        const {return synchronousTMiddle;}
+  inline G4double          GetStartMomentum()             const {return startMomentum;}
+  inline G4double          GetStartKineticEnergy()        const {return startKineticEnergy;}
   inline BDSTiltOffset*    GetTiltOffset()                const {return tiltOffset;}
   inline G4Transform3D*    GetPlacementTransform()        const {return placementTransform;}
   inline G4Transform3D*    GetPlacementTransformCL()      const {return placementTransformCL;}
@@ -210,6 +216,10 @@ private:
   G4double          sPositionMiddle;
   G4double          sPositionEnd;
   ///@}
+
+  G4double synchronousTMiddle; ///< Synchronous time at the centre of the element.
+  G4double startMomentum;
+  G4double startKineticEnergy;
 
   /// The tilt and offset this element was constructed with. Default is nullptr.
   BDSTiltOffset* tiltOffset;

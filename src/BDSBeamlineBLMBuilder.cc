@@ -209,7 +209,7 @@ BDSBeamline* BDS::BuildBLMs(const std::vector<GMAD::BLMPlacement>& blmPlacements
                                                       new G4RotationMatrix(*rm),
                                                       new G4RotationMatrix(*rm),
                                                       new G4RotationMatrix(*rm),
-                                                      -1,-1,-1);
+                                                      -1,-1,-1, 0);
 
       blms->AddBeamlineElement(el);
     }

@@ -27,33 +27,32 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 
-BDSFieldESinusoid::BDSFieldESinusoid(BDSMagnetStrength const* strength,
-				     G4double                 brho):
+BDSFieldESinusoid::BDSFieldESinusoid(BDSMagnetStrength const* strength):
   BDSFieldESinusoid((*strength)["efield"],
-		    G4ThreeVector( (*strength)["ex"], (*strength)["ey"], (*strength)["ez"]),
-		    (*strength)["frequency"],
-		    (*strength)["phase"])
-{
-  G4int sign = BDS::Sign(brho);
-  eField *= sign;
-}
+                    G4ThreeVector( (*strength)["ex"], (*strength)["ey"], (*strength)["ez"]),
+                    (*strength)["frequency"],
+                    (*strength)["phase"],
+                    (*strength)["synchronousT0"])
+{;}
 
 BDSFieldESinusoid::BDSFieldESinusoid(G4double eFieldAmplitudeIn,
                                      const G4ThreeVector& unitDirectionIn,
-				     G4double frequencyIn,
-				     G4double phaseOffsetIn):
+                                     G4double frequencyIn,
+                                     G4double phaseIn,
+                                     G4double synchronousTIn):
   eField(eFieldAmplitudeIn),
   unitDirection(unitDirectionIn.unit()),
   angularFrequency(CLHEP::twopi*frequencyIn),
-  phase(phaseOffsetIn)
+  phase(phaseIn),
+  synchronousT(synchronousTIn)
 {
   finiteStrength = BDS::IsFinite(eField);
 }
 
 G4ThreeVector BDSFieldESinusoid::GetField(const G4ThreeVector& /*position*/,
-					  const G4double       t) const
+                                          const G4double       t) const
 {
-  G4double ef = eField * std::cos(angularFrequency*t + phase);
+  G4double ef = eField * std::cos(angularFrequency*(t - synchronousT) + phase);
   G4ThreeVector field = unitDirection * ef;
   return field;
 }

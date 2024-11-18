@@ -807,7 +807,15 @@ Additionally:
 | pvNamesWPointer     | std::vector<std::vector<std::string> | Same as pvNames but with the pointer appended to   |
 |                     |                                      | the name                                           |
 +---------------------+--------------------------------------+----------------------------------------------------+
-
+| midT                | std::vector<float>                   | Synchronous time (s) from the start of the line to |
+|                     |                                      | the middle of that element as calculated by BDSIM  |
++---------------------+--------------------------------------+----------------------------------------------------+
+| staP                | std::vector<float>                   | The calculated assumed momentum (GeV/c) at the     |
+|                     |                                      | start of the element as calculated by BDSIM        |
++---------------------+--------------------------------------+----------------------------------------------------+
+| staEk               | std::vector<float>                   | The calculated assumed kinetic energy (GeV) at the |
+|                     |                                      | start of the element as calculated by BDSIM        |
++---------------------+--------------------------------------+----------------------------------------------------+
 
 Optional collimator information also store in the model.
 

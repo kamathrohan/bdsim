@@ -198,6 +198,11 @@ void BDSMessenger::ElementTypeSearch(std::string /*type*/)
 
 void BDSMessenger::SamplerList()
 {
+  if (BDSSamplerRegistry::Instance()->size() == 0)
+    {
+      G4cout << "No samplers defined" << G4endl;
+      return;
+    }
   for (const auto& name : BDSSamplerRegistry::Instance()->GetUniqueNames())
     {G4cout << name << G4endl;}
 }
@@ -206,7 +211,7 @@ void BDSMessenger::ViewSamplers()
 {
   // we can't use drawVolume because that clears the scene and only draws one volume
   // inside it really applied add/volume as we do here
-  // some how viewing worlds undoes these trajectory actions in our default vis.mac
+  // somehow viewing worlds undoes these trajectory actions in our default vis.mac
   G4UImanager* UIManager = G4UImanager::GetUIpointer();
   UIManager->ApplyCommand("/vis/scene/add/volume SamplerWorld_main");
   UIManager->ApplyCommand("/vis/sceneHandler/attach");

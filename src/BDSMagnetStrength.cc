@@ -60,7 +60,6 @@ const std::vector<G4String> BDSMagnetStrength::keys = {
   "k11", "k11s",
   "k12", "k12s",
   "frequency",       // frequency for time varying field (presumably em)
-  "tOffset",         // tOffset resulting in a phase for time varying field
   "phase",           // phase for time varying field
   "synchronousT0",   // global T0 for the synchronous particle at the centre of the object
   "equatorradius",   // radius from axis at which field goes to 0
@@ -139,7 +138,6 @@ const std::map<G4String, BDSMagnetStrength::unitsFactors> BDSMagnetStrength::uni
     {"k11s"          , {"",    1.0}},
     {"k12s"          , {"",    1.0}},
     {"frequency"     , {"",    CLHEP::megahertz}},
-    {"tOffset"       , {"s",   CLHEP::s}},
     {"phase"         , {"rad", CLHEP::rad}},
     {"synchronousT0" , {"s",   CLHEP::s}},
     {"equatorradius" , {"m",   CLHEP::m}},

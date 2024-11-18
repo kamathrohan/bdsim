@@ -1,0 +1,173 @@
+name: bdsim
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - 'develop'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  btlinux:
+    name: bt linux 	
+    runs-on: ubuntu-latest
+    container: bdsim/${{ matrix.container }}:latest
+     
+    strategy:
+      fail-fast: false
+      matrix:
+        container: [ubuntu20-g4.10.7, ubuntu20-g4.11.0, ubuntu20-g4.11.1, ubuntu20-g4.11.2,
+                    ubuntu22-g4.10.7, ubuntu22-g4.11.0, ubuntu22-g4.11.1, ubuntu22-g4.11.2,
+                    ubuntu24-g4.10.7, ubuntu24-g4.11.0, ubuntu24-g4.11.1, ubuntu24-g4.11.2,
+                    centos8-g4.10.7, centos8-g4.11.0, centos8-g4.11.1, centos8-g4.11.2,
+                    alma9-g4.10.7, alma9-g4.11.0, alma9-g4.11.1, alma9-g4.11.2]
+#        container: [ubuntu20-g4.11.0]
+    steps:
+      - name: Checkout bdsim
+        uses: actions/checkout@v4
+        id: checkout 
+
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
+
+      - name: Working dir
+        run: |
+          pwd
+
+      - name: Build bdsim
+        shell: bash
+        run: |
+          #
+          rm -rfv /usr/local/lib/Geant4-10.7.4/Geant4PackageCache.cmake
+
+          # ROOT 
+          source /tmp/root/bin/thisroot.sh
+
+          # git trusted dir 
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+
+          # build
+          mkdir /tmp/bdsim-build
+          mkdir /tmp/bdsim-install
+          cd /tmp/bdsim-build
+          cmake -DCMAKE_INSTALL_PREFIX=/tmp/bdsim-install $GITHUB_WORKSPACE
+          make -j${{ steps.cpu-cores.outputs.count }} install
+
+      - name: Test bdsim
+        shell: bash
+        run: |
+          # Set upt geant4 and bdsim 
+          source /usr/local/bin/geant4.sh
+          source /tmp/bdsim-install/bin/bdsim.sh
+
+          # run tests
+          cd /tmp/bdsim-build
+          ctest -j1
+
+  btmac:
+    name: bt mac
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        geant4-version: ["v10.7.4", "v11.0.4", "v11.1.3", "v11.2.2"]
+        os: [macOS-13, macOS-14]
+#        geant4-version: ["v10.7.4","v11.1.3"]
+#        os: [macOS-13]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
+
+      - name: Install brew dependencies on MacOS
+        run: .github/bin/install-deps-macos.sh
+
+      - name: Bison path
+        shell: bash      
+        run: |
+          # Switch bison depending on macOS
+          if [[ "${{ matrix.os }}" == "macOS-13" ]]; then
+            echo "BISON_PATH=/usr/local/opt/bison/bin/bison" >> $GITHUB_ENV
+          elif [[ "${{ matrix.os }}" == "macOS-14" ]]; then
+            echo "BISON_PATH=/opt/homebrew/opt/bison/bin/bison" >> $GITHUB_ENV
+          fi
+
+
+      - name: Get Geant4
+        shell: bash
+        run: |
+          # download geant4 build
+          wget -q https://github.com/bdsim-collaboration/mac_geant4/releases/download/v0.0.22/geant4-${{ matrix.os}}-${{ matrix.geant4-version }}.tgz
+          # unpack geant4
+          tar zxf geant4-${{ matrix.os }}-${{ matrix.geant4-version }}.tgz -C /tmp/
+
+
+      - name: Build bdsim
+        shell: bash
+        run: |
+          rm -rfv /tmp/geant4-v11.0.4/lib/Geant4-11.0.4/Geant4PackageCache.cmake
+          rm -rfv /tmp/geant4-v10.7.4/lib/Geant4-10.7.4/Geant4PackageCache.cmake
+
+          # source geant4 setup
+          source /tmp/geant4-${{ matrix.geant4-version }}/bin/geant4.sh
+
+          # Set up root, geant4 and bdsim
+          if [[ "${{ matrix.os }}" == "macOS-13" ]]; then
+            source /usr/local/bin/thisroot.sh
+          elif [[ "${{ matrix.os }}" == "macOS-14" ]]; then
+            source /opt/homebrew/bin/thisroot.sh  
+          fi 
+          
+          # build
+          mkdir /tmp/bdsim-build
+          mkdir /tmp/bdsim-install
+          cd /tmp/bdsim-build
+          cmake -DCMAKE_INSTALL_PREFIX=/tmp/bdsim-install -DBISON_EXECUTABLE=$BISON_PATH $GITHUB_WORKSPACE
+          make -j${{ steps.cpu-cores.outputs.count }} install
+
+      - name: Test bdsim
+        shell: bash
+        run: |
+          source /tmp/geant4-${{ matrix.geant4-version }}/bin/geant4.sh
+          source /tmp/bdsim-install/bin/bdsim.sh
+
+          # geant4 contains absolute paths
+          if [[ "${{ matrix.geant4-version }}" == "v10.7.4" ]]; then
+            export G4NEUTRONHPDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4NDL4.6"
+            export G4LEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4EMLOW7.13"
+            export G4LEVELGAMMADATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/PhotonEvaporation5.7"
+            export G4RADIOACTIVEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/RadioactiveDecay5.6"
+            export G4PARTICLEXSDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4PARTICLEXS3.1.1"
+            export G4PIIDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4PII1.3"
+            export G4REALSURFACEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/RealSurface2.2"
+            export G4SAIDXSDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4SAIDDATA2.0"
+            export G4ABLADATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4ABLA3.1"
+            export G4INCLDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4INCL1.0"
+            export G4ENSDFSTATEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4ENSDFSTATE2.3"
+          fi
+
+          if [[ "${{ matrix.geant4-version }}" == "v11.0.4" ]]; then
+            export G4NEUTRONHPDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4NDL4.6"
+            export G4LEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4EMLOW8.0"
+            export G4LEVELGAMMADATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/PhotonEvaporation5.7"
+            export G4RADIOACTIVEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/RadioactiveDecay5.6"
+            export G4PARTICLEXSDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4PARTICLEXS4.0"
+            export G4PIIDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4PII1.3"
+            export G4REALSURFACEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/RealSurface2.2"
+            export G4SAIDXSDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4SAIDDATA2.0"
+            export G4ABLADATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4ABLA3.1"
+            export G4INCLDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4INCL1.0"
+            export G4ENSDFSTATEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4ENSDFSTATE2.3"
+          fi 
+
+          # run tests          
+          cd /tmp/bdsim-build
+          ctest -j1

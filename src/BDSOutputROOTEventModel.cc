@@ -143,6 +143,9 @@ void BDSOutputROOTEventModel::Flush()
   fintxk2.clear();
   pvName.clear();
   pvNameWPointer.clear();
+  midT.clear();
+  staP.clear();
+  staEk.clear();
 
   storeCavityInfo = false;
   cavityIndices.clear();
@@ -385,6 +388,10 @@ void BDSOutputROOTEventModel::Fill(const std::vector<G4int>&                coll
       // always push it back even if an empty vector
       pvName.push_back(localPVNames);
       pvNameWPointer.push_back(localPVNamesWPointer);
+
+      midT.push_back((float)(*i)->GetSynchronousTMiddle()/CLHEP::ns);
+      staP.push_back((float)(*i)->GetStartMomentum()/CLHEP::GeV);
+      staEk.push_back((float)(*i)->GetStartKineticEnergy()/CLHEP::GeV);
       
       // fill magnet strength data
       // NOTE - has a 'continue'

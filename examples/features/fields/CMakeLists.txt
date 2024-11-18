@@ -1,3 +1,4 @@
+add_subdirectory(acceleration)
 add_subdirectory(field_transforms)
 add_subdirectory(maps_poisson)
 add_subdirectory(maps_bdsim)

@@ -12,21 +12,86 @@ if you'd like to give us feedback or help in the development.  See :ref:`support
 * Beam pipe sections to fill gaps between changes in aperture.
 * Any aperture shape can be used for both the inside and the outside of a collimator.
 
-v1.8.X - 2023 / XX / XX
+v1.8.0 - 2024 / XX / XX
 =======================
+
+* For models with acceleration, the rigidity and synchronous time are now calculated
+  along the beamline and pre-calculated **scaling factors are no longer needed**.
+
 
 New Features
 ------------
 
+**Fields**
+
+* The `rf` beamline element now has the parameter :code:`cavityFieldType` to specify which
+  field model to use rather than specifying :code:`fieldVacuum` and a corresponding field
+  definition.
+* The option :code:`cavityFieldType` may be used to set the default field model for all `rf`
+  elements.
+* The "rfcavity" field is now "rfpillbox".
+
+
+**General**
+
+* :code:`autoColour=1` now works for all collimators and target elements. If turned on, the
+  colour of the element in the visualiser will be given by the material.
+
+**Physics**
+
+* New :code:`ionisation` modular physics list for only the ionisation process for the most
+  common particles.
+
+
+
+New Options
+-----------
+
+.. tabularcolumns:: |p{0.30\textwidth}|p{0.70\textwidth}|
+
++-------------------------------------+-------------------------------------------------------+
+| **Option**                          | **Function**                                          |
++=====================================+=======================================================+
+| cavityFieldType                     | Default cavity field type ('constantinz', 'pillbox')  |
+|                                     | to use for all rf elements unless otherwise specified.|
++-------------------------------------+-------------------------------------------------------+
+| integrateKineticEnergyAlongBeamline | Integrate changes to the nominal beam energy along    |
+|                                     | the beamline such as from accelerator and adjust      |
+|                                     | the design rigidity for normalised fields             |
+|                                     | accordingly.                                          |
++-------------------------------------+-------------------------------------------------------+
 
 General Updates
 ---------------
 
+* The interface for custom components has changed due to the new beamline integral class and object.
+  The example has been updated accordingly.
+* Internally, beamline elements are now cached based on both their name (basic reuse of components)
+  but also the nominal rigidity at that point in the beamline. This is because if, say, a quadrupole
+  is used later in the beamline after acceleration with the same `k1`, the actual field gradient
+  is different and so the component must be uniquely constructed to have a different field.
+* The time coordinate is now loaded and applied to each particle when loading a bdsim output
+  sampler as a distribution.
+
 Bug Fixes
 ---------
 
+* Fix rebdsim's Spectra command preparing the wrong variables when used on a cylindrical
+  or spherical sampler where the variable is "totalEnergy" and not "energy".
+* Fix a bug where rebdsim would crash if a Spectra command was used on a cylindrical or
+  spherical sampler. This was caused by loading the data into the wrong class.
+* The pill-box field was fixed where it should have no `z` dependence whereas it did previously.
+
+
 Output Changes
 --------------
+
+* The synchronous time at the middle of an element (:code:`midT`); the momentum at the
+  beginning of an element (:code:`staP`); and the kinetic energy at the beginning of
+  an element (:code:`staEk`) have all been added to the model tree in the output as
+  calculated by BDSIM as it now integrates the time and acceleration / decceleration
+  along the beamline.
+
 
 Output Class Versions
 ---------------------
@@ -58,7 +123,7 @@ Output Class Versions
 +-----------------------------------+-------------+-----------------+-----------------+
 | BDSOutputROOTEventLossWorld       | N           | 1               | 1               |
 +-----------------------------------+-------------+-----------------+-----------------+
-| BDSOutputROOTEventModel           | N           | 6               | 6               |
+| BDSOutputROOTEventModel           | Y           | 6               | 7               |
 +-----------------------------------+-------------+-----------------+-----------------+
 | BDSOutputROOTEventOptions         | N           | 8               | 8               |
 +-----------------------------------+-------------+-----------------+-----------------+
@@ -89,8 +154,7 @@ of writing, the corresponding versions of each utility are:
 * pymad8 v2.0.1
 * pytransport v2.0.1
 
-
-
+  
 V1.7.7 - 2024 / 01 / 29
 =======================
 
@@ -520,7 +584,7 @@ New Features
   world contents (in case of an externally provided world volume) without storing all the individual
   hits that would use a lot of disk space.
 * :code:`storeSamplerKineticEnergy` is now on by default.
-
+  
 
 General Updates
 ---------------
@@ -766,9 +830,6 @@ Bug Fixes
   would pass through and become a proton despite its name.
 * Fix runtime exception with Geant4 V11.1.0 for default options applied in BDSIM from all
   previous versions of Geant4 for epsilon max / min in all fields.
-
-
-
 
 Output Changes
 --------------

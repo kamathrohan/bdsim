@@ -54,8 +54,8 @@ public:
   /// Apply an offset to the spatial coordinates only and return a copy.
   BDSParticleCoords ApplyOffset(const G4ThreeVector& offset) const;
   
-  /// Apply an offset to the spatial coordinates only - assignment.
-  void AddOffset(const G4ThreeVector& offset);
+  /// Apply an offset to the spatial and T coordinates only - assignment.
+  void AddOffset(const G4ThreeVector& offset, G4double offsetT = 0);
   
   /// Output stream
   friend std::ostream& operator<< (std::ostream& out, BDSParticleCoords const& p);

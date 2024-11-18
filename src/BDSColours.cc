@@ -120,6 +120,7 @@ BDSColours::BDSColours()
   colours["iron"]             = new G4Colour(0.509, 0.321, 0.294);
   colours["kapton"]           = new G4Colour(0.929, 0.380, 0.082, 0.5);
   colours["lead"]             = new G4Colour(0.377, 0.408, 0.451);
+  colours["water"]            = new G4Colour(0, 0.4, 0.8, 0.5);
   
   // element parts
   colours["coil"]             = new G4Colour(0.722, 0.451, 0.2);   // copper

@@ -18,6 +18,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef BDSCAVITYFIELDTYPE_H
 #define BDSCAVITYFIELDTYPE_H
+#include "BDSFieldType.hh"
 
 #include "G4String.hh"
 
@@ -40,6 +41,8 @@ namespace BDS
 {
   /// function to determine the enum type of the cavity field type (case-insensitive)
   BDSCavityFieldType DetermineCavityFieldType(G4String cavityFieldType);
+  
+  BDSFieldType FieldTypeFromCavityFieldType(BDSCavityFieldType cavityFieldType);
 }
 
 #endif

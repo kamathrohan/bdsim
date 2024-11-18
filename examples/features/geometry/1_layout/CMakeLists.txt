@@ -3,6 +3,7 @@ simple_testing(beamline-layout-one-of-each     "--file=2_one_of_each.gmad"      
 simple_testing(beamline-transform-axis-angle   "--file=3_beamline_transform_aa.gmad"    "")
 simple_testing(beamline-transform-euler        "--file=4_beamline_transform_euler.gmad" "")
 simple_testing(beamline-transform              "--file=5_beamline_transform.gmad"       "")
+simple_testing(beamline-reuse-w-rigitidy       "--file=6_component_reuse.gmad"          "")
 simple_testing(beamline-none-specified         "--file=noBeamLine.gmad"                 "")
 simple_fail(beamline-empty                     "--file=emptyBeamLine.gmad"              "")
 simple_fail(beamline-empty-circular            "--file=emptyCircularBeamLine.gmad"      "")

@@ -33,6 +33,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 class BDSAcceleratorComponent;
 class BDSBeamlineElement;
+class BDSBeamlineIntegral;
 class BDSSamplerInfo;
 class BDSSimpleComponent;
 class BDSTiltOffset;
@@ -91,7 +92,8 @@ public:
   /// Returns vector of components added
   void AddComponent(BDSAcceleratorComponent*  component,
                     BDSTiltOffset*  tiltOffset  = nullptr,
-                    BDSSamplerInfo* samplerInfo = nullptr);
+                    BDSSamplerInfo* samplerInfo = nullptr,
+                    const BDSBeamlineIntegral* beamlineIntegral = nullptr);
 
   /// Apply a Transform3D rotation and translation to the reference
   /// coordinates. Special method for the special case of unique component
@@ -250,7 +252,8 @@ private:
   /// to the beginning of the beamline. Returns pointer to the component added.
   void AddSingleComponent(BDSAcceleratorComponent* component,
                           BDSTiltOffset*           tiltOffset  = nullptr,
-                          BDSSamplerInfo*          samplerInfo = nullptr);
+                          BDSSamplerInfo*          samplerInfo = nullptr,
+                          const BDSBeamlineIntegral* beamlineIntegral = nullptr);
   
   /// Register the fully created element to a map of names vs element pointers. Used to
   /// look up transforms by name.

@@ -1,0 +1,26 @@
+c1: rcol, l=1*m, material="water", horizontalWidth=1*m, autoColour=1;
+l1: line=(c1);
+use, l1;
+
+beam, particle="proton",
+      kineticEnergy=500*MeV,
+      distrType="sphere",
+      Z0=0.5*m;
+
+option, physicsList="g4FTFP_BERT",
+	worldMaterial="vacuum";
+
+option, defaultRangeCut=0.5*cm;
+!	minimumKineticEnergy=1*MeV,
+
+option, seed=123,
+        ngenerate=100;
+
+option, storeSamplerKineticEnergy=1,
+        storeSamplerRigidity=1,
+        storeMinimalData=1;
+
+
+csample, range=c1;
+
+s1: samplerplacement, samplerType="sphereforward", aper1=20*cm, referenceElement="c1";

@@ -145,6 +145,9 @@ OptionsBase::OptionsBase()
   yokeFieldsMatchLHCGeometry = true;
   useOldMultipoleOuterFields = false;
   scalingFieldOuter    = 1.0;
+  integrateKineticEnergyAlongBeamline = true;
+  
+  cavityFieldType = "constantinz";
   
   // beam pipe / aperture
   beampipeThickness    = 0.0025;

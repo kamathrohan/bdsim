@@ -1895,6 +1895,8 @@ Examples: ::
 +------------------------------+------------------------------------------------------------------------+
 | ion_php (`*`)                | `G4IonPhysicsPHP`. Available from Geant4.10.3 onwards.                 |
 +------------------------------+------------------------------------------------------------------------+
+| ionisation                   | Only ionisation for e+-, p, pbar, pi+-, K+-, mu+-, generic ion.        |
++------------------------------+------------------------------------------------------------------------+
 | lw                           | Laserwire photon producing process as if the laserwire had scattered   |
 |                              | photons from the beam. Not actively developed, but will register       |
 |                              | process.                                                               |
@@ -3028,6 +3030,9 @@ Tracking integrator sets are described in detail in :ref:`integrator-sets` and
 |                                  | of the beam pipe are killed and the energy recorded as|
 |                                  | being deposited there.                                |
 +----------------------------------+-------------------------------------------------------+
+| cavityFieldType                  | Default cavity field type ('constantinz', 'pillbox')  |
+|                                  | to use for all rf elements unless otherwise specified.|
++----------------------------------+-------------------------------------------------------+
 | collimatorsAreInfiniteAbsorbers  | When turned on, all particles that enter the material |
 |                                  | of a collimator (`rcol`, `ecol` and `jcol`) are       |
 |                                  | killed and the energy recorded as deposited there.    |
@@ -3113,6 +3118,16 @@ Tracking integrator sets are described in detail in :ref:`integrator-sets` and
 | tunnelIsInfiniteAbsorber         | Whether all particles entering the tunnel material    |
 |                                  | should be killed or not (default = false)             |
 +----------------------------------+-------------------------------------------------------+
+
+
++-------------------------------------+-------------------------------------------------------+
+| **Option**                          | **Function**                                          |
++=====================================+=======================================================+
+| integrateKineticEnergyAlongBeamline | Integrate changes to the nominal beam energy along    |
+|                                     | the beamline such as from accelerator and adjust      |
+|                                     | the design rigidity for normalised fields             |
+|                                     | accordingly.                                          |
++-------------------------------------+-------------------------------------------------------+
 
 .. _physics-process-options:
 
@@ -3941,7 +3956,7 @@ Output at a Surface - Samplers
 
 BDSIM provides a 'sampler' as a means to record the particle distribution at a
 point in the model as defined by a plane, the surface of a cylinder, or the
-surface of a sphere.
+surface of a sphere. Data is recorded in the frame of the sampler.
 
 * A **sampler** records the kinematic variables of a single particle passing through a surface
 * **Scoring** refers to the accumulation of a quantity (e.g. dose) for a volume (see :ref:`scoring`)
@@ -3954,8 +3969,9 @@ Samplers may have the following forms:
 
 The plane is the most commonly used and can be 'attached' to an already defined beam line
 element and records all the particles passing through a plane at the **exit** face of
-that element. The cylinder can be attached to a beam line element also. A spherer sampler
-can only be placed through a samplerplacement.
+that element. The cylinder can be attached to a beam line element also.
+
+A spherical sampler can only be placed through a samplerplacement.
 
 A sampler will record **any particles** passing through that plane in **any direction**.
 The plane sampler is practically defined in the Geant4 model built by BDSIM as a box
@@ -3963,40 +3979,7 @@ The plane sampler is practically defined in the Geant4 model built by BDSIM as a
 
 Samplers are built in a parallel world and are normally invisible. They can 'overlap'
 existing geometry but we should avoid having faces of shapes coincident as this may
-affect tracking ('coplanar' faces).
-
-.. _sampler-coordinate-systems:
-
-Sampler Coordinate Systems
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-**plane**
-
-* `x`, `y`, `z`
-
-
-**cylindrical**
-
-* `z`, `r`, :math:`\phi`
-* :math:`\phi` : :math:`[0 \to 2\pi]`
-
-
-**spherical**
-
-* `r`, :math:`\theta`, :math:`\phi`
-* :math:`\theta` : polar angle :math:`[0 \to \pi]`
-* :math:`\phi` : azimuthal angle :math:`[0 \to 2\pi]`
-
-
-Generally:
-
-* In cylindrical coordinates `z` and `phi` are recorded as well as `rp`, `zp` and `phip`.
-* `r` is not recorded for either cylindrical or spherical coordinates because it is the
-  same for every hit. This information is recorded in the Model part of the output with
-  the sampler name as it is a constant.
-* Positive `z` is along the direction of the beam by default.
-* For cylindrical coordinates, `phi` = 0 corresponds to a point at positive
-  :math:`x = r, y = 0` and increases clockwise looking along the direction of the beam.
+affect tracking ('co-planar' faces).
 
 
 .. _sampler-syntax:
@@ -4159,6 +4142,7 @@ visualise them, the following command should be used in the visualiser::
 The samplers will appear in semi-transparent green, as well as the curvilinear geometry used
 for coordinate transforms (cylinders).
 
+
 .. _user-sampler-placement:
 
 Output at an Arbitrary Plane - User Placed Sampler
@@ -4196,7 +4180,7 @@ Types and Shapes
 
 * The default is a plane sampler.
 
-The following types (exact name to be used in the :code:`type` parameter) of sampler can be used:
+The following types (exact name to be used in the :code:`samplerType` parameter) of sampler can be used:
 
 +--------------------+------------------------------------------------------------------+
 | **samplerType**    | **Description**                                                  |
@@ -4331,11 +4315,11 @@ This only responds to `sweepAnglePhi` and it spread out symmetrically from the f
 
 Examples: ::
 
-  s6: samplerplacement, samplerType="sphere", aper1=20*cm, aper2=2*m;
-  s7: samplerplacement, samplerType="sphere", aper1=20*cm, aper2=2*m,
+  s6: samplerplacement, samplerType="sphere", aper1=20*cm;
+  s7: samplerplacement, samplerType="sphere", aper1=20*cm,
                         startAnglePhi=-pi/6, sweepAnglePhi=pi/3,
-			startAngleTheta=pi/2-pi/6, sweepAngleTheta=pi/3;
-  s8: samplerplacement, samplerType="sphereforward", aper1=20*cm, aper2=2*m,
+			            startAngleTheta=pi/2-pi/6, sweepAngleTheta=pi/3;
+  s8: samplerplacement, samplerType="sphereforward", aper1=20*cm,
                         sweepAnglePhi=pi/3, sweepAngleTheta=pi/6;
 
 * More examples can be found in :code:`bdsim/examples/features/sampler/*gmad`.
@@ -4486,7 +4470,7 @@ geometry in the model. Although in a parallel world, the steps of a particle thr
 are limited by the boundary of the mesh. This means that no step covers more than one cell or
 bin in the mesh and therefore there's no ambiguity over proportioning some quantity (like
 energy deposition) in one step or another. The figure below shows the regular "mass world"
-view of a quadrupole, and also a wireframe view of the same quadrupole with the normally invisible
+view of a quadrupole, and also a wire-frame view of the same quadrupole with the normally invisible
 scoring mesh in a parallel world.
 
 .. figure:: figures/scoring-mass-world.png
@@ -4500,7 +4484,7 @@ scoring mesh in a parallel world.
 	    :width: 50%
 	    :align: center
 
-	    Wireframe view of the same quadrupole but with a scoring mesh visualised (grey).
+	    Wire-frame view of the same quadrupole but with a scoring mesh visualised (grey).
 
 Conceptually creating a scoring mesh is split into two key definitions in the input:
 
@@ -4528,6 +4512,45 @@ e.g. ::
   is one proton fired per-event, then the quantity for deposited dose is J / kg / proton.
 * Examples can be found in :code:`bdsim/examples/features/scoring`.
 
+
+.. _sampler-coordinate-systems:
+
+Sampler Coordinate Systems
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Each sampler type records different variables depending on its geometry. The hits recorded
+are always in the frame of that sampler object. The coordinates for each shape are as follows:
+
+**plane**
+
+* `x`, `y`, `z`
+
+
+**cylindrical**
+
+* `z`, `r`, :math:`\phi`
+* :math:`\phi` : :math:`[0 \to 2\pi]`
+
+
+**spherical**
+
+* `r`, :math:`\theta`, :math:`\phi`
+* :math:`\theta` : polar angle :math:`[0 \to \pi]`
+* :math:`\phi` : azimuthal angle :math:`[0 \to 2\pi]`
+
+
+Generally:
+
+* In cylindrical coordinates `z` and `phi` are recorded as well as `rp`, `zp` and `phip`.
+* `r` is not recorded for either cylindrical or spherical coordinates because it is the
+  same for every hit. This information is recorded in the Model part of the output with
+  the sampler name as it is a constant.
+* Positive `z` is along the direction of the beam by default.
+* For cylindrical coordinates, `phi` = 0 corresponds to a point at positive
+  :math:`x = r, y = 0` and increases clockwise looking along the direction of the beam.
+
+
+  
 .. _scorer:
   
 Scorer

@@ -31,6 +31,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 class BDSBeamline;
 class BDSBeamlineElement;
+class BDSBeamlineIntegral;
 class BDSLinkPrimaryGeneratorAction;
 class BDSLinkRegistry;
 class BDSParticleDefinition;
@@ -112,6 +113,8 @@ public:
 
   /// Cache of the index to which parallel world the sampler one is.
   G4int samplerWorldID;
+  
+  BDSBeamlineIntegral* integral;
 
   std::map<std::string, G4int> nameToElementIndex; ///< Build up a copy here too.
   std::map<G4int, G4int> linkIDToBeamlineIndex;    ///< Special linkID to linkBeamline index

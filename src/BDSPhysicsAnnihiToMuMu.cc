@@ -37,8 +37,7 @@ BDSPhysicsAnnihiToMuMu::~BDSPhysicsAnnihiToMuMu()
 
 void BDSPhysicsAnnihiToMuMu::ConstructParticle()
 { 
-  G4LeptonConstructor leptons;
-  leptons.ConstructParticle();
+  G4LeptonConstructor::ConstructParticle();
 }
 
 void BDSPhysicsAnnihiToMuMu::ConstructProcess()

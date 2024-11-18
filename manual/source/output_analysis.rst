@@ -699,59 +699,60 @@ The following (case-insensitive) options may be specified in the top part.
 
 .. tabularcolumns:: |p{5cm}|p{10cm}|
 
-+----------------------------+------------------------------------------------------+
-| **Option**                 | **Description**                                      |
-+============================+======================================================+
-| BackwardsCompatible        | ROOT event output files from BDSIM prior to v0.994   |
-|                            | do not have the header structure that is used to     |
-|                            | ensure the files are the right format and prevent    |
-|                            | a segfault from ROOT. If this option is true, the    |
-|                            | header will not be checked, allowing old files to be |
-|                            | analysed.                                            |
-+----------------------------+------------------------------------------------------+
-| CalculateOptics            | Whether to calculate optical functions or not        |
-+----------------------------+------------------------------------------------------+
-| Debug                      | Whether to print out debug information               |
-+----------------------------+------------------------------------------------------+
-| EmittanceOnTheFly          | Whether to calculate the emittance freshly at each   |
-|                            | sampler or simply use the emittance calculated from  |
-|                            | the first sampler (i.e. the primaries). The default  |
-|                            | is false and therefore calculates the emittance at   |
-|                            | each sampler.                                        |
-+----------------------------+------------------------------------------------------+
-| EventStart                 | Event index to start from - zero counting. Default   |
-|                            | is 0.                                                |
-+----------------------------+------------------------------------------------------+
-| EventEnd                   | Event index to finish analysis at - zero counting.   |
-|                            | Default is -1 that represents how ever many events   |
-|                            | there are in the file (or files if multiple are      |
-|                            | being analysed at once).                             |
-+----------------------------+------------------------------------------------------+
-| InputFilePath              | The root event file to analyse (or regex for         |
-|                            | multiple).                                           |
-+----------------------------+------------------------------------------------------+
-| MergeHistograms            | Whether to merge the event level default histograms  |
-|                            | provided by BDSIM. Turning this off will             |
-|                            | significantly improve the speed of analysis if only  |
-|                            | separate user-defined histograms are desired.        |
-+----------------------------+------------------------------------------------------+
-| OutputFileName             | The name of the result file  written to              |
-+----------------------------+------------------------------------------------------+
-| OpticsFileName             | The name of a separate text file copy of the         |
-|                            | optical functions output                             |
-+----------------------------+------------------------------------------------------+
-| PrintOut                   | Whether there is any per-event print out at all. The |
-|                            | default is True.                                     |
-+----------------------------+------------------------------------------------------+
-| PrintModuloFraction        | The fraction of events to print out (default 0.01).  |
-|                            | If you require print out for every event, set this   |
-|                            | to 0.                                                |
-+----------------------------+------------------------------------------------------+
-| ProcessSamplers            | Whether to load the sampler data or not              |
-+----------------------------+------------------------------------------------------+
-| VerboseSpectra             | Print out the full expanded definition of any        |
-|                            | spectra that have been defined.                      |
-+----------------------------+------------------------------------------------------+
++----------------------------+------------------------------------------------------+--------------+
+| **Option**                 | **Description**                                      | **Default**  |
++============================+======================================================+==============+
+| AllBranchesActivated       | Developer debug option to turn on all branches.      | False        |
++----------------------------+------------------------------------------------------+--------------+
+| BackwardsCompatible        | ROOT event output files from BDSIM prior to v0.994   | True         |
+|                            | do not have the header structure that is used to     |              |
+|                            | ensure the files are the right format and prevent    |              |
+|                            | a segfault from ROOT. If this option is true, the    |              |
+|                            | header will not be checked, allowing old files to be |              |
+|                            | analysed.                                            |              |
++----------------------------+------------------------------------------------------+--------------+
+| CalculateOptics            | Whether to calculate optical functions or not        | False        |
++----------------------------+------------------------------------------------------+--------------+
+| Debug                      | Whether to print out debug information               | False        |
++----------------------------+------------------------------------------------------+--------------+
+| EmittanceOnTheFly          | Whether to calculate the emittance freshly at each   | False        |
+|                            | sampler or simply use the emittance calculated from  |              |
+|                            | the first sampler (i.e. the primaries). The default  |              |
+|                            | is false and therefore calculates the emittance at   |              |
+|                            | each sampler.                                        |              |
++----------------------------+------------------------------------------------------+--------------+
+| EventStart                 | Event index to start from - zero counting. Default   | 0            |
+|                            | is 0.                                                |              |
++----------------------------+------------------------------------------------------+--------------+
+| EventEnd                   | Event index to finish analysis at - zero counting.   | -1           |
+|                            | Default is -1 that represents how ever many events   |              |
+|                            | there are in the file (or files if multiple are      |              |
+|                            | being analysed at once).                             |              |
++----------------------------+------------------------------------------------------+--------------+
+| InputFilePath              | The root event file to analyse (or regex for         | None         |
+|                            | multiple).                                           |              |
++----------------------------+------------------------------------------------------+--------------+
+| MergeHistograms            | Whether to merge the event level default histograms  | True         |
+|                            | provided by BDSIM. Turning this off will             |              |
+|                            | significantly improve the speed of analysis if only  |              |
+|                            | separate user-defined histograms are desired.        |              |
++----------------------------+------------------------------------------------------+--------------+
+| OutputFileName             | The name of the result file  written to              | None         |
++----------------------------+------------------------------------------------------+--------------+
+| OpticsFileName             | The name of a separate text file copy of the         | None         |
+|                            | optical functions output                             |              |
++----------------------------+------------------------------------------------------+--------------+
+| PrintOut                   | Whether there is any per-event print out at all. The | False        |
+|                            | default is True.                                     |              |
++----------------------------+------------------------------------------------------+--------------+
+| PrintModuloFraction        | The fraction of events to print out. If you require  | 0.01         |
+|                            | for every event, set this to 0.                      |              |
++----------------------------+------------------------------------------------------+--------------+
+| ProcessSamplers            | Whether to load the sampler data or not              | False        |
++----------------------------+------------------------------------------------------+--------------+
+| VerboseSpectra             | Print out the full expanded definition of any        | False        |
+|                            | spectra that have been defined.                      |              |
++----------------------------+------------------------------------------------------+--------------+
 
 
 Variables In Data

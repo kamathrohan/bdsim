@@ -163,6 +163,71 @@ Example for a dipole field: ::
   fieldParameters="field=1.0, by=1";
 
 
+.. _fields-beamline-integration:
+
+Synchronous Time \& Rigidity With Acceleration
+==============================================
+
+To calculate the real value of fields in the model, it is typically required to know
+the magnetic rigidity of the design particle at that point in the beamline or
+the relative time of arrival of a particle. Both require 'keeping track' of the
+particle velocity, or more formally integrating changes to it throughout the
+beamline.
+
+Initially, a 'design' particle definition is given. As each component is constructed,
+its effect on the beam is integrated.
+
+Time Integration
+----------------
+
+If the kinetic energy is unchanged, the synchronous time at the centre of the component
+is given by:
+
+.. math::
+
+   t_{mid} = t_0 + \frac{l_i}{2} / v_{0}
+
+
+In the case where the velocity changes, the synchronous time at the centre of the component
+is given by:
+
+.. math::
+
+   t_{mid} = t_0 + \frac{l_i}{2} / ( \frac{1}{2}(v_{1} - v_{0}) + v_0 )
+
+where :math:`v_0` is the velocity of the incoming particle and :math:`v_1` the
+outgoing velocity. :math:`l_i` is the length of the i-th component being considered.
+
+Energy, Momentum and Rigidity
+-----------------------------
+
+The kinetic energy of the particle is integrated across each component. From this, the
+design particle definition is updated including re-calculation of the total energy,
+momentum, relativistic gamma and beta, and the rigidity. The change in kinetic energy
+is calculated depending on the field used.
+
+**Sinusoidal Electric Field** (see :ref:`field-sinusoid-efield`)
+
+.. math::
+
+   dE_k = charge \cdot |E| \cdot l_i  \cdot \cos(\phi)
+
+**Pill-box Electromagnetic Field** (see :ref:`field-pill-box`)
+
+.. math::
+
+   \lambda_{RF} = c / f
+
+   f_1 = \frac{\pi l_i}{\beta \lambda}
+
+   TTF = \frac{\sin(f_1)}{f_1}
+
+   dE_k = charge \cdot |E| \cdot l_i \cdot TTF
+
+
+where :math:`l_i` is the length of the component, :math:`\beta` is the ratio of
+the velocity to the speed of light. `TTF` is the transit time factor.
+
 
 Pure Magnetic Fields From Equations
 ===================================
@@ -591,7 +656,7 @@ Solenoid Sheet or Cylinder
 For the outside of a solenoid, we have a solenoid "sheet" or "cylinder" model. This is
 modelled on the magnetic field due to symmetric cylinder of current of full length
 :math:`2 b` and of radius :math:`a`. The field is calculated in cylindrical coordinates
-and translted into Cartesian. The normalisation is to some nominal field :math:`B_0`.
+and translated into Cartesian. The normalisation is to some nominal field :math:`B_0`.
 
 This follows the parameterisation and uses the algorithm for the generalised complete
 elliptical integral as described in:
@@ -738,17 +803,19 @@ The electric field is calculated as:
 
 .. math::
 
-   E_z(r_n, z ,t) & = E \, J_{0}(r_n) \cos(2\,\pi\,f\,t + \psi)\,\cos(\frac{2\,\pi\,f\,z}{c})\\
+   E_z(r_n, z ,t) & = E \, J_{0}(r_n) \cos(2\,\pi\,f\,(t - T_{0}) + \psi)\\
 
 The radial B-field amplitude is calculated from the E-field amplitude.
 
 .. math::
 
-   H_{\phi}(r_n, z, t) & = \frac{E}{Z_{0}} \, J_{1}(r_n) \sin(2\,\pi\,f\,t + \psi)\,\cos(\frac{2\,\pi\,f\,z}{c})\\
+   H_{\phi}(r_n, z, t) & = \frac{E}{Z_{0}} \, J_{1}(r_n) \sin(2\,\pi\,f\,(t - T_{0}) + \psi)\\
    B_{\phi}(r_n, z, t) & = \mu_{0} H_{\phi}
 
-where :math:`Z_{0}` is the impedance of free space. To calculate B, a vacuum is assumed
-and therefore only the vacuum permeability is used to calculate B from H.
+where :math:`Z_{0}` is the impedance of free space, and :math:`T_0` is the global offset in
+time to the centre of the object the field is attached to (i.e. the synchronous time). To
+calculate B, a vacuum is assumed and therefore only the vacuum permeability is used to
+calculate B from H.
 
 The 3D Cartesian field vectors are therefore:
 

@@ -1,0 +1,12 @@
+d1: drift, l=1*m;
+t1: target, l=20*cm, horizontalWidth=2*cm, material="Al";
+l1: line=(d1,t1,d1);
+use, l1;
+
+beam, particle="proton", momentum=5*GeV;
+
+option, physicsList="g4FTFP_BERT";
+
+csample, all;
+
+option, ngenerate=10;

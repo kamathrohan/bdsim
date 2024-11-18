@@ -286,8 +286,8 @@ void Element::print(int ident) const
     {std::cout << "--";}
 
   std::cout << name << " : " << type << std::endl;
-  if (l>0.0)
-    {std::cout << "l     = " << l << "m" << std::endl;}
+  if (l > 0.0)
+    {std::cout << "l = " << l << "m" << std::endl;}
   if (horizontalWidth > 0)
     {std::cout << "horizontalWidth = " << horizontalWidth << "m" << std::endl;}
   if (samplerType != "none")
@@ -296,7 +296,6 @@ void Element::print(int ident) const
                 << "samplerRadius = " << samplerRadius << "\n"
                 << "samplerarticleSetID = " << samplerParticleSetID << std::endl;
     }
-  
 
   switch(type)
     {
@@ -344,6 +343,18 @@ void Element::print(int ident) const
         std::cout << "horizontalWidth: " << horizontalWidth << "m" << std::endl
                   << "geometryFile:    " << geometryFile << std::endl
                   << "fieldAll:        " << fieldAll     << std::endl;
+        break;
+      }
+    case ElementType::_RF:
+    case ElementType::_RFX:
+    case ElementType::_RFY:
+      {
+        std::cout << "E (voltage): "        << E << " V" << std::endl
+		  << "gradient (e field): " << gradient << " V/m" << std::endl
+		  << "cavityFieldType: "    << cavityFieldType << std::endl
+		  << "cavityModel: "        << cavityModel << std::endl
+		  << "frequency: "          << frequency << " Hz" << std::endl
+		  << "phase: "              << phase << " rad" << std::endl;
         break;
       }
     case ElementType::_CT:
@@ -616,7 +627,7 @@ void Element::flush()
   markAsCollimator = false;
   spec = "";
   cavityModel = "";
-  cavityFieldType = "constantinz";
+  cavityFieldType = "";
   
   dicomDataFile = "";
   dicomDataPath = "";

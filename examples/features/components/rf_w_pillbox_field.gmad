@@ -1,0 +1,8 @@
+rf1: rf, l=20*cm, gradient=25*MV/m, frequency=1200*MHz, phase=0.02, cavityFieldType="pillbox";
+lat: line = (rf1);
+
+include optionsTest.gmad;
+
+q1: query, nx=10, nz=10, xmin=-10*cm, xmax=10*cm, zmin=-10*cm, zmax=10*cm,
+    	   queryElectricField=1, outfileElectric="qu_rf_pillbox.dat",
+	   referenceElement="rf1";

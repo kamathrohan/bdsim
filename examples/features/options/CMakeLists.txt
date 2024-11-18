@@ -58,6 +58,7 @@ simple_fail(option-outer-diameter-too-small        "--file=smallOuterDiameter.gm
 simple_fail(option-zero-beam-energy                "--file=zeroBeamEnergy.gmad"     "")
 
 # general input options
+simple_testing(option-cavityFieldType              "--file=option_cavityFieldType.gmad"   "")
 simple_testing(option-collimator-info              "--file=collimatorinfo.gmad"           "")
 simple_testing(option-eloss-sensitive-vacuum       "--file=eloss-vacuum.gmad"             "")
 simple_testing(option-eloss-physics-processes      "--file=eloss-physics-processes.gmad"  "")

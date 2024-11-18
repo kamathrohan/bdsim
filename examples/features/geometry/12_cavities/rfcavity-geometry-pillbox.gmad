@@ -1,13 +1,11 @@
 
 d1: drift, l=0.5;
 
-rf1 : rf, l=115.4*mm,
-            frequency=8*MHz,
-      phase = 2*pi,
-      gradient = 10 * MV / m,
-      cavityModel="Tesla9Cell",
+rf1 : rf, l=115.4*mm, frequency=8*MHz, phase=2*pi,
+      gradient = 10 * MV / m, cavityModel="Tesla9Cell",
       material = "copper";
 
+! this is for the geometry only - and does not affect the field model used
 Tesla9Cell: cavitymodel,
         type = "pillbox",
         irisRadius = 35*mm,

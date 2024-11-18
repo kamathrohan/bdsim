@@ -117,10 +117,6 @@ public:
   /// Access the map of all branches to be activated per tree.
   inline const RBDS::BranchMap& BranchesToBeActivated() const {return branches;}
 
-  /// Boolean whether all branches should be turned on irrespective of map of
-  /// individual branches to turn on.
-  inline bool AllBranchesToBeActivated() const {return allBranchesActivated;}
-
   /// Set a branch to be activated if not already.
   void SetBranchToBeActivated(const std::string& treeName, const std::string& branchName);
 
@@ -128,6 +124,7 @@ public:
   inline std::string InputFilePath() const             {return optionsString.at("inputfilepath");}
   inline std::string OutputFileName() const            {return optionsString.at("outputfilename");}
   inline std::string CalculateOpticalFunctionsFileName() const {return optionsString.at("opticslfilename");}
+  inline bool   AllBranchesToBeActivated() const  {return optionsBool.at("allbranchesactivated");}
   inline bool   Debug() const                     {return optionsBool.at("debug");}
   inline bool   CalculateOpticalFunctions() const {return optionsBool.at("calculateoptics");}
   inline bool   EmittanceOnTheFly() const         {return optionsBool.at("emittanceonthefly");}
@@ -146,6 +143,14 @@ public:
   /// Print out the per event and simple histogram set definitions as these
   /// are (assumed to be) spectra definitions that people might want to see expanded.
   void PrintHistogramSetDefinitions() const;
+
+  /// Update the "energy" variable of any spectra histograms to "totalEnergy" for
+  /// cylindrical and spherical samplers only as they have different variable names.
+  /// This can only be done after loading data and knowing which samplers are of these types.
+  /// Also, provide both sets of names so we can categorise each as plane, cylindrical or
+  /// spherical sampler. This is done on sets of histograms which is uniquely for spectra.
+  void FixCylindricalAndSphericalSamplerVariablesInSets(const std::set<std::string>& allCNames,
+                                                        const std::set<std::string>& allSNames);
   
  protected:
   /// Private constructor for singleton pattern.
@@ -253,9 +258,6 @@ public:
 
   /// Cache of which branches need to be activated for this analysis.
   RBDS::BranchMap branches;
-
-  /// Whether all branches will be activated - ie for optics.
-  bool allBranchesActivated;
 
   /// Cache of all spectra names declared to permit unique naming of histograms
   /// when there's more than one spectra per branch used.

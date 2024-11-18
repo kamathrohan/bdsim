@@ -19,24 +19,24 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BDSHistBinMapper.hh"
 
-BDSHistBinMapper::BDSHistBinMapper(G4int nBinsIIn, G4int nBinsJIn, G4int nBinsKIn, G4int nBinsLIn) :
-                                                                                nBinsI(nBinsIIn),
-                                                                                nBinsJ(nBinsJIn),
-                                                                                nBinsK(nBinsKIn),
-                                                                                nBinsL(nBinsLIn){
-}
+BDSHistBinMapper::BDSHistBinMapper(G4int nBinsIIn, G4int nBinsJIn, G4int nBinsKIn, G4int nBinsLIn):
+  nBinsI(nBinsIIn),
+  nBinsJ(nBinsJIn),
+  nBinsK(nBinsKIn),
+  nBinsL(nBinsLIn)
+{;}
 
 #ifdef USE_BOOST
 BDSHistBinMapper::BDSHistBinMapper(G4int nBinsIIn, G4int nBinsJIn, G4int nBinsKIn, G4int nBinsLIn,
-                                   boost_histogram_axes_variant energyAxisIn) : nBinsI(nBinsIIn),
-                                                                                nBinsJ(nBinsJIn),
-                                                                                nBinsK(nBinsKIn),
-                                                                                nBinsL(nBinsLIn),
-                                                                                energyAxis(energyAxisIn) {
-    if (nBinsL != 1) // it means we are in the 4D case
-    {
-        nBinsL += 2; // + 2 to take into account in the mapping the two under and overflow bins
-    }
+                                   boost_histogram_axes_variant energyAxisIn):
+  nBinsI(nBinsIIn),
+  nBinsJ(nBinsJIn),
+  nBinsK(nBinsKIn),
+  nBinsL(nBinsLIn),
+  energyAxis(energyAxisIn)
+{
+  if (nBinsL != 1) // it means we are in the 4D case
+    {nBinsL += 2;} // + 2 to take into account in the mapping the two under and overflow bins
 }
 #endif
 
@@ -45,17 +45,17 @@ G4int BDSHistBinMapper::GlobalFromIJKLIndex(G4int iIndex,
                                             G4int kIndex,
                                             G4int lIndex) const
 {
-    return iIndex * nBinsJ * nBinsK * nBinsL + jIndex * nBinsK * nBinsL + kIndex * nBinsL + lIndex;
+  return iIndex * nBinsJ * nBinsK * nBinsL + jIndex * nBinsK * nBinsL + kIndex * nBinsL + lIndex;
 }
 
 void BDSHistBinMapper::IJKLFromGlobal(G4int globalBin,
-                                      G4int &iIndex,
-                                      G4int &jIndex,
-                                      G4int &kIndex,
-                                      G4int &lIndex) const
+                                      G4int& iIndex,
+                                      G4int& jIndex,
+                                      G4int& kIndex,
+                                      G4int& lIndex) const
 {
-    iIndex = globalBin / (nBinsL * nBinsK * nBinsJ);
-    jIndex = (globalBin - iIndex*nBinsL * nBinsK * nBinsJ) / (nBinsL * nBinsK);
-    kIndex = (globalBin - jIndex*nBinsL * nBinsK - iIndex * nBinsL * nBinsK * nBinsJ) / nBinsL;
-    lIndex = globalBin - kIndex*nBinsL - jIndex * nBinsL * nBinsK - iIndex*nBinsL * nBinsK * nBinsJ;
+  iIndex = globalBin / (nBinsL * nBinsK * nBinsJ);
+  jIndex = (globalBin - iIndex*nBinsL * nBinsK * nBinsJ) / (nBinsL * nBinsK);
+  kIndex = (globalBin - jIndex*nBinsL * nBinsK - iIndex * nBinsL * nBinsK * nBinsJ) / nBinsL;
+  lIndex = globalBin - kIndex*nBinsL - jIndex * nBinsL * nBinsK - iIndex*nBinsL * nBinsK * nBinsJ;
 }

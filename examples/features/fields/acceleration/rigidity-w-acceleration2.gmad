@@ -1,0 +1,21 @@
+! similar to #1 but with decceleration
+
+qf: quadrupole, k1=0.2, l=0.5;
+qd: quadrupole, k1=-0.2, l=1.0;
+! need 4m of drift in betweeen each for a matched fodo cell
+
+d1: drift, l=0.5*m;
+
+rf1: rf, l=1.0*m, gradient=10*MV/m;
+rf2: rf, l=1.0*m, gradient=-10*MV/m;
+
+sb1: sbend, l=1.5*m, angle=0.2*rad;
+
+! fodo with bends and rf in it
+l1: line=(qf,d1,rf1,d1,sb1,d1,qd,d1,rf2,d1,sb1,d1,qf);
+use, l1;
+
+! 1st quad is +ve k1 -> horizontally focussing -> expect small y size with large yp
+beam, particle="e-",
+      kineticEnergy=100*MeV,
+      Yp0=1e-4;

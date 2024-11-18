@@ -18,6 +18,8 @@ rebdsim_test(analysis-spectra-top10particles-log "spectra-top10particles-log.txt
 rebdsim_test(analysis-spectra-rigidity           "spectra-rigidity.txt")
 rebdsim_test(analysis-spectra-selection          "spectra-selection.txt")
 rebdsim_test(analysis-rebdsim-uneven-binning     "unevenBinning.txt")
+rebdsim_test(analysis-spectra-sampler-cyl        "spectra-sampler-cyl.txt")
+rebdsim_test(analysis-spectra-sampler-sph        "spectra-sampler-sph.txt")
 
 rebdsim_test_fail(analysis-uneven-binning-bad1   "unevenBinning-bad1.txt")
 rebdsim_test_fail(analysis-uneven-binning-bad2   "unevenBinning-bad2.txt")

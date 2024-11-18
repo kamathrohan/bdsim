@@ -1,0 +1,45 @@
+name: manual
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - 'develop'
+
+
+jobs:
+  btlinux:
+    name: build manual
+    runs-on: ubuntu-latest
+    container: bdsim/alma9-g4.11.2:latest
+
+    steps:
+      - name: Checkout bdsim
+        uses: actions/checkout@v4
+        id: checkout
+
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
+
+      - name: Build manual
+        shell: bash
+        run: |
+          #
+          rm -rfv /usr/local/lib/Geant4-10.7.4/Geant4PackageCache.cmake
+  
+          # ROOT
+          source /tmp/root/bin/thisroot.sh
+  
+          # git trusted dir
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+  
+          # install sphinx and rtd theme 
+          pip3 install sphinx sphinx-rtd-theme
+          
+          # build
+          mkdir /tmp/bdsim-build
+          mkdir /tmp/bdsim-install
+          cd /tmp/bdsim-build
+          cmake -DCMAKE_INSTALL_PREFIX=/tmp/bdsim-install $GITHUB_WORKSPACE
+          make manual

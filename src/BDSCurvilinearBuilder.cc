@@ -377,6 +377,7 @@ BDSBeamlineElement* BDSCurvilinearBuilder::CreateBridgeElementFromComponent(BDSA
 						      new G4RotationMatrix(*refRotEnd),
 						      new G4RotationMatrix(*refRotEnd),
 						      startS, midS, endS,
+                  0, 0, 0,
 						      copyTiltOffset,
 						      nullptr, // sampler info
 						      beamlineIndex);
@@ -415,6 +416,9 @@ BDSBeamlineElement* BDSCurvilinearBuilder::CreateElementFromComponent(BDSSimpleC
 				      element->GetSPositionStart(),
 				      element->GetSPositionMiddle(),
 				      element->GetSPositionEnd(),
+              element->GetSynchronousTMiddle(),
+              element->GetStartMomentum(),
+              element->GetStartKineticEnergy(),
 				      copyTiltOffset,
 				      nullptr, // sampler info
 				      index);
@@ -456,6 +460,7 @@ BDSBeamlineElement* BDSCurvilinearBuilder::CreateElementFromComponent(BDSSimpleC
 				      sStart,
 				      sMid,
 				      sEnd,
+              0, 0, 0,
 				      copyTiltOffset,
 				      nullptr, // sampler info
 				      index);
@@ -501,6 +506,7 @@ BDSBeamlineElement* BDSCurvilinearBuilder::CreateBonusSectionStart(BDSBeamline c
 						     sStart - bonusChordLength,
 						     sStart - 0.5*bonusChordLength,
 						     sStart,
+                 0, 0, 0,
 						     nullptr,
 						     nullptr, // sampler info
 						     -1); // artificial index of -1 for before beam line
@@ -543,6 +549,7 @@ BDSBeamlineElement* BDSCurvilinearBuilder::CreateBonusSectionEnd(BDSBeamline con
 						     sStart,
 						     sStart + 0.5*bonusChordLength,
 						     sStart + bonusChordLength,
+                 0, 0, 0,
 						     nullptr,
 						     nullptr, // sampler info
 						     lastIndex + 1); // artificial index of -1 for before beam line

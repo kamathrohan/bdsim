@@ -70,10 +70,6 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(const G4String&         elementName
   G4double                       fint = element->fint;
   G4double                      fintx = element->fintx;
   G4double                       hgap = element->hgap * CLHEP::m;
-  G4double       synchronousT0AtStart = (*st)["synchronousT0"];
-  G4double         synchronousT0AtEnd = synchronousT0AtStart + (arcLength/CLHEP::c_light);
-  G4double      synchronousT0AtMiddle = synchronousT0AtStart + (0.5*arcLength/CLHEP::c_light);
-  (*st)["synchronousT0"] = synchronousT0AtMiddle; // update the value on the strength
 
   // Note for tilted dipoles, the geometry is tilted but the curvilinear world isn't,
   // therefore we tilt the field to match the geometry.
@@ -329,13 +325,13 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(const G4String&         elementName
       // if using a non-matrix integrator set, this code should only be reached if a finite fint is specified.
       // As the angled face geometry is constructed, a thin pole face kick shouldn't also be applied, so set
       // e1 to 0 in the magnet strength object so only fringe effects are applied
-      if (!integratorSet->IsMatrixIntegratorSet() && BDSGlobalConstants::Instance()->BuildPoleFaceGeometry()
-            && BDS::IsFinite(fint))
+      if (!integratorSet->IsMatrixIntegratorSet()
+	  && BDSGlobalConstants::Instance()->BuildPoleFaceGeometry()
+	  && BDS::IsFinite(fint))
         {e1 = 0;}
 
       BDSMagnetStrength* fringeStIn = BDS::GetFringeMagnetStrength(element, st, oneFringeAngle,
                                                                    e1, element->e2, fintx, true);
-      (*fringeStIn)["synchronousT0"] = synchronousT0AtStart;
       G4String segmentName           = baseName + "_e1_fringe";
       G4double fringeAngleIn         = 0.5*oneFringeAngle - incomingFaceAngle;
       G4double fringeAngleOut        = 0.5*oneFringeAngle + incomingFaceAngle;
@@ -443,7 +439,6 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(const G4String&         elementName
 
       BDSMagnetStrength* fringeStOut = BDS::GetFringeMagnetStrength(element, st, oneFringeAngle,
                                                                     element->e1, e2, fintx, false);
-      (*fringeStOut)["synchronousT0"] = synchronousT0AtEnd;
       G4double fringeAngleIn          = 0.5*oneFringeAngle + outgoingFaceAngle;
       G4double fringeAngleOut         = 0.5*oneFringeAngle - outgoingFaceAngle;
       G4String segmentName            = baseName + "_e2_fringe";
@@ -576,11 +571,6 @@ BDSLine* BDS::BuildRBendLine(const G4String&         elementName,
   // Angle here is in the 'strength' convention of +ve angle -> -ve x deflection
   const G4double       angle = (*st)["angle"];
   const G4double   arcLength = (*st)["length"];
-  
-  G4double       synchronousT0AtStart = (*st)["synchronousT0"];
-  G4double         synchronousT0AtEnd = synchronousT0AtStart + (arcLength/CLHEP::c_light);
-  G4double      synchronousT0AtMiddle = synchronousT0AtStart + (0.5*arcLength/CLHEP::c_light);
-  (*st)["synchronousT0"] = synchronousT0AtMiddle; // update the value on the strength
   
   G4bool zeroStrength = BDS::ZeroStrengthDipole(st);
   
@@ -727,7 +717,6 @@ BDSLine* BDS::BuildRBendLine(const G4String&         elementName,
         BDSMagnetStrength* fringeStIn = BDS::GetFringeMagnetStrength(element, st, oneFringeAngle,
                                                                      trackingPolefaceAngle, trackingPolefaceAngleOut,
                                                                    fintx, true);
-      (*fringeStIn)["synchronousT0"] = synchronousT0AtStart;
       G4String fringeName = name + "_e1_fringe";
 
       // element used for beam pipe materials etc - not strength, angle or length.
@@ -795,7 +784,6 @@ BDSLine* BDS::BuildRBendLine(const G4String&         elementName,
       BDSMagnetStrength* fringeStOut = BDS::GetFringeMagnetStrength(element, st, oneFringeAngle,
                                                                     trackingPolefaceAngleIn, trackingPolefaceAngle,
                                                                     fintx, false);
-      (*fringeStOut)["synchronousT0"] = synchronousT0AtEnd;
       G4String fringeName = name + "_e2_fringe";
       
       BDSMagnet* endfringe = BDS::BuildDipoleFringe(element, fringeOutInputAngle, angleOut,

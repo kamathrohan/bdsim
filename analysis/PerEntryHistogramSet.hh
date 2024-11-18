@@ -71,10 +71,16 @@ public:
   virtual void Write(TDirectory* dir = nullptr);
   
   /// Ensure sampler is setup even if it wasn't on at the beginning when
-  /// we inspected the model tree.
-  void CheckSampler();
+  /// we inspected the model tree. We need this to build up unique PDG IDs
+  /// by manually looping over the data. A derived class must implement this
+  /// for each type of sampler data we have.
+  virtual void CheckSampler() = 0;
 
 protected:
+  /// Derived class should get the partID member and form a set from the specific
+  /// type of sampler it is.
+  virtual void GetPDGIDSetFromSampler(std::set<long long int>& setIn) const = 0;
+  
   inline bool IsIon(long long int pdgID) const {return pdgID > 100000000;}
 
   void CreatePerEntryHistogram(long long int pdgID);

@@ -52,12 +52,10 @@ BDSPhysicsMuon::~BDSPhysicsMuon()
 void BDSPhysicsMuon::ConstructParticle()
 { 
   // leptons
-  G4LeptonConstructor leptons;
-  leptons.ConstructParticle();
+  G4LeptonConstructor::ConstructParticle();
 
   // mesons, inc. all pions
-  G4MesonConstructor mConstructor;
-  mConstructor.ConstructParticle();
+  G4MesonConstructor::ConstructParticle();
 
   // photons
   G4Gamma::Gamma();

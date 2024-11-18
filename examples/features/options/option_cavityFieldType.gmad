@@ -1,0 +1,18 @@
+
+! no cavityFieldType specified, so it should be picked up from the option
+rf1: rf, l=20*cm, gradient=25*MV/m, frequency=1200*MHz, phase=0.02;
+
+! specific cavityFieldType given so it should be this
+rf2: rf, l=20*cm, gradient=25*MV/m, frequency=1200*MHz, phase=0.02, cavityFieldType="constantinz";
+lat: line = (rf1,rf2);
+use, lat;
+
+beam,  particle="e-",
+       energy=1.5 * GeV,
+       X0=0.1*um;
+
+q1: query, nx=10, nz=10, xmin=-10*cm, xmax=10*cm, zmin=-10*cm, zmax=10*cm,
+    	   queryElectricField=1, outfileElectric="qu_rf_pillbox.dat",
+	   referenceElement="rf1";
+
+option, cavityFieldType="pillbox";

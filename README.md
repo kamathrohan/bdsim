@@ -1,75 +1,78 @@
-Beam Delivery Simulation (BDSIM) Copyright (c) Royal Holloway, University of London 2001 - 2024
+# Beam Delivery Simulation (BDSIM) Copyright (c) Royal Holloway, University of London 2001 - 2024
 
-General Information
-===================
+## General Information
 
 BDSIM version 1.7.7.develop program for radiation transport in accelerators
 
 The official web site is:
 	http://www.pp.rhul.ac.uk/bdsim
 
+Mailing list is:
+https://www.jiscmail.ac.uk/cgi-bin/webadmin?A0=BDSIM
+
 Currently maintained and developed by:
 
-Laurie Nevay          <laurie.nevay@cern.ch> (main contact)
-Will Shields          <william.shields@rhul.ac.uk>
-Stewart Boogert       <stewart.boogert@cockcroft.ac.uk>
-Andrey Abramov        <andrey.abramov@cern.ch>
-Stuart Walker         <stuart.walker@desy.de>
-Jochem Snuverink      <jochem.snuverink@psi.ch>
+  * Laurie Nevay          <laurie.nevay@cern.ch> (main contact)
+  * Will Shields          <william.shields@rhul.ac.uk>
+  * Stewart Boogert       <stewart.boogert@cockcroft.ac.uk>
+  * Jochem Snuverink      <jochem.snuverink@psi.ch>
 
 Originally started by G.A. Blair. See manual for full authorship.
 
-Installation
-============
+## Installation
 
 Regularly tested on:
-    OS: Linux (Scientific Linux CentOS 7, RHEL9, Alma9, Ubuntu 20,22), Mac OS 13 onwards
-    Architecture: x86_64, ARM64
-    Compiler: GCC 8,9,11,13, Clang 12-15 (fully C++ 11 compliant)
+  * OS: Linux (RHEL9, Alma9, Ubuntu 20,22, 24), Mac OS 13 onwards
+  * Architecture: x86_64, ARM64
+  * Compiler: GCC 8,9,11,13, Clang 12-15 (fully C++ 11 compliant)
 
 
-System requirements:
-
-   - compiler with C++11 support
-   - CMake 3.5 or higher
-   - BISON
-   - CLHEP (recommended version > 2.3.3.0 - check with Geant4 version)
-   - FLEX
-   - Geant4 versions Geant4.10 or greater (10.4.3, 10.7.2, 11.2.0 recommended)
-     or latest patch version recommended of any 10.X version. 
-   - ROOT 6
+## System requirements:
+  * compiler with C++11 support
+  * CMake 3.5 or higher
+  * BISON
+  * CLHEP (recommended version > 2.3.3.0 - check with Geant4 version)
+  * FLEX
+  * Geant4 versions Geant4.10 or greater (10.4.3, 10.7.2, 11.2.0 recommended) or latest patch version recommended of any 10.X version. 
+  * ROOT 6
 
 Optional: 
-   - OpenGL / QT5 (for interactive visualiser)
-   - XercesC3 (for GDML)
+  * OpenGL / QT5 (for interactive visualiser)
+  * XercesC3 (for GDML)
 
 To compile, see http://www.pp.rhul.ac.uk/bdsim/manual/installation.html
 
+```
    %  mkdir build
    %  cd build
    %  cmake ../bdsim
    %  make
    %  make install
+```
 
-Getting Started
-===============
+## Getting Started
+
 
 To run:
+```
     bdsim [options]
+```
 
 for example: 
+```
     bdsim --file=line.gmad
+```
 
 to see the full list of options:
+```
     bdsim --help
-
+```
 
 Some input examples are available in ./examples/ directory. 
 For more details consult documentation on http://www.pp.rhul.ac.uk/bdsim/manual/
 
-Directories
-===========
-
+## Directories
+```
 analysis/        : analysis tools
 building         : various build systems
 cmake/           : cmake configuration files
@@ -87,11 +90,11 @@ src-external/    : third party source code
 test/            : various test programs
 utils/           : various useful scripts
 vis/             : default visualisation files
+```
 
+## History
 
-History
-=======
-
+```
 v1.7.7  29.10.23
 v1.7.6  18.10.23
 v1.7.5  03.10.23
@@ -135,3 +138,4 @@ v0.3 :  26.01.07
 v0.2 :  18.05.06
 v0.1 :  15.11.05 
 Beta :  05.05.05
+```

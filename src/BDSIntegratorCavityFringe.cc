@@ -29,6 +29,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 BDSIntegratorCavityFringe::BDSIntegratorCavityFringe(BDSMagnetStrength const* strength,
                                                    G4Mag_EqRhs* eqOfMIn,
+                                                   G4double brho,
                                                    G4double maximumRadiusIn):
   BDSIntegratorRMatrixThin(strength, eqOfMIn, maximumRadiusIn),
   phase((*strength)["phase"]),
@@ -36,6 +37,8 @@ BDSIntegratorCavityFringe::BDSIntegratorCavityFringe(BDSMagnetStrength const* st
   isentrance((*strength)["isentrance"]),
   eq(static_cast<BDSMagUsualEqRhs*>(eqOfM))
 {
+  G4int acceleratingFieldDirectionFactor = BDS::Sign(brho);
+  efield /= acceleratingFieldDirectionFactor;
   rmat11  = (*strength)["rmat11"];
   rmat21  = (*strength)["rmat21"];
   rmat22  = (*strength)["rmat22"];

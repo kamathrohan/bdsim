@@ -1,0 +1,14 @@
+c1: rcol, l=20*cm, outerDiameter=20*cm, material="copper";
+
+l1: line = (c1);
+
+use, l1;
+
+option, physicsList="ionisation";
+
+option, checkOverlaps=1;
+
+beam, particle="e-",
+      energy=3*GeV;
+
+option, physicsVerbose=1;

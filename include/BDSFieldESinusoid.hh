@@ -40,14 +40,14 @@ class BDSFieldESinusoid: public BDSFieldE
 public:
   BDSFieldESinusoid() = delete;
   /// Construct with a BDSMagnetStrength instance for convenience.
-  BDSFieldESinusoid(BDSMagnetStrength const* strength,
-		    G4double                 brho);
+  explicit BDSFieldESinusoid(BDSMagnetStrength const* strength);
 
   /// Construct from E amplitude, unit direction vector, frequency (G4Units) and phase.
   BDSFieldESinusoid(G4double eFieldAmplitude,
                     const G4ThreeVector& unitDirectionIn,
-		    G4double frequencyIn,
-		    G4double phaseOffsetIn);
+                    G4double frequencyIn,
+                    G4double phaseOffsetIn,
+                    G4double synchronousTIn);
 
   virtual ~BDSFieldESinusoid(){;}
   
@@ -55,21 +55,14 @@ public:
 
   /// Accessor for field value.
   virtual G4ThreeVector GetField(const G4ThreeVector& position,
-				 const G4double       t) const;
+                                 const G4double       t) const;
 
 protected:
-  /// Amplitude of electric field in V/m.
-  G4double eField;
-  
-  /// Unit vector for direction of field.
-  const G4ThreeVector unitDirection;
-  
-private:
-  /// Angular frequency of field.
-  G4double angularFrequency;
-
-  /// Phase in radians.
-  G4double phase;
+  G4double eField; /// Peak amplitude of electric field.
+  const G4ThreeVector unitDirection; ///< Unit vector for direction of field.
+  G4double angularFrequency; ///< Angular frequency of field.
+  G4double phase; ///< Phase.
+  G4double synchronousT; ///< Global T offset for 0 phase.
 };
 
 #endif

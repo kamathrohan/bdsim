@@ -3,6 +3,7 @@ project(usercomponent)
 
 # point cmake to my own custom installation directory that's not a system dir
 # this is where BDSIMConfig.cmake exists
+# if you install bdsim in a system dir then you may not need this and can comment it out
 set(CMAKE_PREFIX_PATH /Users/nevay/physics/reps/bdsim-develop-install/lib/cmake/bdsim)
 
 # find the package and set up variables

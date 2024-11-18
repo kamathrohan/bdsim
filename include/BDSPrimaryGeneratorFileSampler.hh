@@ -67,6 +67,7 @@ public:
   struct DisplacedVertex
   {
     G4ThreeVector xyz;
+    G4double T;
     G4PrimaryParticle* vertex;
   };
 

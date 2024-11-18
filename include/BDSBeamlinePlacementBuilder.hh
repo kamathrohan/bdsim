@@ -25,6 +25,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 class BDSBeamline;
 class BDSComponentFactory;
+class BDSParticleDefinition;
 
 namespace BDS
 {
@@ -33,8 +34,9 @@ namespace BDS
   /// but the beam line is necessary for extent calculation for the world.
   /// The parent beam line is required for making placements w.r.t. it.
   BDSBeamline* BuildPlacementGeometry(const std::vector<GMAD::Placement>& placements,
-				      const BDSBeamline* parentBeamLine,
-                                      BDSComponentFactory* componentFactory);
+                                      const BDSBeamline* parentBeamLine,
+                                      BDSComponentFactory* componentFactory,
+                                      const BDSParticleDefinition* designParticle);
 }
 
 #endif

@@ -37,7 +37,8 @@ HistogramDefSet::HistogramDefSet(const std::string&  branchNameIn,
   dynamicallyStoreParticles(particlesSpecs.empty()),
   what(writewhat::all),
   topN(1),
-  definitionLine(definitionLineIn)
+  definitionLine(definitionLineIn),
+  samplerType(samplertype::plane)
 {
   if (!baseDefinitionIn)
     {throw std::invalid_argument("invalid histogram definition");}
@@ -129,6 +130,14 @@ std::string HistogramDefSet::RemoveSubString(const std::string& stringIn,
       result.erase(pos, wordToRemove.size());
     }
   return result;
+}
+
+void HistogramDefSet::ReplaceStringInVariable(const std::string& match,
+                                              const std::string& replacement)
+{
+  baseDefinition->ReplaceStringInVariable(match, replacement);
+  for (auto* def : definitionsV)
+    {def->ReplaceStringInVariable(match, replacement);}
 }
 
 std::ostream& operator<< (std::ostream &out, const HistogramDefSet& s)

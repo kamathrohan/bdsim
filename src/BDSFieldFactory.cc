@@ -394,13 +394,21 @@ void BDSFieldFactory::PrepareModulatorDefinitions(const std::vector<GMAD::Modula
           throw BDSException(__METHOD_NAME__, msg);
         }
       BDSModulatorType modulatorType = BDS::DetermineModulatorType(definition.type);
+
+      G4double frequency = definition.frequency * CLHEP::hertz;
+      G4double phase = definition.phase * CLHEP::rad;
+      if (BDS::IsFinite(definition.tOffset))
+        {
+          if (BDS::IsFinite(definition.tOffset))
+            {throw BDSException(__METHOD_NAME__, "definition: " + definition.name + " has both tOffset and phase specified - only one can be used.");}
+          phase = definition.tOffset*CLHEP::s * frequency * CLHEP::twopi;
+        }
       
       // We can't calculate any global phase here because this one modulator info may
       // be used by multiple beam line elements at different locations
       BDSModulatorInfo* info = new BDSModulatorInfo(modulatorType,
-                                                    definition.frequency * CLHEP::hertz,
-                                                    definition.phase * CLHEP::rad,
-                                                    definition.tOffset * CLHEP::s,
+                                                    frequency,
+                                                    phase,
                                                     definition.amplitudeScale,
                                                     definition.amplitudeOffset,
                                                     definition.T0,
@@ -408,40 +416,6 @@ void BDSFieldFactory::PrepareModulatorDefinitions(const std::vector<GMAD::Modula
       info->nameOfParserDefinition = definition.name;
       parserModulatorDefinitions[G4String(definition.name)] = info;
     }
-}
-
-G4double BDSFieldFactory::CalculateGlobalPhase(G4double oscillatorFrequency,
-                                               G4double tOffsetIn)
-{
-  if (!BDS::IsFinite(oscillatorFrequency))
-    {return 0;} // prevent division by 0 for period
-  G4double period = 1. / oscillatorFrequency;
-  G4double nPeriods = tOffsetIn / period;
-  // phase is the remainder from total phase / N*2pi, where n is unknown.
-  G4double integerPart = 0;
-  G4double fractionalPart = std::modf(nPeriods, &integerPart);
-  G4double phaseOffset = fractionalPart * CLHEP::twopi;
-  return phaseOffset;
-}
-
-G4double BDSFieldFactory::CalculateGlobalPhase(const BDSModulatorInfo& modulatorInfo,
-                                               const BDSFieldInfo& fieldInfo)
-{
-  G4double synchronousT0 = 0.0;
-  auto magnetStrength = fieldInfo.MagnetStrength();
-  if (magnetStrength)
-    {synchronousT0 = (*magnetStrength)["synchronousT0"];}
-  
-  // for finite frequency, construct it so that phase is w.r.t. the centre of the cavity
-  // and that it's 0 by default
-  G4double tOffset = 0;
-  if (BDS::IsFinite(modulatorInfo.tOffset)) // use the one specified
-    {tOffset = modulatorInfo.tOffset;}
-  else // this gives 0 phase at the middle of cavity assuming relativistic particle with v = c
-    {tOffset = synchronousT0;}
-  
-  G4double globalPhase = CalculateGlobalPhase(modulatorInfo.frequency, tOffset);
-  return globalPhase;
 }
 
 G4double BDSFieldFactory::ConvertToDoubleWithException(const G4String& value,
@@ -543,26 +517,26 @@ BDSFieldObjects* BDSFieldFactory::CreateField(const BDSFieldInfo&      info,
 
   BDSFieldClassType clas = BDS::DetermineFieldClassType(info.FieldType());
   try
-  {
-  switch (clas.underlying())
     {
-    case BDSFieldClassType::magnetic:
-      {field = CreateFieldMag(info, scalingStrength, scalingKey); break;}
-    case BDSFieldClassType::electromagnetic:
-      {field = CreateFieldEM(info); break;}
-    case BDSFieldClassType::electric:
-      {field = CreateFieldE(info); break;}
-    case BDSFieldClassType::irregular:
-      {field = CreateFieldIrregular(info); break;}
-    default:
-      {break;} // this will return nullptr
+      switch (clas.underlying())
+	{
+	case BDSFieldClassType::magnetic:
+	  {field = CreateFieldMag(info, scalingStrength, scalingKey); break;}
+	case BDSFieldClassType::electromagnetic:
+	  {field = CreateFieldEM(info); break;}
+	case BDSFieldClassType::electric:
+	  {field = CreateFieldE(info); break;}
+	case BDSFieldClassType::irregular:
+	  {field = CreateFieldIrregular(info); break;}
+	default:
+	  {break;} // this will return nullptr
+	}
     }
-  }
   catch (BDSException& e)
-  {
-    e.AppendToMessage("\nProblem with field possibly named \"" + info.NameOfParserDefinition() + "\"");
-    throw e;
-  }
+    {
+      e.AppendToMessage("\nProblem with field possibly named \"" + info.NameOfParserDefinition() + "\"");
+      throw e;
+    }
   return field;
 }
 
@@ -902,7 +876,7 @@ BDSFieldObjects* BDSFieldFactory::CreateFieldEM(const BDSFieldInfo& info)
   switch (info.FieldType().underlying())
     {
     case BDSFieldType::rfpillbox:
-      {field = new BDSFieldEMRFCavity(info.MagnetStrength(), info.BRho()); break;}
+      {field = new BDSFieldEMRFCavity(info.MagnetStrength()); break;}
     case BDSFieldType::ebmap1d:
     case BDSFieldType::ebmap2d:
     case BDSFieldType::ebmap3d:
@@ -989,7 +963,7 @@ BDSFieldE* BDSFieldFactory::CreateFieldERaw(const BDSFieldInfo& info)
     case BDSFieldType::rfconstantinx:
     case BDSFieldType::rfconstantiny:
     case BDSFieldType::rfconstantinz:
-      {field = new BDSFieldESinusoid(info.MagnetStrength(), info.BRho()); break;}
+      {field = new BDSFieldESinusoid(info.MagnetStrength()); break;}
     case BDSFieldType::emap1d:
     case BDSFieldType::emap2d:
     case BDSFieldType::emap3d:
@@ -1105,9 +1079,9 @@ G4MagIntegratorStepper* BDSFieldFactory::CreateIntegratorMag(const BDSFieldInfo&
     case BDSIntegratorType::g4rk4minimumstep:
       integrator = new BDSIntegratorG4RK4MinStep(eqOfM, BDSGlobalConstants::Instance()->ChordStepMinimumYoke()); break;
     case BDSIntegratorType::rmatrixthin:
-      integrator = new BDSIntegratorRMatrixThin(strength,eqOfM, info.BeamPipeRadius()); break;
+      integrator = new BDSIntegratorRMatrixThin(strength, eqOfM, info.BeamPipeRadius()); break;
     case BDSIntegratorType::cavityfringe:
-      integrator = new BDSIntegratorCavityFringe(strength,eqOfM, info.BeamPipeRadius()); break;
+      integrator = new BDSIntegratorCavityFringe(strength, eqOfM, brho, info.BeamPipeRadius()); break;
     case BDSIntegratorType::g4constrk4:
       integrator = new G4ConstRK4(eqOfM); break;
     case BDSIntegratorType::g4exacthelixstepper:
@@ -1294,7 +1268,7 @@ BDSFieldObjects* BDSFieldFactory::CreateCavityFringe(const BDSFieldInfo& info)
 {
   BDSFieldMag* bGlobalField           = new BDSFieldMagZero();
   BDSMagUsualEqRhs* bEqOfMotion       = new BDSMagUsualEqRhs(bGlobalField);
-  G4MagIntegratorStepper* integrator  = new BDSIntegratorCavityFringe(info.MagnetStrength(),bEqOfMotion,0.95*info.BeamPipeRadius());
+  G4MagIntegratorStepper* integrator  = new BDSIntegratorCavityFringe(info.MagnetStrength(),bEqOfMotion,info.BRho(),0.95*info.BeamPipeRadius());
   BDSFieldObjects* completeField      = new BDSFieldObjects(&info, bGlobalField,
                                                                   bEqOfMotion, integrator);
   return completeField;
@@ -1341,19 +1315,18 @@ BDSModulator* BDSFieldFactory::CreateModulator(const BDSModulatorInfo* modulator
         {
         case BDSModulatorType::sint:
           {
-            G4double globalPhase = CalculateGlobalPhase(*modulatorRecipe, info);
             result = new BDSModulatorSinT(modulatorRecipe->frequency,
-                                          globalPhase,
+                                          modulatorRecipe->phase,
+                                          info.SynchronousT(),
                                           modulatorRecipe->amplitudeOffset,
                                           modulatorRecipe->scale);
             break;
           }
         case BDSModulatorType::singlobalt:
           {
-            // calculate phase with no synchronous offset
-            G4double globalPhase = BDS::IsFinite(modulatorRecipe->phase) ? modulatorRecipe->phase : CalculateGlobalPhase(modulatorRecipe->frequency, modulatorRecipe->tOffset);;
             result = new BDSModulatorSinT(modulatorRecipe->frequency,
-                                          globalPhase,
+                                          modulatorRecipe->phase,
+                                          0.0,
                                           modulatorRecipe->amplitudeOffset,
                                           modulatorRecipe->scale);
             break;

@@ -27,6 +27,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <limits>
 #include <map>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -245,6 +246,12 @@ namespace BDS
   V MapGetWithDefault(const std::map <K,V>& m, const K& key, const V& defaultValue)
   {
     typename std::map<K,V>::const_iterator it = m.find(key);
+    return it == m.end() ? defaultValue : it->second;
+  }
+  template <typename K, typename V>
+  V MapGetWithDefault(const std::unordered_map <K,V>& m, const K& key, const V& defaultValue)
+  {
+    typename std::unordered_map<K,V>::const_iterator it = m.find(key);
     return it == m.end() ? defaultValue : it->second;
   }
 

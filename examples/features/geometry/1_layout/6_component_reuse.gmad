@@ -1,0 +1,16 @@
+d1: drift, l=1*m;
+
+c1: rf, l=20*cm, gradient=20*MV/m;
+
+! here we're reusing the same components but after a change in design rigidity
+! therefore, even though it's just a drift, we have to build it uniquely
+! and we have to name it uniquely so they're individually selectable in the
+! visualiser.
+! the first two d1 should appear as d1_0_pv and d1_1_pv
+! the next two d1s should appear as d1_1_0_pv and d1_1_1_pv
+! the last two d1s should appear as d1_2_0_pv and d1_2_1_pv
+l1: line=(d1,d1,c1,d1,d1,c1,d1,d1);
+
+use, l1;
+
+beam, particle="e-", energy=1*GeV;

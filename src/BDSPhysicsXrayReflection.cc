@@ -26,9 +26,13 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "G4AutoDelete.hh"
 #include "G4Gamma.hh"
 #include "G4ParticleDefinition.hh"
-#include "G4PhysicsListHelper.hh"
 #include "G4XrayReflection.hh"
 
+#if G4VERSION_NUMBER < 1129
+#include "G4ProcessManager.hh"
+#else
+#include "G4PhysicsListHelper.hh"
+#endif
 
 BDSPhysicsXrayReflection::BDSPhysicsXrayReflection(G4double surfaceRoughnessIn):
   G4VPhysicsConstructor("BDSPhysicsXrayReflection"),
@@ -54,18 +58,24 @@ void BDSPhysicsXrayReflection::ConstructProcess()
   reflection->SetSurfaceRoughness(surfaceRoughness);
   G4AutoDelete::Register(reflection);
 
+#if G4VERSION_NUMBER > 1129
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
+#endif
 
   auto aParticleIterator = GetParticleIterator();
   aParticleIterator->reset();
 
   while( (*aParticleIterator)() )
     {
-      G4ParticleDefinition *particle = aParticleIterator->value();
+      G4ParticleDefinition* particle = aParticleIterator->value();
       G4String particleName = particle->GetParticleName();
       if (particleName == "gamma")
         {
+#if G4VERSION_NUMBER < 1129
+          particle->GetProcessManager()->AddDiscreteProcess(reflection);
+#else
           ph->RegisterProcess(reflection, particle);
+#endif
           break;
         }
     }

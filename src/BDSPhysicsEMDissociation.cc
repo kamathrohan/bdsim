@@ -39,8 +39,7 @@ void BDSPhysicsEMDissociation::ConstructParticle()
   G4Gamma::Gamma();
   G4GenericIon::GenericIon();
 
-  G4IonConstructor pConstructor;
-  pConstructor.ConstructParticle();
+  G4IonConstructor::ConstructParticle();
 }
 
 void BDSPhysicsEMDissociation::ConstructProcess()

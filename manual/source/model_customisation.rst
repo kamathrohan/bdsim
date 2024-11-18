@@ -61,7 +61,7 @@ The field map is a 3D field map in BDSIM file format and uses cubic interpolatio
 * :code:`field` objects are described below at: :ref:`field-map-definition`.
 * Pure fields are described at: :ref:`fields-pure-field-types`.
 * Accepted file formats for a field object are described below at: :ref:`field-map-file-formats`.
-* Specific field map file descriptions are described here: :ref:`field-map-formats`.
+* Specific field map file format descriptions are described here: :ref:`field-map-formats`.
 * Allowable different combinations of dimension are described here: :ref:`fields-different-dimensions`.
 
 Field General Notes
@@ -139,7 +139,8 @@ Each beam line element will allow "fieldAll", "fieldVacuum" and "fieldOuter" to 
 Field Map Definition
 ^^^^^^^^^^^^^^^^^^^^
 
-When defining a :code:`field`, the following parameters can be specified. Example below.
+When defining a :code:`field` object, the following parameters can be specified. Usually,
+only a small number of these possible parameters are needed. An example is given below.
 
 .. tabularcolumns:: |p{0.2\textwidth}|p{0.5\textwidth}|
 
@@ -241,7 +242,7 @@ Advanced parameter to be used with caution:
 Simple example: ::
 
   detectorField: field, type="bmap2d",
-                 magneticFile="bdsim2d:fieldmap.dat";
+                        magneticFile="bdsim2d:fieldmap.dat";
 
 This will use a BDSIM format magnetic (only) field map. By default it will have cubic
 interpolation and use a 4th order Runge Kutta integrator.
@@ -256,20 +257,20 @@ The maximum step length will be the **minimum** of:
 In the case of a 4D field, the velocity is assume to be :code:`c`, the speed of light,
 for the spatial distance calculated from this.
 
-.. Note:: See :ref:`fields-sub-fields` below for more details on overlaying two field maps in one.
 
-.. Note:: Either axis angle (with unit axis 3-vector) or Euler angles can be used to provide
-	  the rotation between the element the field maps are attached to and the coordinates
-	  of the field map. Use `axisAngle=1` to use the axis angle rotation scheme.
+Notes:
 
-.. Note:: A right-handed coordinate system is used in Geant4, so positive x is out of a ring.
-
-.. Note:: The time-modulation of the fields is off by default. It is implemented for field maps
-    (E, B and EM) in up to all three spatial dimensions. It is not necessary to define both,
-    phase and tOffset, as they have the same physical meaning. The modulation is calculated
-    according to :math:`\sin(2\pi ft-\varphi)` or :math:`\cos(2\pi ft-\varphi)` with :math:`f`
-    being the frequency of the modulation, :math:`t` the global time of the particle and
-    :math:`\varphi` the shift wrt. the beginning of the oscillation.
+* See :ref:`fields-sub-fields` below for more details on overlaying two field maps in one.
+* Either axis angle (with unit axis 3-vector) or Euler angles can be used to provide
+  the rotation between the element the field maps are attached to and the coordinates
+  of the field map. Use `axisAngle=1` to use the axis angle rotation scheme.
+* A right-handed coordinate system is used in Geant4, so positive x is out of a ring.
+* The time-modulation of the fields is off by default. It is implemented for field maps
+  (E, B and EM) in up to all three spatial dimensions. It is not necessary to define both,
+  phase and tOffset, as they have the same physical meaning. The modulation is calculated
+  according to :math:`\sin(2\pi ft-\varphi)` or :math:`\cos(2\pi ft-\varphi)` with :math:`f`
+  being the frequency of the modulation, :math:`t` the global time of the particle and
+  :math:`\varphi` the shift wrt. the beginning of the oscillation.
 
 
 AutoScaling
@@ -699,30 +700,31 @@ is automatically chosen based on the number of dimensions in the field map type.
 File Formats
 ^^^^^^^^^^^^
 
-.. note:: BDSIM field maps by default have units :math:`cm,s`.
+.. note:: BDSIM field maps by default have units :math:`cm,s` and :math:`T` for magnetic
+          field and :math:`V/m` for electric field.
 
 .. tabularcolumns:: |p{3cm}|p{6cm}|
 
-+------------------+--------------------------------------------+
-| **Format**       | **Description**                            |
-+==================+============================================+
-| bdsim1d          | 1D BDSIM format file  (Units :math:`cm,s`) |
-+------------------+--------------------------------------------+
-| bdsim2d          | 2D BDSIM format file  (Units :math:`cm,s`) |
-+------------------+--------------------------------------------+
-| bdsim3d          | 3D BDSIM format file  (Units :math:`cm,s`) |
-+------------------+--------------------------------------------+
-| bdsim4d          | 4D BDSIM format file  (Units :math:`cm,s`) |
-+------------------+--------------------------------------------+
-| poisson2d        | 2D Poisson Superfish SF7 file              |
-+------------------+--------------------------------------------+
-| poisson2dquad    | 2D Poisson Superfish SF7 file              |
-|                  | for 1/8th of quadrupole                    |
-+------------------+--------------------------------------------+
-| poisson2ddipole  | 2D Poisson Superfish SF7 file for positive |
-|                  | quadrant that's reflected to produce a     |
-|                  | full windowed dipole field                 |
-+------------------+--------------------------------------------+
++------------------+-----------------------------------------------------+
+| **Format**       | **Description**                                     |
++==================+=====================================================+
+| bdsim1d          | 1D BDSIM format file  (Units :math:`cm, s, T, V\m`) |
++------------------+-----------------------------------------------------+
+| bdsim2d          | 2D BDSIM format file  (Units :math:`cm, s, T, V\m`) |
++------------------+-----------------------------------------------------+
+| bdsim3d          | 3D BDSIM format file  (Units :math:`cm, s, T, V\m`) |
++------------------+-----------------------------------------------------+
+| bdsim4d          | 4D BDSIM format file  (Units :math:`cm, s, T, V\m`) |
++------------------+-----------------------------------------------------+
+| poisson2d        | 2D Poisson Superfish SF7 file                       |
++------------------+-----------------------------------------------------+
+| poisson2dquad    | 2D Poisson Superfish SF7 file                       |
+|                  | for 1/8th of quadrupole                             |
++------------------+-----------------------------------------------------+
+| poisson2ddipole  | 2D Poisson Superfish SF7 file for positive          |
+|                  | quadrant that's reflected to produce a              |
+|                  | full windowed dipole field                          |
++------------------+-----------------------------------------------------+
 
 Field maps in the following formats are accepted:
 
@@ -939,7 +941,7 @@ The following parameters can be used in a query object:
 | fieldObject             | Name of the field object in the input to query |
 +-------------------------+------------------------------------------------+
 | queryMagneticField      | (1 or 0) whether to query the magnetic field   |
-|                         | - default is True (1)                          |
+|                         | - default is False (0)                         |
 +-------------------------+------------------------------------------------+
 | queryElectricField      | (1 or 0) whether to query the electric field   |
 |                         | - default is False (0)                         |
@@ -1008,6 +1010,8 @@ The following parameters can be used in a query object:
 	  combination of parameters for the 3 ways of specifying a transform. 
 
 * The default is to query the magnetic field only and **to overwrite** files.
+* The magnetic field will be queried if neither `queryMagneticField` or
+  `queryElectricField` are set to 1 (on), but only if neither are specified.
 * The ranges defined will be queried in the global frame if no transform is specified,
   otherwise they will be about the point / frame of the transform.
 * In the case where a reference element is used, the frame includes the offset of that
@@ -1463,10 +1467,10 @@ A completely custom aperture can be used with `pointsfile`. See the notes below.
 +----------------------+--------------+-------------------+-----------------+----------------+------------------+
 | `circularvacuum`     | 1            | radius            | NA              | NA             | NA               |
 +----------------------+--------------+-------------------+-----------------+----------------+------------------+
-| `pointsfile` (\*\*)  | 0            | NA                | NA              | NA             | NA               |
-+----------------------+--------------+-------------------+-----------------+----------------+------------------+
 | `rhombus` (\+)       | 2-3          | x half-width      | y half-width    | radius of      | NA               |
 |                      |              |                   |                 | corners        |                  |
++----------------------+--------------+-------------------+-----------------+----------------+------------------+
+| `pointsfile` (\*\*)  | 0            | NA                | NA              | NA             | NA               |
 +----------------------+--------------+-------------------+-----------------+----------------+------------------+
 
 .. note:: (\*) :code:`lhcdetailed` aperture type will result in the :code:`beampipeMaterial` being ignored
@@ -1485,7 +1489,203 @@ the same as the geometric centre of the bottom ellipse. Therefore, *aper4*, the 
 between ellipses is added on to the 0 position. The parameterisation is taken from
 Phys. Rev. ST Accel. Beams **12**, 021001 (2009).
 
-**Custom Aperture**
+circular
+^^^^^^^^
+
+.. image:: figures/aperture/circular.png
+    :width: 40%
+    :align: left
+
+A circular aperture is defined by one parameter, :code:`aper1`. The beam pipe
+thickness is added outside this radius.
+
+**Example** ::
+
+  d1: drift, aperType="circular",
+             aper1=5*cm,
+             beampipeThickness=3*mm;
+
+|
+|
+|
+
+rectangular
+^^^^^^^^^^^^
+
+.. image:: figures/aperture/rectangular.png
+    :width: 40%
+    :align: left
+
+A rectangular aperture is defined by two parameters, :code:`aper1` for the horizontal
+half width, and :code:`aper2` for the vertical half width. The beam pipe
+thickness is added outside this aperture.
+
+**Example** ::
+
+  d1: drift, aperType="rectangular",
+             aper1=5*cm,
+             aper2=2.1*cm,
+             beampipeThickness=3*mm;
+
+|
+
+elliptical
+^^^^^^^^^^
+
+.. image:: figures/aperture/elliptical.png
+    :width: 40%
+    :align: left
+
+An elliptical aperture is defined by two parameters, :code:`aper1` for the horizontal
+semi-axis, and :code:`aper2` for the vertical semi-axis. The beam pipe
+thickness is added outside this aperture.
+
+**Example** ::
+
+  d1: drift, aperType="elliptical",
+             aper1=5*cm,
+             aper2=2.1*cm,
+             beampipeThickness=3*mm;
+
+|
+|
+
+lhc
+^^^^
+
+.. image:: figures/aperture/lhc.png
+    :width: 40%
+    :align: left
+
+The LHC aperture shapre is defined by three parameters. It is the intersection (i.e. only
+where both exist) of a circle and a rectangle centred on each other. :code:`aper1` is the
+horizontal half-width of the rectangle. :code:`aper2` is the vertical half-height of the
+rectangle. :code:`aper3` is the radius of the circle. Depending on these parameters, a similar
+shape as shown can be achieved this way or apparently rotated 90 degrees with flat vertical
+edges. If :code:`aper2` is less than :code:`aper3`, then the aperture will appear like the
+image shown. The beam pipe thickness is added outside this aperture.
+|
+
+**Example** ::
+
+  d1: drift, aperType="lhc",
+             aper1=2.202*cm,
+             aper2=1.714*cm,
+             aper3=2.202*cm
+             beampipeThickness=1*mm;
+
+lhcdetailed
+^^^^^^^^^^^
+
+This aperture type has the same parameters as :code:`lhc`. However, it includes more
+detailed geometry with a circular second outer beam pipe as well as the 70 micron
+layer of copper. The beam screen does not have the perforated holes as this was
+deemed too detailed and would slow the simulation. This may cause errors if parameters
+too far from the authentic LHC aperture parameters are used.
+
+
+rectellipse
+^^^^^^^^^^^
+
+.. image:: figures/aperture/rectellipse.png
+    :width: 40%
+    :align: left
+
+The rectellipse aperture is similar to the LHC aperture shape, but intead of a
+circle, it is the intersection of a rectangle and an ellipse. :code:`aper1` and
+:code:`aper2` define the rectangle, and :code:`aper3` and :code:`aper4` define the
+ellipse. The beam pipe thickness is added outside this aperture.
+
+**Example** ::
+
+  d1: drift, aperType="rectellipse",
+             aper1=2*cm,
+             aper2=1*cm,
+             aper3=2*cm,
+             aper4=2*cm
+             beampipeThickness=3*mm;
+
+
+racetrack
+^^^^^^^^^
+
+.. image:: figures/aperture/racetrack.png
+    :width: 40%
+    :align: left
+
+The racetrack aperture is defined by three parameters. The aperture is defined
+by a circle with an offset in one quadrant that is then mirrored in all quadrants.
+:code:`aper1` and :code:`aper2` are the horizontal and vertical offsets of the
+centre of the circle in the positive quadrant (i.e. positive values). :code:`aper3`
+is the radius of the circle. The horizontal half width is therefore :code:`aper1 + `aper3`,
+and similarly, the vertical half width is :code:`aper2 + aper3`. The beam pipe
+thickness is added outside this aperture.
+|
+|
+
+**Example** ::
+
+  d1: drift, aperType="racetrack",
+             aper1=2*cm,
+             aper2=1*cm,
+             aper3=2.4*cm
+             beampipeThickness=3*mm;
+
+
+octagonal
+^^^^^^^^^
+
+.. image:: figures/aperture/octagonal.png
+    :width: 40%
+    :align: left
+
+The octagonal aperture is defined by four parameters. :code:`aper1` and :code:`aper2`
+definthe the horizontal and vertical half widths respectively of a full rectangle.
+:code:`aper3` and :code:`aper4` define a (smaller) set of horizontal and vertical values
+that define the points where the cut-off edge starts. The beam pipe
+thickness is added outside this aperture.
+
+.. warning:: This is not the same set of parameters as MADX, which uses the angles
+             between the origin and each cut-off point. This is particularly hard
+             to use as well as more difficult to implement so was not used in BDSIM.
+             The MADX community wanted to change this but it is kept for backwards
+             compatibility.
+
+**Example** ::
+
+  d1: drift, aperType="octagonal",
+             aper1=2*cm,
+             aper2=1*cm,
+             aper3=1.1*cm,
+             aper4=0.5*cm
+             beampipeThickness=3*mm;
+
+
+rhombus
+^^^^^^^
+
+.. image:: figures/aperture/rhombus.png
+    :width: 40%
+    :align: left
+
+The rhombus aperture is defined by three parameters, :code:`aper1` for the horizontal
+half width out to the point of a full rhombus, and :code:`aper2` for the vertical half width,
+again out the point of a full rhombus. :code:`aper3` optionally defines the radius of
+a circle used for the curved corners. Therefore, a small amount of width is lost at each tip.
+The figure shows a rhombus where :code:`aper1 = aper2`, however, these can be unequal.
+The beam pipe thickness is added outside this aperture.
+
+**Example** ::
+
+  d1: drift, aperType="rhombus",
+             aper1=3*cm,
+             aper2=10*cm,
+             aper3=0.1*cm
+             beampipeThickness=3*mm;
+
+
+pointsfile
+^^^^^^^^^^
 
 For **pointsfile**, a text file can be used to list a set of x,y transverse points to specify
 a custom shape. No other aperture parameters are required other than the aperture type. The
@@ -2801,6 +3001,8 @@ For convenience the predefined colours in BDSIM are:
 | vkicker             | 186 | 84  | 211 | 1    |
 +---------------------+-----+-----+-----+------+
 | warning             | 255 | 19  | 146 | 1    |
++---------------------+-----+-----+-----+------+
+| water               | 0   | 102 | 204 | 0.5  |
 +---------------------+-----+-----+-----+------+
 | white               | 255 | 255 | 255 | 1    |
 +---------------------+-----+-----+-----+------+

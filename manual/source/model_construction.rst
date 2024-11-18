@@ -131,6 +131,7 @@ Magnet Strength Polarity
 	     purpose. This may be revised in future releases depending on changes
 	     to MAD-X.
 
+
 .. _synchronous-time-and-phase:
 	     
 Synchronous Time and Phase
@@ -138,18 +139,37 @@ Synchronous Time and Phase
 
 Some components have time dependent fields, such as an `rf` cavity element. By default, these
 are given a synchronous global time in their construction so that local time is zero at the
-centre of the component for a synchronous particle. The time is calculated for a particle
-travelling at the speed of light from the start of the accelerator.
+centre of the component for a synchronous particle. The time is calculated from the integration
+of the design particle throughout the beamline as it is constructed including acceleration
+and deceleration. See :ref:`fields-beamline-integration`.
 
 If the element is reused several times in a machine, it is constructed uniquely for
 each instance so that the fields are unique with their own synchronous time or phase.
 
-.. warning:: This currently does not calculate the time based on the true velocity of
-	     the particle that may vary (with acceleration) throughout the accelerator.
-	     The speed of light in vacuum is used to calculate this time and the user
-	     should calculate an appropriate global `tOffset` for the component if
-	     the beam is sub-relativistic. This may be improved upon in future.
 
+.. _acceleration:
+	     
+Acceleration
+------------
+
+BDSIM includes acceleration of particles. Along a beamline the nominal momentum of the
+beam may change. Up until BDSIM v1.8.0 it was the user's responsibility to recalculate
+normalised magnet strengths (such as k1 for a quadrupole) and scaling factors for
+dipoles externally to the program. Since v1.8.0, BDSIM calculates the change in kinetic
+energy and therefore momentum and rigidity of the nominal 'design' beam particle along
+the beamline and adjusts the rigidity used to calculate real field gradients from normalised
+strengths.
+
+The old behaviour (i.e. no rolling rigidity adjustment) can be restored by turning off the option: ::
+
+  option, integrateKineticEnergyInBeamline=0;
+
+
+which is turned on by default.
+
+If a change in energy is detected by any component along the beamline, the design particle
+properties will be printed out once more at the end of construction of the beamline, even
+if it ends up being similar (e.g. through the input parameters) to the starting ones.
 
 
 .. _lattice-elements:
@@ -367,6 +387,10 @@ If `k1` is specified, the integrator from the `bdsimmatrix` integrator set is us
 results in no physical pole face angle being constructed for tracking purposes. The
 tracking still includes the pole face effects.
 
+The default geometry is a C-shaped yoke and this is by default built on the inside
+of the bend. For H-shaped used :code:`hStyle=1` and for the yoke on the outside, use
+:code:`yokeOnInside=0` in the definition respectively.
+
 .. note:: See :ref:`bend-tracking-behaviour` for important notes about dipole tracking.
 
 +-----------------+-----------------------------------+-----------+-----------------+
@@ -384,7 +408,7 @@ tracking still includes the pole face effects.
 +-----------------+-----------------------------------+-----------+-----------------+
 | `material`      | Magnet outer material             | Iron      | No              |
 +-----------------+-----------------------------------+-----------+-----------------+
-| `yokeOnInside`  | Yoke on inside of bend            | 0         | No              |
+| `yokeOnInside`  | Yoke on inside of bend            | 1         | No              |
 +-----------------+-----------------------------------+-----------+-----------------+
 | `hStyle`        | H style poled geometry            | 0         | No              |
 +-----------------+-----------------------------------+-----------+-----------------+
@@ -508,6 +532,10 @@ makes no effect on tracking, but allows a much higher variety of apertures and m
 geometry to be used given the Geant4 geometry. The number of segments is computed such
 that the maximum tangential error in the aperture is 1 mm.
 
+The default geometry is a C-shaped yoke and this is by default built on the inside
+of the bend. For H-shaped used :code:`hStyle=1` and for the yoke on the outside, use
+:code:`yokeOnInside=0` in the definition respectively.
+
 With the default integrator set, the pole face rotations are not built into the geometry
 such that the tracking will match MADX. If you use the :code:`geant4` integrator set,
 the pole face geometry will be built fully.
@@ -529,7 +557,7 @@ the pole face geometry will be built fully.
 +-----------------+-----------------------------------+-----------+-----------------+
 | `material`      | Magnet outer material             | Iron      | No              |
 +-----------------+-----------------------------------+-----------+-----------------+
-| `yokeOnInside`  | Yoke on inside of bend            | 0         | No              |
+| `yokeOnInside`  | Yoke on inside of bend            | 1         | No              |
 +-----------------+-----------------------------------+-----------+-----------------+
 | `hStyle`        | H style poled geometry            | 0         | No              |
 +-----------------+-----------------------------------+-----------+-----------------+
@@ -981,14 +1009,14 @@ the edge effects are provided by default and are controllable with the option `i
 +----------------+-------------------------------+--------------+---------------------+
 | `phase`        | Phase offset (rad)            | 0            | No                  |
 +----------------+-------------------------------+--------------+---------------------+
-| `tOffset`      | Offset in time (s)            | 0            | No                  |
+| `tOffset`      | Offset in global time (s)     | 0            | No                  |
 +----------------+-------------------------------+--------------+---------------------+
 | `material`     | Outer material                | ""           | Yes                 |
 +----------------+-------------------------------+--------------+---------------------+
 | `cavityModel`  | Name of cavity model object   | ""           | No                  |
 +----------------+-------------------------------+--------------+---------------------+
 
-Either :code:`gradient` or :code:`E` should be specified. :code:`E` (the *voltage* is given in Volts,
+Either :code:`gradient` or :code:`E` should be specified. :code:`E` (the *voltage*) is given in Volts,
 and internally is divided by the length of the element (:code:`l`) to give the electric
 field in Volts/m. If :code:`gradient` is specified, this is already Volts/m and the length
 is not involved. The slight misnomer of `E` instead of say `voltage` is historical.
@@ -997,11 +1025,11 @@ is not involved. The slight misnomer of `E` instead of say `voltage` is historic
 difference whether you write :code:`gradient=10*MV/m` or :code:`gradient=10*MV`. However,
 it is best to be explicit in units or none at all and assume the default ones.
 
-.. note:: The design energy of the machine is not affected, so the strength and fields
-	  of components after an RF cavity in a lattice are calculated with respect to
-	  the design energy, the particle and therefore, design rigidity. The user should
-	  scale the strength values appropriately if they wish to match the increased
-	  momentum of the particle.
+.. note:: The design energy of the machine is affected by the accelerator (or decceleration)
+          and the nominal rigidity used to calculate fields from normalised strenghts
+          such as :code:`k1` for a quadrupole will be updated accordingly. This is the
+          default behaviour since v1.8.0 and can be turned off with
+          :code:`option, integrateKineticEnergyAlongBeamline=0;`.
 
 .. warning:: The elliptical cavity geometry may not render or appear in the Geant4
 	     QT visualiser.  The geometry exists and is valid, but this is due to
@@ -1010,30 +1038,26 @@ it is best to be explicit in units or none at all and assume the default ones.
 
 * The field is such that a positive E-field results in acceleration of the primary particle
   (depending on the primary particle charge).
-* The phase is calculated automatically such that zero phase results in the peak E-field at
-  the centre of the component for its position in the lattice.
+* The global synchronous time at the centre of the element is calculated automatically
+  such that zero phase results in the peak E-field at the centre of the component
+  for its position in the lattice.
 * Either `tOffset` or `phase` may be used to specify the phase of the oscillator.
+* If `phase` is specified, this is added to the calculated synchronous (global) phase from
+  either the lattice position or `tOffset`.
 * The material must be specified in the `rf` gmad element or in the attached cavity model
   by name. The cavity model will override the element material.
 * The entrance / exit cavity fringes are not constructed if the previous / next element
   is also an rf cavity.
 * The cavity fringe element is by default the same radius as the beam pipe radius. If a cavity
   model is supplied, the cavity fringes are built with the same radius as the model iris radius.
-* If `phase` is specified, this is added to the calculated phase offset from either the lattice
-  position or `tOffset`.
 * The step length in the cavity is limited for all particles to be 2.5% of the minimum
   of the element length and the wavelength (given the frequency). In the case of 0 frequency,
   only the length is considered. This is to ensure accurate numerical integration of the
   motion through the varying field.
-* If `tOffset` is specified, a phase offset is calculated from this time for the **speed
-  of light in a vacuum**. Otherwise, the curvilinear S-coordinate of the centre of the rf
-  element is used to find the phase offset.
-* In the case where `frequency` is not set, the phase offset is ignored and only the `phase` is
-  used. See the developer documentation :ref:`field-sinusoid-efield` for a description of the field.
-  
-.. note:: As the phase offset is calculated from the speed of light in a vacuum, this is
-	  only correct for already relativistic beams. Development is underway to improve
-	  this calculation for sub-relativistic beams.
+* If `tOffset` is specified, a phase offset is calculated from this and the frequency provided.
+* In the case where `frequency` is not set and therefore 0, the field is multiplied by the
+  cosine of the phase. See the developer documentation :ref:`field-sinusoid-efield` for a
+  description of the field.
 
 
 Simple examples: ::

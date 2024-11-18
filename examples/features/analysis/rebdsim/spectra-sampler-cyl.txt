@@ -1,0 +1,18 @@
+InputFilePath	../../data/shower_cyl_sph.root
+OutputFileName	ana_spectra_cyl.root
+VerboseSpectra true
+
+#Object   Sampler Name  # Bins  Binning     Particles        Selection
+Spectra               c1      20      {0:0.4}    {11,-11,22,2212,2112}  1
+Spectra               c1      20      {0:0.4}    {11,-11,22,2212,2112}  PrimaryFirstHit.S>0.55
+Spectra               c1      20      {0:0.4}    {11,-11,22,2212,2112}  c1.weight*(PrimaryFirstHit.S>0.55)
+SpectraLog            c1      20      {-2:0}     {11,-11,22,2212,2112}  1
+SpectraTE             c1      20      {0:1.4}    {11,-11,22,2212,2112}  1
+SpectraTE             c1      20      {0:1.4}    {11,-11,22,2211,2112}  PrimaryFirstHit.S>0.55
+SpectraTELog          c1      20      {-2:1}     {11,-11,22,2212,2112}  1
+SpectraRigidity       c1      20      {-0.5:4}   {11,-11,22,2212,2112}  1
+SpectraRigidity       c1      20      {-0.5:4}   {11,-11,22,2212,2112}  PrimaryFirstHit.S>0.55
+SpectraRigidityLog    c1      20      {-3:1}     {11,-11,22,2212,2112}  1
+SpectraMomentum       c1      20      {0:1}      {11,-11,22,2212,2112}  1
+SpectraMomentum       c1      20      {0:1}      {11,-11,22,2212,2112}  PrimaryFirstHit.S>0.55
+SpectraMomentumLog    c1      20      {-3:1}     {11,-11,22,2212,2112}  1

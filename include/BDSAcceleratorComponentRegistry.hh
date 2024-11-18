@@ -21,6 +21,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "globals.hh" // geant4 globals / types
 
+#include <functional>  // for all the std::hash business
 #include <iterator>
 #include <map>
 #include <set>
@@ -28,6 +29,49 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 
 class BDSAcceleratorComponent;
+
+/**
+ * @brief custom key class for pair of <name,rigidity>.
+ * 
+ * We want to store a map of (name,rigidity) but compare rigidity
+ * with a numerical tolerance as it's a double. std::map requires
+ * the less than operator so we'll use unordered_map that uses ==.
+ * 
+ * This class is a pair but with == specialised. Also, we provide
+ * a hash function (specialisation for the template).
+ * 
+ * @author Laurie Nevay
+ */
+class ACRegistryKey
+{
+public:
+  ACRegistryKey();
+  ACRegistryKey(const std::string& componentNameIn, G4double rigidityIn);
+  ~ACRegistryKey() = default;
+  ACRegistryKey(const ACRegistryKey& other) = default;
+  bool operator==(const ACRegistryKey& other) const;
+  friend std::ostream& operator<<(std::ostream &out, ACRegistryKey const &k);
+  
+  std::string componentName; ///< Has to be std::string for hashing as G4String doesn't provide one.
+  G4double rigidity;
+  static G4double tolerance;
+};
+
+/// Specialise the hash function for our key to use it in std::unordered_map
+namespace std
+{
+  template <>
+  struct hash<ACRegistryKey>
+  {
+    std::size_t operator()(const ACRegistryKey& k) const
+    {
+      std::size_t h1 = std::hash<std::string>()(k.componentName);
+      std::size_t h2 = std::hash<double>()(k.rigidity);
+      std::size_t ht = h1 ^ h2 + 0x9e3779b9 + (h1<<6) + (h1>>2); ///< Boost's algorithm.
+      return ht;
+    }
+  };
+}
 
 /**
  * @brief A registry of constructed BDSAcceleratorComponent instances that
@@ -52,13 +96,13 @@ private:
   /// Use a typedef for this specific map implementation so we can easily
   /// define iterators and internal member variables without risking getting
   /// the exact map declaration wrong. 
-  typedef std::map<G4String, BDSAcceleratorComponent*> RegistryMap;
+  typedef std::unordered_map<ACRegistryKey, BDSAcceleratorComponent*> RegistryMap;
 
   /// Registry is a map - note 'register' is a protected keyword.
   RegistryMap registry;
 
   /// A map for absolutely everything including components that are unique.
-  RegistryMap  registryForAllocated;
+  RegistryMap registryForAllocated;
   
 public:
   /// Singleton accessor
@@ -76,13 +120,14 @@ public:
   /// memory management. Note, the registry of allocated components relies on
   /// unique naming for unique components.  ie sb1_mod_0 and sb1_mod_1.
   void RegisterComponent(BDSAcceleratorComponent* component,
-			 bool                     isModified = false);
+                         G4double                 rigidtyAtConstructionTime,
+                         bool                     isModified = false);
 
   /// Check whether an accelerator component is already registered.
-  G4bool IsRegistered(BDSAcceleratorComponent* component);
+  G4bool IsRegistered(BDSAcceleratorComponent* component, G4double rigidtyAtConstructionTime);
 
   /// Check whether an accelerator component is already registered by name.
-  G4bool IsRegistered(const G4String& componentName);
+  G4bool IsRegistered(const G4String& componentName, G4double rigidtyAtConstructionTime);
 
   /// Check if a unique component is registered in the allocatedComponents.
   G4bool IsRegisteredAllocated(const BDSAcceleratorComponent* componentName) const;
@@ -90,7 +135,7 @@ public:
   /// Access an already constructed component - will return null if no such component found.
   /// This is safe as this registry is primarily used by BDSComponentFactory which can return
   /// nullptr to BDSDetectorConstruction safely if an invalid component is requested.
-  BDSAcceleratorComponent* GetComponent(const G4String& name);
+  BDSAcceleratorComponent* GetComponent(const G4String& name, G4double rigidtyAtConstructionTime);
 
   /// Register a curvilinear component - purely to keep track of and delete at the
   /// end of the program.
@@ -102,7 +147,9 @@ public:
 
   /// Access a map of all accelerator components by name, including ones that are
   /// uniquely built and stored only for memory management.
-  std::map<G4String, BDSAcceleratorComponent*> AllComponentsIncludingUnique() const;
+  std::unordered_map<ACRegistryKey, BDSAcceleratorComponent*> AllComponentsIncludingUnique() const;
+  
+  G4int AlreadyRegisteredNameCount(const G4String& name) const;
 
   /// NOTE the iterator works only over components that can be reused and not allocated
   /// components.
@@ -120,7 +167,7 @@ public:
   size_t size() const {return registry.size();}
   
   /// Output stream
-  friend std::ostream& operator<< (std::ostream &out, BDSAcceleratorComponentRegistry const &r);
+  friend std::ostream& operator<<(std::ostream &out, BDSAcceleratorComponentRegistry const &r);
 
   /// Print out the number of each type of component registered.
   void PrintNumberOfEachType() const;
@@ -149,6 +196,10 @@ private:
   /// because it's faster for insertions and retrievals but slow for range iteration
   /// which we only do for debug print out or once.
   std::unordered_map<std::string, int> typeCounter;
+  
+  /// Counter for each component name. Used in case a component is registered but with
+  /// a different rigidity. We'll have to name it differently with a numbered suffix.
+  std::unordered_map<std::string, int> nameCounter;
 };
 
 #endif

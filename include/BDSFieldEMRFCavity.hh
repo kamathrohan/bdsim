@@ -38,43 +38,39 @@ class BDSMagnetStrength;
 class BDSFieldEMRFCavity: public BDSFieldEM
 {
 public:
-  BDSFieldEMRFCavity(BDSMagnetStrength const* strength,
-		     G4double                 brho);
+  BDSFieldEMRFCavity() = delete;
+  explicit BDSFieldEMRFCavity(BDSMagnetStrength const* strength);
   
   BDSFieldEMRFCavity(G4double eFieldAmplitude,
-		     G4double frequency,
-		     G4double phaseOffset,
-		     G4double cavityRadius);
+                     G4double frequency,
+                     G4double phaseOffset,
+                     G4double cavityRadius,
+                     G4double synchronousTIn);
   
   virtual ~BDSFieldEMRFCavity(){;}
 
   /// Accessor to get B and E field.
   virtual std::pair<G4ThreeVector, G4ThreeVector> GetField(const G4ThreeVector& position,
-							   const G4double       t) const;
+                                                           const G4double       t) const;
   
   virtual G4bool TimeVarying() const {return true;}
   
-private:
-  /// Private constructor to force use of provided one.
-  BDSFieldEMRFCavity();  
+  /// General function put here as it represents the equations in this class.
+  static G4double TransitTimeFactor(G4double frequency,
+                                    G4double phase,
+                                    G4double zLength,
+                                    G4double beta);
   
 private:
   G4double eFieldMax;    ///< Maximum field in V/m.
   G4double phase;        ///< Phase offset of the oscillator.
   G4double cavityRadius; ///< Radius at maximum extent of cavity.
-  G4double wavelength;
+  G4double synchronousT;
 
-  /// X coordinate of first 0 point for bessel J0.
-  static const G4double j0FirstZero;
-
-  /// Impedance of free space.
-  static const G4double Z0;
-  
-  /// Pre-calculated normalised calculated radius w.r.t. bessel first 0.
-  const G4double normalisedCavityRadius;
-
-  /// Angular frequency calculated from frequency - cached to avoid repeated calculation.
-  const G4double angularFrequency;
+  static const G4double j0FirstZero; ///< X coordinate of first 0 point for bessel J0.
+  static const G4double Z0; ///< Impedance of free space.
+  const G4double normalisedCavityRadius; ///< Pre-calculated normalised calculated radius w.r.t. bessel first 0.
+  const G4double angularFrequency; ///< Angular frequency calculated from frequency - cached to avoid repeated calculation.
 };
 
 #endif

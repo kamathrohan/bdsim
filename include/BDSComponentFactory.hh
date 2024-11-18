@@ -19,12 +19,14 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BDSCOMPONENTFACTORY_H
 #define BDSCOMPONENTFACTORY_H
 
+#include "BDSBeamlineIntegral.hh"
 #include "BDSFieldType.hh"
 #include "BDSMagnetGeometryType.hh"
 #include "BDSMagnetStrength.hh"
 #include "BDSMagnetType.hh"
 #include "BDSIntegratorType.hh"
 #include "BDSIntegratorSetType.hh"
+#include "BDSParticleDefinition.hh"
 
 #include "globals.hh"
 #include "G4ThreeVector.hh"
@@ -51,7 +53,6 @@ class BDSIntegratorSet;
 class BDSMagnet;
 class BDSMagnetOuterInfo;
 class BDSModulatorInfo;
-class BDSParticleDefinition;
 class BDSTiltOffset;
 
 /**
@@ -76,9 +77,8 @@ class BDSTiltOffset;
 class BDSComponentFactory
 {
 public:
-  explicit BDSComponentFactory(const BDSParticleDefinition* designParticleIn,
-			       BDSComponentFactoryUser* userComponentFactoryIn = nullptr,
-			       G4bool usualPrintOut = true);
+  explicit BDSComponentFactory(BDSComponentFactoryUser* userComponentFactoryIn = nullptr,
+                               G4bool usualPrintOut = true);
   ~BDSComponentFactory();
 
   /// Create component from parser Element pointers to next and previous Element
@@ -89,7 +89,7 @@ public:
   BDSAcceleratorComponent* CreateComponent(GMAD::Element const* elementIn,
 					   GMAD::Element const* prevElementIn,
 					   GMAD::Element const* nextElementIn,
-					   G4double currentArcLengthIn = 0);
+					   BDSBeamlineIntegral& integral);
   
   /// Public creation for object that dynamically stops all particles once the primary
   /// has completed a certain number of turns.
@@ -177,7 +177,9 @@ public:
 						    G4double       defaultCoilHeightFraction = -1);
 
   /// Checks if colour is specified for element, else uses the default for that element type.
-  static G4Colour* PrepareColour(GMAD::Element const* element);
+  /// If the optional material is given and also element->autoColour is true then the material
+  /// colouring is used.
+  static G4Colour* PrepareColour(GMAD::Element const* element, const G4Material* material = nullptr);
 
   /// Checks if a material is named in Element::material, else uses the supplied default.
   static G4Material* PrepareMaterial(GMAD::Element const* element,
@@ -199,8 +201,23 @@ public:
   
   /// Get either the "gradient" member or the voltage and divide by the cavityLength
   /// argument (provided in case of reduced length) to get the E field in Geant4 units.
+  /// BRho is required to ensure the field is accelerating for the given particle. This
+  /// is a static function so we can't use the member variable integral.
   static G4double EFieldFromElement(GMAD::Element const* el,
-                                    G4double cavityLength);
+                                    BDSFieldType fieldType,
+                                    G4double cavityLength,
+                                    const BDSParticleDefinition& incomingParticle);
+
+  /// Calculate the field and angle of an rbend from information in the element noting the
+  /// 'l' in an element is the chord length of an rbend. Variables passed by reference and
+  /// are updated as output. Note, this uses the MADX convention of +ve angle -> deflection
+  /// in -ve x.
+  static void CalculateAngleAndFieldRBend(const GMAD::Element* el,
+                                          G4double brhoIn,
+                                          G4double& arcLength,
+                                          G4double& chordLength,
+                                          G4double& field,
+                                          G4double& angle);
   
   /// Utility function to prepare crystal recipe for an element. Produces a unique object
   /// this class doesn't own.
@@ -209,22 +226,20 @@ public:
 private:
   /// No default constructor
   BDSComponentFactory() = delete;
-
-  const BDSParticleDefinition* designParticle; ///< Particle w.r.t. which elements are built.
-  G4double brho;              ///< Rigidity in T*m (G4units) for beam particles.
-  G4double beta0;             ///< Cache of relativistic beta for primary particle.
+  
   BDSComponentFactoryUser* userComponentFactory; ///< User component factory if any.
   G4double lengthSafety;      ///< Length safety from global constants.
   G4double thinElementLength; ///< Length of a thin element.
   G4bool includeFringeFields; ///< Cache of whether to include fringe fields.
   G4bool yokeFields;          ///< Cache of whether to include yoke magnetic fields.
   BDSModulatorInfo* defaultModulator; ///< Default modulator for all components.
-  
-  /// Updated each time CreateComponent is called - supplied from outside. Only here to pass around all functions easily.
-  G4double currentArcLength;
+  BDSBeamlineIntegral* integralUpToThisComponent; ///< To save passing it through many functions arguments.
+  G4double synchronousTAtMiddleOfThisComponent;
 
   /// Simple setter used to add Beta0 to a strength instance.
-  inline void SetBeta0(BDSMagnetStrength* stIn) const {(*stIn)["beta0"] = beta0;} 
+  inline void SetBeta0(BDSMagnetStrength* stIn) const {(*stIn)["beta0"] = integralUpToThisComponent->designParticle.Beta();}
+  /// Simple accessor to simplify repetitive code.
+  inline G4double BRho() const {return integralUpToThisComponent->designParticle.BRho();}
 
   /// element for storing instead of passing around
   GMAD::Element const* element = nullptr;
@@ -384,16 +399,6 @@ private:
 				   G4double&            angle,
 				   G4double&            field) const;
 
-  /// Calculate the field and angle of an rbend from information in the element noting the
-  /// 'l' in an element is the chord length of an rbend. Variables passed by reference and
-  /// are updated as output. Note, this uses the MADX convention of +ve angle -> deflection
-  /// in -ve x.
-  void CalculateAngleAndFieldRBend(const GMAD::Element* el,
-				   G4double& arcLength,
-				   G4double& chordLength,
-				   G4double& field,
-				   G4double& angle) const;
-
   /// Calculate the angle of a bend whether it's an rbend or an sbend.
   G4double BendAngle(const GMAD::Element* el) const;
 
@@ -410,10 +415,6 @@ private:
   /// incoming curvilinear coordinates, so for an rbend with e1=0, the returned
   /// angle will be half the bend angle. For an sbend, with e1=0, it'll be 0.
   G4double IncomingFaceAngle(const GMAD::Element* el) const;
-  
-  /// Update the BDSMagnetStrength key synchronousT0 with the time at the centre of the element.
-  void AddSynchronousTimeInformation(BDSMagnetStrength* st,
-                                     G4double elementArcLength) const;
 
   /// Return the modulator definition for a given element if one is specified
   /// in fieldModulator, else return the global default which could also be nullptr.

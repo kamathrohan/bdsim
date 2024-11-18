@@ -25,6 +25,9 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "EventAnalysis.hh"
 #include "HistogramMeanFromFile.hh"
 #include "PerEntryHistogramSet.hh"
+#include "PerEntryHistogramSetPlane.hh"
+#include "PerEntryHistogramSetC.hh"
+#include "PerEntryHistogramSetS.hh"
 #include "RBDSException.hh"
 #include "SamplerAnalysis.hh"
 #include "rebdsim.hh"
@@ -384,8 +387,30 @@ void EventAnalysis::PreparePerEntryHistogramSets()
     {
       auto setDefinitions  = c->EventHistogramSetDefinitionsPerEntry();
       for (const auto& def : setDefinitions)
-        {perEntryHistogramSets.push_back(new PerEntryHistogramSet(def, event, chain));}
+        {perEntryHistogramSets.push_back(ConstructPerEntryHistogramSet(def, event, chain));}
     }
+}
+
+PerEntryHistogramSet* EventAnalysis::ConstructPerEntryHistogramSet(const HistogramDefSet* definitionIn,
+                                                                   Event*                 eventIn,
+                                                                   TChain*                chainIn) const
+{
+  if (!definitionIn)
+    {return nullptr;}
+
+  PerEntryHistogramSet* result = nullptr;
+  switch (definitionIn->samplerType)
+  {
+    case HistogramDefSet::samplertype::plane:
+      {result = new PerEntryHistogramSetPlane(definitionIn, eventIn, chainIn); break;}
+    case HistogramDefSet::samplertype::cylindrical:
+      {result = new PerEntryHistogramSetC(definitionIn, eventIn, chainIn); break;}
+    case HistogramDefSet::samplertype::spherical:
+      {result = new PerEntryHistogramSetS(definitionIn, eventIn, chainIn); break;}
+    default:
+      {break;}
+  }
+  return result;
 }
 
 void EventAnalysis::AccumulatePerEntryHistogramSets(long int entryNumber)

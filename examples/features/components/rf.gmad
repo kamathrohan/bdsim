@@ -10,9 +10,7 @@ rf1: rf, l=10*cm, E=10*MV, frequency=90*MHz, phase=0.02;
 rf2: rf, l=10*cm, gradient=14*MV / m, frequency=450*MHz;
 rf3: rf, l=10*cm, E=10*MV, frequency=90*MHz, tOffset=3.2*ns;
 
-rffield: field, type="rfpillbox";
-
-rf4: rf, l=10*cm, E=2*kV, frequency=1.2*GHz, fieldVacuum="rffield";
+rf4: rf, l=10*cm, E=2*kV, frequency=1.2*GHz, cavityFieldType="pillbox";
 
 Boxy: cavitymodel,
       type="rectangular",
