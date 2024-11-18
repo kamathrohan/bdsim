@@ -45,6 +45,7 @@ public:
                 G4double                                        containerRadiusIn,
                 G4Material*                                     surroundingMaterialIn,
                 const std::vector<BDS::MuonCoolerCoilInfo>&     coilInfosIn,
+                const std::vector<BDS::MuonCoolerDipoleInfo>&   dipoleInfosIn,
                 const std::vector<BDS::MuonCoolerCavityInfo>&   cavityInfosIn,
                 const std::vector<BDS::MuonCoolerAbsorberInfo>& absorberInfosIn,
                 BDSBeamPipeInfo*                                beamPipeTemplateIn,
@@ -60,6 +61,7 @@ protected:
 
 private:
   void BuildCoils();
+  void BuildDipoles();
   void BuildAbsorbers();
   void BuildCavities();
   void BuildField();
@@ -67,6 +69,7 @@ private:
   G4double containerRadius;
   G4Material* surroundingMaterial;
   std::vector<BDS::MuonCoolerCoilInfo> coilInfos;
+  std::vector<BDS::MuonCoolerDipoleInfo> dipoleInfos;
   std::vector<BDS::MuonCoolerCavityInfo> cavityInfos;
   std::vector<BDS::MuonCoolerAbsorberInfo> absorberInfos;
   BDSBeamPipeInfo* beamPipeTemplate;

@@ -61,6 +61,7 @@ BDSMuonCooler::BDSMuonCooler(const G4String& nameIn,
                              G4double        containerRadiusIn,
                              G4Material*     surroundingMaterialIn,
                              const std::vector<BDS::MuonCoolerCoilInfo>&     coilInfosIn,
+                             const std::vector<BDS::MuonCoolerDipoleInfo>&   dipoleInfosIn,
                              const std::vector<BDS::MuonCoolerCavityInfo>&   cavityInfosIn,
                              const std::vector<BDS::MuonCoolerAbsorberInfo>& absorberInfosIn,
                              BDSBeamPipeInfo* beamPipeTemplateIn,
@@ -69,6 +70,7 @@ BDSMuonCooler::BDSMuonCooler(const G4String& nameIn,
   containerRadius(containerRadiusIn),
   surroundingMaterial(surroundingMaterialIn),
   coilInfos(coilInfosIn),
+  dipoleInfos(dipoleInfosIn),
   cavityInfos(cavityInfosIn),
   absorberInfos(absorberInfosIn),
   beamPipeTemplate(beamPipeTemplateIn),
@@ -82,6 +84,7 @@ void BDSMuonCooler::Build()
 {
   BuildContainerLogicalVolume();
   BuildCoils();
+  BuildDipoles();
   BuildAbsorbers();
   BuildCavities();
   BuildField();
@@ -155,6 +158,29 @@ void BDSMuonCooler::BuildCoils()
                                       0,
                                       checkOverlaps);
       RegisterPhysicalVolume(coilPV);
+      i++;
+    }
+}
+
+void BDSMuonCooler::BuildDipoles()
+{
+  // do not need magnet visualisations yet
+
+  // loop over dipoles and build and place them
+  G4int i = 0;
+  for (const auto& info : dipoleInfos)
+    {
+      G4String iStr = std::to_string(i);
+      G4String baseName = name + "_dipole_" + iStr;
+      auto dipoleSolid = new G4Tubs(baseName + "_solid",
+                                  info.apertureRadius,
+                                  info.apertureRadius*1.000001,
+                                  0.5*info.fullLengthZ,
+                                  0,
+                                  CLHEP::twopi);
+      RegisterSolid(dipoleSolid);
+      auto dipoleLV = new G4LogicalVolume(dipoleSolid, BDSMaterials::Instance()->GetMaterial("vacuum"), baseName + "_lv");
+      RegisterLogicalVolume(dipoleLV);
       i++;
     }
 }

@@ -69,6 +69,10 @@ BDSMuonCooler* BDS::BuildMuonCooler(const G4String& elementName,
                                            chordLength,
                                            elementRadius);
 
+  // build recipes for dipoles
+  std::vector<BDS::MuonCoolerDipoleInfo> dipoleInfos = BDS::BuildMuonCoolerDipoleInfos(definition);
+  // no overlap checks for dipoles as we don't physically build them yet
+
   // build recipes for rf cavities
   std::vector<BDS::MuonCoolerCavityInfo> cavityInfos = BDS::BuildMuonCoolerCavityInfos(definition);
   // check potential overlaps
@@ -98,7 +102,9 @@ BDSMuonCooler* BDS::BuildMuonCooler(const G4String& elementName,
                                                      definition.integrator,
                                                      definition.magneticFieldModel,
                                                      definition.electricFieldModel,
+                                                     definition.dipoleFieldModel,
                                                      coilInfos,
+                                                     dipoleInfos,
                                                      cavityInfos);
 
 
@@ -110,6 +116,7 @@ BDSMuonCooler* BDS::BuildMuonCooler(const G4String& elementName,
                                   elementRadius,
                                   surroundingMaterial,
                                   coilInfos,
+                                  dipoleInfos,
                                   cavityInfos,
                                   absorberInfos,
                                   beamPipeInfo,
@@ -221,6 +228,84 @@ void BDS::CheckMuonCoolerCoilInfosForOverlaps(const G4String& definitionName,
         }
     }
 }
+
+std::vector<BDS::MuonCoolerDipoleInfo> BDS::BuildMuonCoolerDipoleInfos(const GMAD::CoolingChannel* definition)
+{
+  std::vector<BDS::MuonCoolerDipoleInfo> result;
+  
+  // Check we have matching dipole parameter sizes or tolerate 1 variable for all
+  G4int nDipoles = definition->nDipoles;
+  std::vector<std::string> dipoleParamNames = {"dipoleAperture",
+                                               "dipoleLengthZ",
+                                               "dipoleCurrent",
+                                               "dipoleOffsetZ"};
+  std::vector<const std::list<double>*> dipoleVars = {&(definition.dipoleAperture),
+                                                      &(definition.dipoleLengthZ),
+                                                      &(definition.dipoleCurrent),
+                                                      &(definition.dipoleOffsetZ)};
+  std::vector<std::vector<double> > dipoleVarsV;
+  BDS::MuonParamsToVector(definition->name,
+                          dipoleVars,
+                          dipoleParamNames,
+                          nDipoles,
+                          dipoleVarsV);
+
+  // build dipole infos
+  for (G4int i = 0; i < nDipoles; i++)
+    {
+      BDS::MuonCoolerDipoleInfo info = {dipoleVarsV[0][i] * CLHEP::m,      // apertureRadius
+                                        dipoleVarsV[2][i] * CLHEP::m,      // lengthZ
+                                        dipoleVarsV[3][i] * CLHEP::ampere, // current
+                                        dipoleVarsV[4][i] * CLHEP::m,      // offsetZ
+                                    
+
+      };
+      result.push_back(info);
+    }
+  
+  return result;
+}
+
+// no checks for overlaps for dipoles as we don't physically build them yet
+
+std::vector<BDS::MuonCoolerDipoleInfo> BDS::BuildMuonCoolerDipoleInfos(const GMAD::CoolingChannel& definition)
+{
+  std::vector<BDS::MuonCoolerDipoleInfo> result;
+  
+  // Check we have matching dipole parameter sizes or tolerate 1 variable for all
+  G4int nDipoles = definition->nDipoles;
+  std::vector<std::string> dipoleParamNames = {"dipoleAperture",
+                                               "dipoleLengthZ",
+                                               "dipoleCurrent",
+                                               "dipoleOffsetZ"};
+  std::vector<const std::list<double>*> dipoleVars = {&(definition.dipoleAperture),
+                                                      &(definition.dipoleLengthZ),
+                                                      &(definition.dipoleCurrent),
+                                                      &(definition.dipoleOffsetZ)};
+  std::vector<std::vector<double> > dipoleVarsV;
+  BDS::MuonParamsToVector(definition.name,
+                          dipoleVars,
+                          dipoleParamNames,
+                          nDipoles,
+                          dipoleVarsV);
+
+  // build dipole infos
+  for (G4int i = 0; i < nDipoles; i++)
+    {
+      BDS::MuonCoolerDipoleInfo info = {dipoleVarsV[0][i] * CLHEP::m,      // apertureRadius
+                                        dipoleVarsV[2][i] * CLHEP::m,      // lengthZ
+                                        dipoleVarsV[3][i] * CLHEP::ampere, // current
+                                        dipoleVarsV[4][i] * CLHEP::m,      // offsetZ
+                                    
+
+      };
+      result.push_back(info);
+    }
+  
+  return result;
+}
+
+// no checks for overlaps for dipoles as we don't physically build them yet
 
 std::vector<BDS::MuonCoolerAbsorberInfo> BDS::BuildMuonCoolerAbsorberInfo(const GMAD::CoolingChannel& definition)
 {
@@ -500,7 +585,9 @@ BDSFieldInfo* BDS::BuildMuonCoolerFieldRecipe(const G4String& definitionName,
                                               const G4String& integrator,
                                               const G4String& magneticFieldModel,
                                               const G4String& electricFieldModel,
+                                              const G4String& dipoleFieldModel,
                                               const std::vector<BDS::MuonCoolerCoilInfo>& coilInfos,
+                                              const std::vector<BDS::MuonCoolerDipoleInfo>& dipoleInfos,
                                               const std::vector<BDS::MuonCoolerCavityInfo>& cavityInfos)
 {
   try
@@ -508,7 +595,8 @@ BDSFieldInfo* BDS::BuildMuonCoolerFieldRecipe(const G4String& definitionName,
       BDSIntegratorType it = BDS::DetermineIntegratorType(integrator);
       BDSFieldType mt = BDS::DetermineFieldType(magneticFieldModel);
       BDSFieldType et = BDS::DetermineFieldType(electricFieldModel);
-      auto ei = new BDSFieldInfoExtraMuonCooler(mt, et, coilInfos, cavityInfos);
+      BDSFieldType dt = BDS::DetermineFieldType(dipoleFieldModel);
+      auto ei = new BDSFieldInfoExtraMuonCooler(mt, et, dt, coilInfos, dipoleInfos, cavityInfos);
       
       auto result = new BDSFieldInfo(BDSFieldType::muoncooler, designRigidity, it);
       result->SetNameOfParserDefinition(definitionName);

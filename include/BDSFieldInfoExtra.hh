@@ -60,18 +60,24 @@ public:
   BDSFieldInfoExtraMuonCooler() = delete;
   BDSFieldInfoExtraMuonCooler(BDSFieldType magneticFieldTypeIn,
                               BDSFieldType electricFieldTypeIn,
+                              BDSFieldType dipoleFieldTypeIn, ///< Revisit
                               const std::vector<BDS::MuonCoolerCoilInfo>& coilInfosIn,
+                              const std::vector<BDS::MuonCoolerDipoleInfo>& dipoleInfosIn,
                               const std::vector<BDS::MuonCoolerCavityInfo>& cavityInfosIn):
     magneticFieldType(magneticFieldTypeIn),
     electricFieldType(electricFieldTypeIn),
+    dipoleFieldType(dipoleFieldTypeIn),
     coilInfos(coilInfosIn),
+    dipoleInfos(dipoleInfosIn),
     cavityInfos(cavityInfosIn)
   {;}
   virtual ~BDSFieldInfoExtraMuonCooler(){;}
 
   BDSFieldType magneticFieldType; ///< Type of the magnetic sub-field.
   BDSFieldType electricFieldType; ///< Type of the electric sub-field.
+  BDSFieldType dipoleFieldType;   ///< Type of the dipole sub-field.
   std::vector<BDS::MuonCoolerCoilInfo> coilInfos;
+  std::vector<BDS::MuonCoolerDipoleInfo> dipoleInfos;
   std::vector<BDS::MuonCoolerCavityInfo> cavityInfos;
 
   virtual BDSFieldInfoExtra* Clone() const {return new BDSFieldInfoExtraMuonCooler(*this);}

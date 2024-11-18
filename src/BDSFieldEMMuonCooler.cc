@@ -23,6 +23,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSFieldMagSolenoidBlock.hh"
 #include "BDSFieldMagSolenoidSheet.hh"
 #include "BDSFieldMagSolenoidLoop.hh"
+#include "BDSFieldMagDipole.hh"
 #include "BDSFieldMagVectorSum.hh"
 #include "BDSFieldMag.hh"
 #include "BDSFieldEMVectorSum.hh"
@@ -40,9 +41,11 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 BDSFieldEMMuonCooler::BDSFieldEMMuonCooler(const BDSFieldInfoExtraMuonCooler* info,
                                            G4double /*brho*/):
   coilField(nullptr),
+  dipoleField(nullptr),
   rfField(nullptr)
 {
   BuildMagnets(info);
+  BuildDipoles(info);
   BuildRF(info);
 }
 
@@ -111,6 +114,41 @@ void BDSFieldEMMuonCooler::BuildMagnets(const BDSFieldInfoExtraMuonCooler* info)
     }
 }
 
+void BDSFieldEMMuonCooler::BuildDipoles(const BDSFieldInfoExtraMuonCooler* info)
+{
+  switch (info->dipoleFieldType.underlying())
+    {
+    case BDSFieldType::dipole:
+      {
+        const auto& dipoleInfos = info->dipoleInfos;
+        std::vector<BDSFieldMag*> fields;
+        std::vector<G4ThreeVector> fieldOffsets;
+        for (const auto& di : dipoleInfos)
+          {
+            fields.push_back(new BDSFieldMagDipole(G4ThreeVector(0, di.current, 0))); ///> revisit; currently only y component
+            fieldOffsets.emplace_back(0,0,di.offsetZ);
+          }
+        dipoleField = new BDSFieldMagVectorSum(fields, fieldOffsets);
+        break;
+      }
+    case BDSFieldType::dipolequadrupole: /// fringe field model TBC
+      {
+        const auto& dipoleInfos = info->dipoleInfos;
+        std::vector<BDSFieldMag*> fields;
+        std::vector<G4ThreeVector> fieldOffsets;
+        dipoleField = new BDSFieldMagVectorSum(fields, fieldOffsets);
+        break;
+      }
+    default:
+      {
+        G4String msg = "\"" + info->dipoleFieldType.ToString();
+        msg += "\" is not a valid dipole field model for a muon cooler B field";
+        throw BDSException(__METHOD_NAME__, msg);
+        break;
+      }
+    }
+}
+
 void BDSFieldEMMuonCooler::BuildRF(const BDSFieldInfoExtraMuonCooler* info)
 {
   const auto& cavityInfos = info->cavityInfos;
@@ -144,7 +182,9 @@ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMMuonCooler::GetField(const G4T
                                                                        const G4double       t) const
 {
   auto result = rfField->GetField(position, t); // result is a pair like <Bfield, Efield>
-  G4ThreeVector bfieldOut = coilField->GetField(position, t);
-  result.first += bfieldOut;
+  G4ThreeVector solfieldOut = coilField->GetField(position, t);
+  G4ThreeVector dipolefieldOut = dipoleField->GetField(position, t);
+  result.first += solfieldOut;
+  result.first += dipolefieldOut;
   return result;
 }

@@ -46,6 +46,7 @@ public:
   virtual ~BDSFieldEMMuonCooler();
 
   virtual void BuildMagnets(const BDSFieldInfoExtraMuonCooler* info);
+  virtual void BuildDipoles(const BDSFieldInfoExtraMuonCooler* info);
   virtual void BuildRF(const BDSFieldInfoExtraMuonCooler* info);
 
   /// Function to get B and E field.
@@ -54,6 +55,7 @@ public:
   
 private:
   BDSFieldMag* coilField;
+  BDSFieldMag* dipoleField;
   BDSFieldEM* rfField;
   std::vector< std::pair<G4ThreeVector, BDSFieldEM*> > rfFieldVector;
 };

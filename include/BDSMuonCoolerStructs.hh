@@ -41,6 +41,14 @@ namespace BDS
     G4int   nSheets;
   };
 
+    struct MuonCoolerDipoleInfo
+  {
+    G4double apertureRadius;
+    G4double fullLengthZ;
+    G4double current;
+    G4double offsetZ;
+  };
+
   struct MuonCoolerCavityInfo
   {
     G4double    offsetZ;

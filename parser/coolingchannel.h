@@ -61,7 +61,6 @@ namespace GMAD
     std::list<double>      dipoleLengthZ;
     std::list<double>      dipoleCurrent;
     std::list<double>      dipoleOffsetZ;
-    std::list<std::string> dipoleMaterial;
 
     int                    nAbsorbers;
     std::list<std::string> absorberType;
@@ -94,7 +93,8 @@ namespace GMAD
     std::string integrator;
     std::string magneticFieldModel;
     std::string electricFieldModel;
-    
+    std::string dipoleFieldModel;
+
     /// Constructor
     CoolingChannel();
     /// Reset

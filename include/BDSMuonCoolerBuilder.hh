@@ -32,6 +32,7 @@ namespace GMAD
 namespace BDS
 {
   struct MuonCoolerCoilInfo; // forward declaration
+  struct MuonCoolerDipoleInfo;
   struct MuonCoolerCavityInfo;
   struct MuonCoolerAbsorberInfo;
   struct SquareCheck;
@@ -51,7 +52,7 @@ namespace BDS
   /// if some variables are single-valued with the intention that these are therefore
   /// the same of all the infos.
   std::vector<BDS::MuonCoolerCoilInfo> BuildMuonCoolerCoilInfos(const GMAD::CoolingChannel& definition);
-  
+
   /// Check if any of the definitions will cause overlaps. Do this by using the square
   /// cross-section of each coil in 2D and perform a simple un-rotated square overlap
   /// calculation. Check they will also fit inside the container length, radius.
@@ -61,6 +62,9 @@ namespace BDS
                                            G4double elementChordLength,
                                            G4double elementRadius);
   
+  std::vector<BDS::MuonCoolerDipoleInfo> BuildMuonCoolerDipoleInfos(const GMAD::CoolingChannel& definition);
+  /// No checks for overlaps for dipoles as we don't physically build them yet.
+
   std::vector<BDS::MuonCoolerAbsorberInfo> BuildMuonCoolerAbsorberInfo(const GMAD::CoolingChannel& definition);
   void CheckMuonCoolerAbsorberInfoForOverlaps(const G4String& definitionName,
                                               const G4String& elementName,
@@ -124,7 +128,9 @@ namespace BDS
                                            const G4String& integrator,
                                            const G4String& magneticFieldModel,
                                            const G4String& electricFieldModel,
+                                           const G4String& dipoleFieldModel,
                                            const std::vector<BDS::MuonCoolerCoilInfo>& coilInfos,
+                                           const std::vector<BDS::MuonCoolerDipoleInfo>& dipoleInfos,
                                            const std::vector<BDS::MuonCoolerCavityInfo>& cavityInfos);
 }
 

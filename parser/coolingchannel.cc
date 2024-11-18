@@ -50,8 +50,7 @@ void CoolingChannel::clear()
   dipoleLengthZ.clear();
   dipoleCurrent.clear();
   dipoleOffsetZ.clear();
-  dipoleMaterial.clear();
- 
+
   nAbsorbers = 0;
   absorberType.clear();
   absorberMaterial.clear();
@@ -64,6 +63,7 @@ void CoolingChannel::clear()
   absorberWedgeOffsetX.clear();
   absorberWedgeOffsetY.clear();
   absorberWedgeApexToBase.clear();
+
   nRFCavities = 0;
   rfOffsetZ.clear();
   rfLength.clear();
@@ -78,9 +78,11 @@ void CoolingChannel::clear()
   rfCavityRadius.clear();
   rfCavityThickness.clear();
   rfTimeOffset.clear();
+
   integrator = "g4classicalrk4";
   magneticFieldModel = "solenoidblock";
   electricFieldModel = "rfcavity";
+  dipoleFieldModel = "hardedge";
 }
 
 void CoolingChannel::PublishMembers()
@@ -89,6 +91,7 @@ void CoolingChannel::PublishMembers()
 
   publish("surroundingMaterial",  &CoolingChannel::surroundingMaterial);
   publish("nCells",               &CoolingChannel::nCells);
+
   publish("cellLengthZ",          &CoolingChannel::cellLengthZ);
   publish("nCoils",               &CoolingChannel::nCoils);
   publish("coilInnerRadius",      &CoolingChannel::coilInnerRadius);
@@ -99,9 +102,13 @@ void CoolingChannel::PublishMembers()
   publish("coilMaterial",         &CoolingChannel::coilMaterial);
   publish("mirrorCoils",          &CoolingChannel::mirrorCoils);
   publish("onAxisTolerance",      &CoolingChannel::onAxisTolerance);
-  publish("nSheets",             &CoolingChannel::nSheets);
+  publish("nSheets",              &CoolingChannel::nSheets);
 
-
+  publish("nDipoles",             &CoolingChannel::nDipoles);
+  publish("dipoleAperture",       &CoolingChannel::dipoleAperture);
+  publish("dipoleLengthZ",        &CoolingChannel::dipoleLengthZ);
+  publish("dipoleCurrent",        &CoolingChannel::dipoleCurrent);
+  publish("dipoleOffsetZ",          &CoolingChannel::dipoleOffsetZ);
 
   publish("nAbsorbers",                 &CoolingChannel::nAbsorbers);
   publish("absorberType",               &CoolingChannel::absorberType);
@@ -134,6 +141,7 @@ void CoolingChannel::PublishMembers()
   publish("integrator",        &CoolingChannel::integrator);
   publish("magneticFieldModel",&CoolingChannel::magneticFieldModel);
   publish("electricFieldModel",&CoolingChannel::electricFieldModel);
+  publish("dipoleFieldModel",  &CoolingChannel::dipoleFieldModel);
 
   attribute_map_list_double["coilInnerRadius"]     = &coilInnerRadius;
   attribute_map_list_double["coilRadialThickness"] = &coilRadialThickness;
@@ -141,6 +149,10 @@ void CoolingChannel::PublishMembers()
   attribute_map_list_double["coilCurrent"]         = &coilCurrent;
   attribute_map_list_double["coilOffsetZ"]         = &coilOffsetZ;
   attribute_map_list_string["coilMaterial"]        = &coilMaterial;
+  attribute_map_list_double["dipoleAperture"]      = &dipoleAperture;
+  attribute_map_list_double["dipoleLengthZ"]       = &dipoleLengthZ;
+  attribute_map_list_double["dipoleCurrent"]       = &dipoleCurrent;
+  attribute_map_list_double["dipoleOffsetZ"]       = &dipoleOffsetZ;
   attribute_map_list_string["absorberType"]        = &absorberType;
   attribute_map_list_string["absorberMaterial"]    = &absorberMaterial;
   attribute_map_list_double["absorberOffsetZ"]     = &absorberOffsetZ;
@@ -186,6 +198,13 @@ void CoolingChannel::print()const
             << "coilOffsetZ "                << coilOffsetZ                << std::endl
             << "coilMaterial "               << coilMaterial               << std::endl
             << "mirrorCoils "                << mirrorCoils                << std::endl
+            << "onAxisTolerance "            << onAxisTolerance            << std::endl
+            << "nSheets "                    << nSheets                    << std::endl
+            << "nDipoles "                   << nDipoles                   << std::endl
+            << "dipoleAperture "             << dipoleAperture             << std::endl
+            << "dipoleLengthZ "              << dipoleLengthZ              << std::endl
+            << "dipoleCurrent "              << dipoleCurrent              << std::endl
+            << "dipoleOffsetZ "              << dipoleOffsetZ              << std::endl
             << "nAbsorbers "                 << nAbsorbers                 << std::endl
             << "absorberType "               << absorberType               << std::endl
             << "absorberMaterial "           << absorberMaterial           << std::endl
@@ -214,7 +233,8 @@ void CoolingChannel::print()const
             << "rfTimeOffset "               << rfTimeOffset               << std::endl
             << "integrator "                 << integrator                 << std::endl
             << "magneticFieldModel "         << magneticFieldModel         << std::endl
-            << "electricFieldModel "         << electricFieldModel         << std::endl;
+            << "electricFieldModel "         << electricFieldModel         << std::endl
+            << "dipoleFieldModel "           << dipoleFieldModel           << std::endl;
 }
 
 template <class T>
