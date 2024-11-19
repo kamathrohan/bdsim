@@ -82,7 +82,7 @@ void CoolingChannel::clear()
   integrator = "g4classicalrk4";
   magneticFieldModel = "solenoidblock";
   electricFieldModel = "rfcavity";
-  dipoleFieldModel = "hardedge";
+  dipoleFieldModel = "dipole";
 }
 
 void CoolingChannel::PublishMembers()

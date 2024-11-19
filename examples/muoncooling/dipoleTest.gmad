@@ -1,0 +1,129 @@
+Li6: matdef, Z=3, A=6.0151214, density=0.46, state="solid";
+MICE_LiH: matdef, density=0.69, state="solid", components=["Li6","G4_Li","G4_H"], componentsFractions={0.814,0.043,0.143};
+MICE_LIQUID_HYDROGEN: matdef, Z=1, A=1.008, density=0.07053, state="liquid";
+
+cooldef1:  coolingchannel, 
+       		           nCoils=20,
+    	        	   coilInnerRadius = {0.2542325,0.2626975,0.2711625,0.2796275,0.2880925,0.2965575,0.3050225,0.3134875,0.3219525,0.3304175,0.3388825,0.3473475,0.3558125,0.3642775,0.3727425,0.3812075,0.3896725,0.3981375,0.4066025,0.4150675},
+          	       	   coilRadialThickness = {0.001*m},
+		           coilLengthZ = {0.14*m},
+                           coilCurrent = {592550},
+                           coilOffsetZ = {0.0*m},
+                           coilMaterial = {"G4_Cu"},
+
+			   nDipoles = 1,
+			   dipoleAperture= {0.2},
+                           dipoleLengthZ = {0.1},
+                           dipoleCurrent = {0.1},
+                           dipoleOffsetZ = {0.0},
+
+			   nAbsorbers = 0,
+			   absorberType = {"cylinder"},
+			   !absorberMaterial = {"G4_LITHIUM_HYDRIDE"},
+                           absorberMaterial = {"MICE_LiH"},
+                           absorberOffsetZ = {0.0},
+			   absorberCylinderLength = {6.537*cm},
+			   absorberCylinderRadius = {15*cm}, !10cm
+			   absorberWedgeOpeningAngle = {0},
+			   absorberWedgeHeight = {0},
+			   absorberWedgeRotationAngle = {0},
+			   absorberWedgeOffsetX = {0},
+			   absorberWedgeOffsetY 	= {0},
+			   absorberWedgeApexToBase = {0},
+               
+			   nRFCavities = 0,
+                           rfOffsetZ = {0},
+                           rfTimeOffset={0},
+                           rfLength={0},
+                           rfVoltage={0},
+                           rfPhase={0.0},
+                           rfFrequency={0.0},
+			   rfWindowThickness = {0*um}, !50  Win1 thickness, or should we use win2 
+			   rfWindowMaterial = {"G4_Be"},
+			   rfWindowRadius = {15*cm},
+			   rfCavityMaterial = {"G4_Cu"},
+			   rfCavityVacuumMaterial = {"vacuum"},
+			   rfCavityRadius = {163*mm},!iris radius? = 0.75*$c_light/$frequency*$bessel_0/2/$pi
+			   rfCavityThickness = {3*mm}, !Wall thickness
+
+			   magneticFieldModel="solenoidsheet",
+			   electricFieldModel="rfpillbox";
+
+
+mc1: muoncooler, l=1.0*m, horizontalWidth=2.*m, coolingDefinition="cooldef1";
+c1: rcol, l=1*mm, xsize=0*mm, ysize=0*mm, material="graphite", outerDiameter=200*cm;
+d1: drift, l=1*mm;
+lat: line=(mc1,d1,c1);
+use, period=lat;
+
+
+s1: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-500.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s2: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-480.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s3: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-460.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s4: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-440.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s5: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-420.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s6: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-400.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s7: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-380.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s8: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-360.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s9: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-340.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s10: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-320.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s11: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-300.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s12: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-280.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s13: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-260.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s14: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-240.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s15: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-220.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s16: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-200.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s17: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-180.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s18: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-160.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s19: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-140.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s20: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-120.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s21: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-100.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s22: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-80.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s23: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-60.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s24: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-40.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s25: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=-20.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s26: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=0.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s27: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=20.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s28: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=40.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s29: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=60.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s30: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=80.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s31: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=100.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s32: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=120.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s33: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=140.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s34: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=160.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s35: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=180.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s36: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=200.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s37: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=220.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s38: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=240.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s39: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=260.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s40: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=280.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s41: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=300.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s42: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=320.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s43: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=340.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s44: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=360.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s45: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=380.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s46: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=400.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s47: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=420.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s48: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=440.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s49: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=460.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s50: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=480.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+s51: samplerplacement, referenceElement="mc1", referenceElementNumber=0, s=500.0*mm, shape="rectangular",aper1=5*m, aper2=5*m;
+
+
+option, checkOverlaps=1,
+        stopSecondaries=1,
+        collimatorsAreInfiniteAbsorbers=1,
+        maximumStepLength=20*mm,
+        integratorSet="geant4",
+        physicsList="qgsp_bic em muon";
+
+beam, particle="mu+", momentum=200.0*MeV;
+
+!beam, particle="mu+",
+!      momentum=200*MeV,
+!      distrType="userfile",
+!      distrFile="radial_grid.dat",
+!      distrFileFormat = "x[mm]:xp[rad]:y[mm]:yp[rad]:z[mm]:Ek[MeV]",
+!      nlinesIgnore=1;
+
+

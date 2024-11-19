@@ -131,12 +131,8 @@ void BDSFieldEMMuonCooler::BuildDipoles(const BDSFieldInfoExtraMuonCooler* info)
         dipoleField = new BDSFieldMagVectorSum(fields, fieldOffsets);
         break;
       }
-    case BDSFieldType::dipolequadrupole: /// fringe field model TBC
+    case BDSFieldType::none: /// fringe field model TBC
       {
-        const auto& dipoleInfos = info->dipoleInfos;
-        std::vector<BDSFieldMag*> fields;
-        std::vector<G4ThreeVector> fieldOffsets;
-        dipoleField = new BDSFieldMagVectorSum(fields, fieldOffsets);
         break;
       }
     default:
