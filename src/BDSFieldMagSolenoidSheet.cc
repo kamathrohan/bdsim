@@ -87,7 +87,7 @@ G4ThreeVector BDSFieldMagSolenoidSheet::GetField(const G4ThreeVector& position,
   G4double zp = z + halfLength;
   G4double zm = z - halfLength;
   
-  if (OnAxisBz(zp, zm) < coilTolerance)
+  if (std::abs(OnAxisBz(zp, zm)) < coilTolerance)
     { return G4ThreeVector();}
   G4double Brho = 0;
   G4double Bz   = 0;
@@ -134,7 +134,7 @@ G4ThreeVector BDSFieldMagSolenoidSheet::GetField(const G4ThreeVector& position,
     }
   // we have to be consistent with the phi we calculated at the beginning,
   // so unit rho is in the x direction.
-  G4ThreeVector result = G4ThreeVector(Brho,0,Bz) * normalisation;
+  G4ThreeVector result = G4ThreeVector(Brho,0,Bz)* normalisation;
   result = result.rotateZ(phi);
   return result;
 }

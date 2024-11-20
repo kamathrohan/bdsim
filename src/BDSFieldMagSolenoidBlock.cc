@@ -31,6 +31,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include <cmath>
+#include <memory>
 
 BDSFieldMagSolenoidBlock::BDSFieldMagSolenoidBlock(BDSMagnetStrength const* strength,
                                                    G4double innerRadiusIn):
@@ -69,6 +70,7 @@ BDSFieldMagSolenoidBlock::BDSFieldMagSolenoidBlock(G4double strength,
       I = B0 * 2 * a / CLHEP::mu0;
     }
   currentDensity = I*radialThickness*fullLengthZ/nSheetsBlock; // Current density in A/m^2 (TODO:Check)
+
 }
 
 G4ThreeVector BDSFieldMagSolenoidBlock::GetField(const G4ThreeVector& position,
@@ -79,10 +81,9 @@ G4ThreeVector BDSFieldMagSolenoidBlock::GetField(const G4ThreeVector& position,
   G4double phi = position.phi(); // angle about z axis
   std::unique_ptr<BDSFieldMag> field;
   G4ThreeVector blockField;
-  G4ThreeVector result;
   double dr = radialThickness/nSheetsBlock;
   for (int sheet = 0; sheet < nSheetsBlock; sheet++)
-          {
+          { 
             field = std::make_unique<BDSFieldMagSolenoidSheet>(currentDensity,
                                                                true,
                                                                a+(sheet*dr) + dr/2,
@@ -90,12 +91,13 @@ G4ThreeVector BDSFieldMagSolenoidBlock::GetField(const G4ThreeVector& position,
                                                                coilTolerance);
             blockField += field->GetField(position);
 
+
           }
 
 
   
   // we have to be consistent with the phi we calculated at the beginning,
   // so unit rho is in the x direction.
-  result = result.rotateZ(phi);
-  return result;
+  blockField = blockField.rotateZ(phi);
+  return blockField;
 }
