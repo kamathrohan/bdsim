@@ -55,19 +55,19 @@ BDSFieldMagSolenoidSheet::BDSFieldMagSolenoidSheet(G4double strength,
   if (strengthIsCurrent)
     {
       I = strength;
-      B0 = CLHEP::mu0 * strength / (2*a);
+      B0 = CLHEP::mu0 * strength / (CLHEP::pi*2* halfLength);
     }
   else
     {// strength is B0 -> calculate current
       B0 = strength;
-      I = B0 * 2 * a / CLHEP::mu0;
+      I = B0 *(CLHEP::pi*2* halfLength) / CLHEP::mu0; 
     }
   
   // The field inside the current cylinder is actually slightly parabolic in rho.
   // The equation for the field takes B0 as the peak magnetic field at the current
   // cylinder sheet. So we evaluate it here then normalise. ~<1% adjustment in magnitude.
-  G4double testBz = OnAxisBz(halfLength, -halfLength);
-  normalisation = B0 / testBz;
+  //G4double testBz = OnAxisBz(halfLength, -halfLength);
+  //normalisation = B0 / testBz;
 }
 
 G4ThreeVector BDSFieldMagSolenoidSheet::GetField(const G4ThreeVector& position,
@@ -124,8 +124,8 @@ G4ThreeVector BDSFieldMagSolenoidSheet::GetField(const G4ThreeVector& position,
       G4double kp = std::sqrt(zpSq + aMinusRhoSq) / denominatorP;
       G4double km = std::sqrt(zmSq + aMinusRhoSq) / denominatorM;
       
-      Brho = B0 * (alphap * BDS::CEL(kp, 1, 1, -1) - alpham * BDS::CEL(km, 1, 1, -1)) / CLHEP::pi;
-      Bz = ((B0 * a) / (rhoPlusA)) * (betap * BDS::CEL(kp, gammaSq, 1, gamma) - betam * BDS::CEL(km, gammaSq, 1, gamma)) / CLHEP::pi;
+      Brho = B0 * (alphap * BDS::CEL(kp, 1, 1, -1) - alpham * BDS::CEL(km, 1, 1, -1));
+      Bz = ((B0 * a) / (rhoPlusA)) * (betap * BDS::CEL(kp, gammaSq, 1, gamma) - betam * BDS::CEL(km, gammaSq, 1, gamma));
       // technically possible for integral to return nan, so protect against it and default to B0 along z
       if (std::isnan(Brho))
         {Brho = 0;}
@@ -144,6 +144,6 @@ G4double BDSFieldMagSolenoidSheet::OnAxisBz(G4double zp,
 {
   G4double f1 = zp / std::sqrt( zp*zp + a*a );
   G4double f2 = zm / std::sqrt( zm*zm + a*a );
-  G4double Bz = 0.5*B0 * (f1 - f2);
+  G4double Bz = 0.5*B0 *CLHEP::pi* (f1 - f2);
   return Bz;
 }
