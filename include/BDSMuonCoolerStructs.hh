@@ -41,7 +41,7 @@ namespace BDS
     G4int   nSheets;
   };
 
-    struct MuonCoolerDipoleInfo
+  struct MuonCoolerDipoleInfo
   {
     G4double apertureRadius;
     G4double fullLengthZ;

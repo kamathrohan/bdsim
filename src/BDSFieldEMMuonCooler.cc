@@ -171,6 +171,7 @@ void BDSFieldEMMuonCooler::BuildRF(const BDSFieldInfoExtraMuonCooler* info)
 BDSFieldEMMuonCooler::~BDSFieldEMMuonCooler()
 {
   delete coilField;
+  delete dipoleField;
   delete rfField;
 }
 

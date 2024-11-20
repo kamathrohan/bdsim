@@ -251,14 +251,13 @@ std::vector<BDS::MuonCoolerDipoleInfo> BDS::BuildMuonCoolerDipoleInfos(const GMA
                           dipoleVarsV);
 
   // build dipole infos
+
   for (G4int i = 0; i < nDipoles; i++)
     {
       BDS::MuonCoolerDipoleInfo info = {dipoleVarsV[0][i] * CLHEP::m,      // apertureRadius
                                         dipoleVarsV[1][i] * CLHEP::m,      // lengthZ
-                                        dipoleVarsV[2][i] * CLHEP::ampere, // current
-                                        dipoleVarsV[3][i] * CLHEP::m,      // offsetZ
-                                    
-
+                                        dipoleVarsV[2][i] * CLHEP::tesla, // current
+                                        dipoleVarsV[3][i] * CLHEP::m      // offsetZ
       };
       result.push_back(info);
     }
