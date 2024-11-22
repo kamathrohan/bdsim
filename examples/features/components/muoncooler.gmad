@@ -1,42 +1,58 @@
-cooldef1:  coolingchannel, nCoils=4,
-    		    	   coilInnerRadius = {0.1, 0.2, 0.3, 0.4},
-		    	   coilRadialThickness = {0.08, 0.08, 0.08, 0.12},
-			   coilLengthZ = {0.1, 0.1, 0.1, 0.3},
-			   coilCurrent = {1.2, 1.3, 1.4, 1.5},
-			   coilOffsetZ = {-1.42, -1.35, -1.3, -1.1},
-			   coilMaterial = {"G4_Cu"},
-			   mirrorCoils = 1,
-			   nAbsorbers = 2,
-			   absorberType = {"cylinder", "wedge"},
-			   absorberMaterial = {"G4_Li"},
-			   absorberOffsetZ = {-1.3*m,1.3*m},
-			   absorberCylinderLength = {25*cm, 0},
-			   absorberCylinderRadius = {10*cm, 0},
-			   absorberWedgeOpeningAngle = {0, 1*rad},
-			   absorberWedgeHeight = {0,10*cm},
-			   absorberWedgeRotationAngle = {0, 20*mrad},
-			   absorberWedgeOffsetX = {0, 5*mm},
-			   absorberWedgeOffsetY = {0, 10*mm},
-			   absorberWedgeApexToBase = {0, 10*cm},
-			   nRFCavities = 4,
-			   rfOffsetZ = {-0.675, -0.225, 0.225, 0.675},
-			   rfLength  = {0.4, 0.4, 0.4, 0.4},
-			   rfVoltage = {500*kV, 500*kV, 600*kV, 600*kV},
-			   rfPhase = {0, 0, halfpi, halfpi},
-			   rfFrequency = {0, 0, 2*MHz, 3*MHz},
-			   rfWindowThickness = {100*um, 100*um, 100*um, 100*um},
-			   rfWindowMaterial = {"G4_B", "G4_B", "G4_B", "G4_Al"},
-			   rfWindowRadius = {10*cm},
-			   rfCavityMaterial = {"G4_Cu"},
-			   rfCavityVacuumMaterial = {"vacuum"},
-			   rfCavityRadius = {35*cm},
-			   rfCavityThickness = {5*mm},
-			   magneticFieldModel="solenoidsheet",
-			   electricFieldModel="rfcavity";
+cooldef1:  coolingchannel, 
+                nCoils=6,
+                coilInnerRadius = {0.3*m},
+                coilRadialThickness = {0.1*m},
+                coilLengthZ = {0.1333333*m},
+                coilOffsetZ ={-1.3153, -0.6847, -0.3153, 0.3153, 0.6847, 1.3153},
+                coilCurrent = {4900000, -4900000, 4900000, -4900000, 4900000, -4900000},
+                coilMaterial = {"G4_Cu"},
+                onAxisTolerance=1e-7,
+                nSheets=20,
 
 
-mc1: muoncooler, l=3*m, horizontalWidth=1.1*m, coolingDefinition="cooldef1";
+                nAbsorbers = 2,
+                absorberType = {"cylinder"},
+                absorberMaterial = {"G4_LITHIUM_HYDRIDE"},
+                absorberOffsetZ = {-0.5, 0.5},
+                absorberCylinderLength = {3.42*cm},
+                absorberCylinderRadius = {20*cm},
+                absorberWedgeOpeningAngle = {0},
+                absorberWedgeHeight = {0},
+                absorberWedgeRotationAngle = {0},
+                absorberWedgeOffsetX = {0},
+                absorberWedgeOffsetY = {0},
+                absorberWedgeApexToBase = {0},
+
+
+                nRFCavities = 8,
+                rfOffsetZ = {-0.1875, -0.0625, 0.0625, 0.1875, 0.8125, 0.9375, 1.0625, 1.1875},
+			    rfTimeOffset={4.951413722820539, 5.422976934517734, 5.894540146214927, 6.366103357912122, 8.723919416398093, 9.195482628095286, 9.66704583979248, 10.138609051489675},
+                rfLength  = {0.124*m},
+                rfVoltage = {14.85},
+                rfPhase= {-3.141592653589793/2},
+			    rfFrequency = {0.704*GHz},
+                rfWindowThickness = {0*um},
+                rfWindowMaterial = {"G4_Be"},
+                rfWindowRadius = {15*cm},
+                rfCavityMaterial = {"G4_Cu"},
+                rfCavityVacuumMaterial = {"vacuum"},
+                rfCavityRadius = {163*mm}, !radius = 0.75*$c_light/$frequency*$bessel_0/2/$pi
+                rfCavityThickness = {3*mm},
+
+
+                magneticFieldModel="solenoidblock",
+                electricFieldModel="rfpillbox";
+                
+            mc1: muoncooler, l=3.0*m, horizontalWidth=2.2*m, coolingDefinition="cooldef1";
 
 lat: line=(mc1);
 
-include optionsTest.gmad;
+
+use, period=lat;
+
+option, checkOverlaps=1,
+        collimatorsAreInfiniteAbsorbers=1,
+        stopSecondaries=1,
+        physicsList="qgsp_bic em muon";
+
+beam, particle="mu+", momentum=200.0*MeV;
