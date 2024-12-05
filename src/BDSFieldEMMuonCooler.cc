@@ -24,6 +24,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSFieldMagSolenoidSheet.hh"
 #include "BDSFieldMagSolenoidLoop.hh"
 #include "BDSFieldMagDipole.hh"
+#include "BDSFieldMagDipoleEnge.hh"
 #include "BDSFieldMagVectorSum.hh"
 #include "BDSFieldMag.hh"
 #include "BDSFieldEMVectorSum.hh"
@@ -131,6 +132,23 @@ void BDSFieldEMMuonCooler::BuildDipoles(const BDSFieldInfoExtraMuonCooler* info)
         dipoleField = new BDSFieldMagVectorSum(fields, fieldOffsets);
         break;
       }
+    case BDSFieldType::dipoleenge:
+      {
+        const auto& dipoleInfos = info->dipoleInfos;
+        std::vector<BDSFieldMag*> fields;
+        std::vector<G4ThreeVector> fieldOffsets;
+        for (const auto& di : dipoleInfos)
+          {
+            fields.push_back(new BDSFieldMagDipoleEnge(di.current,
+                                                       di.apertureRadius,
+                                                       di.fullLengthZ,
+                                                       di.engeCoefficient,
+                                                       0.0)); ///> on axis tolerance
+            fieldOffsets.emplace_back(0,0,di.offsetZ);
+          }
+        dipoleField = new BDSFieldMagVectorSum(fields, fieldOffsets);
+        break;
+      }  
     case BDSFieldType::none: /// fringe field model TBC
       {
         break;

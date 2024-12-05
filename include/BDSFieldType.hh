@@ -45,7 +45,7 @@ struct fieldtypes_def
 	     ebmap1d, ebmap2d, ebmap3d, ebmap4d,
 	     mokka,
 	     solenoid, solenoidsheet, solenoidloop, solenoidblock,
-	     dipole, quadrupole, dipolequadrupole, sextupole,
+	     dipole, dipoleenge, quadrupole, dipolequadrupole, sextupole,
 	     octupole, decapole, multipole, muonspoiler, muoncooler,
              skewquadrupole, skewsextupole, skewoctupole, skewdecapole,
 	     rfpillbox, rfconstantinx, rfconstantiny, rfconstantinz, cavityfringe,

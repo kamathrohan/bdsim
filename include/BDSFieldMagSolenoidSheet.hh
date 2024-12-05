@@ -55,8 +55,8 @@ public:
   BDSFieldMagSolenoidSheet(G4double strength,
                            G4bool   strengthIsCurrent,
                            G4double sheetRadius,
-                           G4double fullLength
-                           ,G4double toleranceIn = 0.0
+                           G4double fullLength,
+                           G4double toleranceIn = 0.0
                            );
 
   virtual ~BDSFieldMagSolenoidSheet(){;}

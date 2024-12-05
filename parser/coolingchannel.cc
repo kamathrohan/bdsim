@@ -49,7 +49,9 @@ void CoolingChannel::clear()
   dipoleAperture.clear();
   dipoleLengthZ.clear();
   dipoleCurrent.clear();
+  dipoleEngeCoefficient.clear();
   dipoleOffsetZ.clear();
+  dipoleTolerance.clear();
 
   nAbsorbers = 0;
   absorberType.clear();
@@ -108,7 +110,9 @@ void CoolingChannel::PublishMembers()
   publish("dipoleAperture",       &CoolingChannel::dipoleAperture);
   publish("dipoleLengthZ",        &CoolingChannel::dipoleLengthZ);
   publish("dipoleCurrent",        &CoolingChannel::dipoleCurrent);
-  publish("dipoleOffsetZ",          &CoolingChannel::dipoleOffsetZ);
+  publish("dipoleEngeCoefficient",&CoolingChannel::dipoleEngeCoefficient);
+  publish("dipoleOffsetZ",        &CoolingChannel::dipoleOffsetZ);
+  publish("dipoleTolerance",      &CoolingChannel::dipoleTolerance);
 
   publish("nAbsorbers",                 &CoolingChannel::nAbsorbers);
   publish("absorberType",               &CoolingChannel::absorberType);
@@ -152,7 +156,9 @@ void CoolingChannel::PublishMembers()
   attribute_map_list_double["dipoleAperture"]      = &dipoleAperture;
   attribute_map_list_double["dipoleLengthZ"]       = &dipoleLengthZ;
   attribute_map_list_double["dipoleCurrent"]       = &dipoleCurrent;
+  attribute_map_list_double["dipoleEngeCoefficient"] = &dipoleEngeCoefficient;
   attribute_map_list_double["dipoleOffsetZ"]       = &dipoleOffsetZ;
+  attribute_map_list_double["dipoleTolerance"]     = &dipoleTolerance;
   attribute_map_list_string["absorberType"]        = &absorberType;
   attribute_map_list_string["absorberMaterial"]    = &absorberMaterial;
   attribute_map_list_double["absorberOffsetZ"]     = &absorberOffsetZ;
@@ -204,7 +210,9 @@ void CoolingChannel::print()const
             << "dipoleAperture "             << dipoleAperture             << std::endl
             << "dipoleLengthZ "              << dipoleLengthZ              << std::endl
             << "dipoleCurrent "              << dipoleCurrent              << std::endl
+            << "dipoleEngeCoefficient "      << dipoleEngeCoefficient      << std::endl
             << "dipoleOffsetZ "              << dipoleOffsetZ              << std::endl
+            << "dipoleTolerance "            << dipoleTolerance            << std::endl
             << "nAbsorbers "                 << nAbsorbers                 << std::endl
             << "absorberType "               << absorberType               << std::endl
             << "absorberMaterial "           << absorberMaterial           << std::endl

@@ -229,22 +229,26 @@ void BDS::CheckMuonCoolerCoilInfosForOverlaps(const G4String& definitionName,
     }
 }
 
-std::vector<BDS::MuonCoolerDipoleInfo> BDS::BuildMuonCoolerDipoleInfos(const GMAD::CoolingChannel* definition)
+std::vector<BDS::MuonCoolerDipoleInfo> BDS::BuildMuonCoolerDipoleInfos(const GMAD::CoolingChannel& definition)
 {
   std::vector<BDS::MuonCoolerDipoleInfo> result;
   
   // Check we have matching dipole parameter sizes or tolerate 1 variable for all
-  G4int nDipoles = definition->nDipoles;
+  G4int nDipoles = definition.nDipoles;
   std::vector<std::string> dipoleParamNames = {"dipoleAperture",
                                                "dipoleLengthZ",
                                                "dipoleCurrent",
-                                               "dipoleOffsetZ"};
+                                               "dipoleEngeCoefficient",
+                                               "dipoleOffsetZ",
+                                               "dipoleTolerance"};
   std::vector<const std::list<double>*> dipoleVars = {&(definition.dipoleAperture),
                                                       &(definition.dipoleLengthZ),
                                                       &(definition.dipoleCurrent),
-                                                      &(definition.dipoleOffsetZ)};
+                                                      &(definition.dipoleEngeCoefficient),
+                                                      &(definition.dipoleOffsetZ),
+                                                      &(definition.dipoleTolerance)};
   std::vector<std::vector<double> > dipoleVarsV;
-  BDS::MuonParamsToVector(definition->name,
+  BDS::MuonParamsToVector(definition.name,
                           dipoleVars,
                           dipoleParamNames,
                           nDipoles,
@@ -257,45 +261,9 @@ std::vector<BDS::MuonCoolerDipoleInfo> BDS::BuildMuonCoolerDipoleInfos(const GMA
       BDS::MuonCoolerDipoleInfo info = {dipoleVarsV[0][i] * CLHEP::m,      // apertureRadius
                                         dipoleVarsV[1][i] * CLHEP::m,      // lengthZ
                                         dipoleVarsV[2][i] * CLHEP::tesla, // current
-                                        dipoleVarsV[3][i] * CLHEP::m      // offsetZ
-      };
-      result.push_back(info);
-    }
-  
-  return result;
-}
-
-// no checks for overlaps for dipoles as we don't physically build them yet
-
-std::vector<BDS::MuonCoolerDipoleInfo> BDS::BuildMuonCoolerDipoleInfos(const GMAD::CoolingChannel& definition)
-{
-  std::vector<BDS::MuonCoolerDipoleInfo> result;
-  
-  // Check we have matching dipole parameter sizes or tolerate 1 variable for all
-  G4int nDipoles = definition->nDipoles;
-  std::vector<std::string> dipoleParamNames = {"dipoleAperture",
-                                               "dipoleLengthZ",
-                                               "dipoleCurrent",
-                                               "dipoleOffsetZ"};
-  std::vector<const std::list<double>*> dipoleVars = {&(definition.dipoleAperture),
-                                                      &(definition.dipoleLengthZ),
-                                                      &(definition.dipoleCurrent),
-                                                      &(definition.dipoleOffsetZ)};
-  std::vector<std::vector<double> > dipoleVarsV;
-  BDS::MuonParamsToVector(definition.name,
-                          dipoleVars,
-                          dipoleParamNames,
-                          nDipoles,
-                          dipoleVarsV);
-
-  // build dipole infos
-  for (G4int i = 0; i < nDipoles; i++)
-    {
-      BDS::MuonCoolerDipoleInfo info = {dipoleVarsV[0][i] * CLHEP::m,      // apertureRadius
-                                        dipoleVarsV[2][i] * CLHEP::m,      // lengthZ
-                                        dipoleVarsV[3][i] * CLHEP::ampere, // current
+                                        dipoleVarsV[3][i], // enge Coeff
                                         dipoleVarsV[4][i] * CLHEP::m,      // offsetZ
-                                    
+                                        dipoleVarsV[5][i]      // tolerance
 
       };
       result.push_back(info);
