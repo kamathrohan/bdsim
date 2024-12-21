@@ -74,7 +74,6 @@ private:
   G4double B0;
   G4double I;
   G4double spatialLimit;
-  G4double mu0OverPiTimesITimesA;
   G4double coilTolerance;
   G4int    nSheetsBlock;
   G4double currentDensity;

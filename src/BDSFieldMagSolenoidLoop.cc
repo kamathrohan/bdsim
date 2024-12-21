@@ -18,7 +18,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSFieldMagSolenoidLoop.hh"
 #include "BDSMagnetStrength.hh"
-#include "BDSMaths.hh"
+#include "BDSSpecialFunctions.hh"
 #include "BDSUtilities.hh"
 
 #include "G4ThreeVector.hh"
