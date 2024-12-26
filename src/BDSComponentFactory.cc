@@ -1560,7 +1560,14 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateMuonCooler()
   if (!HasSufficientMinimumLength(element))
     {return nullptr;}
 
-  auto result = BDS::BuildMuonCooler(element, BRho());
+  GMAD::CoolingChannel def = BDSParser::Instance()->GetCoolingChannel(element->coolingDefinition);
+  auto beamPipeInfo = PrepareBeamPipeInfo(element);
+  auto result = BDS::BuildMuonCooler(elementName,
+                                     element->l * CLHEP::m,
+                                     element->horizontalWidth * CLHEP::m,
+                                     def,
+                                     beamPipeInfo,
+                                     BRho());
   return result;
 }
 
