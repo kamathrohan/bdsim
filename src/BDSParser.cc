@@ -56,12 +56,10 @@ bool BDSParser::IsInitialised()
 BDSParser::~BDSParser()
 {
   instance = nullptr;
-  delete coolingChannelObjectMap;
 }
 
 BDSParser::BDSParser(const std::string& name):
-  GMAD::Parser(name),
-  coolingChannelObjectMap(nullptr)
+  GMAD::Parser(name)
 {
   std::cout << __METHOD_NAME__ << "Using input file: "<< name << std::endl;
 }
@@ -109,23 +107,12 @@ void BDSParser::CheckOptions()
     {beam.S0 = beam.S0 + options.beamlineS;}
 }
 
-const GMAD::CoolingChannel* BDSParser::GetCoolingChannel(const std::string& objectName)
+GMAD::CoolingChannel BDSParser::GetCoolingChannel(const std::string& objectName)
 {
-  if (!coolingChannelObjectMap)
-    {
-      coolingChannelObjectMap = new std::map<std::string, GMAD::CoolingChannel*>();
-      for (auto& cco: coolingchannel_list)
-        {(*coolingChannelObjectMap)[cco.name] = &cco;}
-    }
+  auto m = coolingchannel_list.getMap();
+  auto search = m.find(objectName);
+  if (search != m.end())
+    {return search->second;}
   else
-    {
-      if ((int)coolingChannelObjectMap->size() != coolingchannel_list.size())
-        {
-          coolingChannelObjectMap->clear();
-          for (auto& cco: coolingchannel_list)
-            {(*coolingChannelObjectMap)[cco.name] = &cco;}
-        }
-    }
-  auto search = coolingChannelObjectMap->find(objectName);
-  return (search != coolingChannelObjectMap->end()) ? search->second : nullptr;
+    {throw BDSException(__METHOD_NAME__, "no such coolingDefinition \"" + objectName + "\"");}
 }

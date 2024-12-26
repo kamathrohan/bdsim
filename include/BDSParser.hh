@@ -100,6 +100,7 @@ public:
   inline std::vector<GMAD::NewColour> GetColours() const {return colour_list.getVector();}
   inline std::vector<GMAD::Crystal> GetCrystals() const {return crystal_list.getVector();}
   inline std::vector<GMAD::CoolingChannel> GetCoolingChannels() const {return coolingchannel_list.getVector();}
+  inline std::map<std::string, GMAD::CoolingChannel> GetCoolingChannelMap() const {return coolingchannel_list.getMap();}
   inline std::vector<GMAD::Field> GetFields() const {return field_list.getVector();}
   inline std::vector<GMAD::Material> GetMaterials() const {return material_list.getVector();}
   inline std::vector<GMAD::Placement> GetPlacements() const {return placement_list.getVector();}
@@ -113,10 +114,8 @@ public:
   inline std::vector<GMAD::Aperture> GetApertures() const {return aperture_list.getVector();}
   /// @}
 
-  /// Return a cooling channel object by name. Returns nullptr if doesn't exist.
-  /// Uses a map of names to objects that is cached for resuse. If doesn't exist or
-  /// exapnded, it's built up again.
-  const GMAD::CoolingChannel* GetCoolingChannel(const std::string& objectName);
+  /// Return a cooling channel object by name. Throws an exception if it doesn't exist.
+  GMAD::CoolingChannel GetCoolingChannel(const std::string& objectName);
 
   
 protected:
@@ -126,11 +125,6 @@ protected:
 private:
   /// Instance.
   static BDSParser* instance;
-
-  /// Keep a cached map of all cooling object definitions to retrieve them by name.
-  /// Do this as these don't map 1:1 to a simple recipe object and we don't want to
-  /// loop over them all each time we construct one.
-  std::map<std::string, GMAD::CoolingChannel*>* coolingChannelObjectMap;
 };
 
 #endif
