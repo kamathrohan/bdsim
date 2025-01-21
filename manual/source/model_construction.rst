@@ -223,6 +223,7 @@ The following elements may be defined
 * `marker`_
 * `wirescanner`_
 * `ct`_
+* `muoncooler`_
 
 .. TODO add screen, awakescreen
 
@@ -2091,6 +2092,106 @@ Examples: ::
 | `dicomDataPath`         | Path to the colourMap.dat file. During the conversion of the CT    |
 |                         | image, the temporary .g4dcm file will also be stored in this path. |
 +-------------------------+--------------------------------------------------------------------+
+
+muoncooler
+^^^^^^^^^^^^
+
+.. figure:: figures/muoncooler.png
+	    :width: 70%
+	    :align: center
+
+
+`muoncooler` defines a `complete` muon cooling channel, to account for fringe effects of all magnets, and to 
+allow for accurate summations of the contributions of all E and B fields of all components across the lattice.
+Upon instantiation, the muon cooler generates a logical volume of supplied horizontal width and length for the placement of the magnets, RF and absorbers.
+In the current 4D cooling implementation, the cooling channel can consist of solenoids (coils), RF cavities and absorbers. 
+Parameters can be provided as a list of values, with the same length as the number of that components specified, where the index of the parameter corresponds to the index of the component in the cooling channel, or just a single value, 
+in the case where all components have the same value. For example, if the cooling channel has 6 coils (nCoils = 6), then coilInnerRadius can be a list of 6 
+values, or a single value if all coils have the same inner radius.
+
+An example of a cooling channel has been provided in /examples/components/muoncooler.gmad, and can be used as a template for development. 
+
++------------------------------+-------------------------------+--------------+
+| **Parameter**                | **Description**               | **Type**     |
++==============================+===============================+==============+
+| `nCoils`                     | Number of coils in the        | Integer      |
+|                              | cooling channel               |              |
++------------------------------+-------------------------------+--------------+
+| `coilInnerRadius`            | Inner radii of coils [m]      | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `coilRadialThickness`        | Radial thicknesses of coils   | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `coilLengthZ`                | Lengths of coils along Z [m]  | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `coilOffsetZ`                | Z-positions of coil centers   | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `coilCurrent`                | Currents in [A] (sheet model) | List[Float]  |
+|                              | or densities                  |              |
+|                              | [A/m^2] (block model)         |              |
++------------------------------+-------------------------------+--------------+
+| `coilMaterial`               | Materials of coils            | List[String] |
++------------------------------+-------------------------------+--------------+
+| `onAxisTolerance`            | Tolerance for on-axis         | Float        |
+|                              | calculations                  |              |
++------------------------------+-------------------------------+--------------+
+| `nAbsorbers`                 | Number of absorbers           | Integer      |
++------------------------------+-------------------------------+--------------+
+| `absorberType`               | Types of absorbers            | List[String] |
+|                              | ("cylinder" or "wedge")       |              |
++------------------------------+-------------------------------+--------------+
+| `absorberMaterial`           | Materials of absorbers        | List[String] |
++------------------------------+-------------------------------+--------------+
+| `absorberOffsetZ`            | Z-positions of absorbers [m]  | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `absorberCylinderLength`     | Lengths of cylindrical        | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberCylinderRadius`     | Radii of cylindrical          | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeOpeningAngle`  | Opening angles of wedge       |List[Float]   |
+|                              | absorbers [rad]               |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeHeight`        | Heights of wedge              | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeRotationAngle` | Rotation angles of            | List[Float]  |
+|                              | wedge absorbers [rad]         |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeOffsetX`       | X-offsets of wedge            | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeOffsetY`       | Y-offsets of wedge            | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeApexToBase`    | Apex-to-base lengths          | List[Float]  |
+|                              | of wedge absorbers [m]        |              |
++------------------------------+-------------------------------+--------------+
+| `nRFCavities`                | Number of RF cavities         | Integer      |
++------------------------------+-------------------------------+--------------+
+| `rfOffsetZ`                  | Z-positions of RF cavities    | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `rfTimeOffset`               | Time offsets for RF cavities  | List[Float]  |
+|                              | [s]                           |              |
++------------------------------+-------------------------------+--------------+
+| `rfVoltage`                  | Voltages of RF cavities [MV]  | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `rfFrequency`                | Frequencies of RF cavities    | List[Float]  |
+|                              | [Hz]                          |              |
++------------------------------+-------------------------------+--------------+
+| `magneticFieldModel`         | Model for coil magnetic field | String       |
++------------------------------+-------------------------------+--------------+
+| `electricFieldModel`         | Model for RF electric field   | String       |
++------------------------------+-------------------------------+--------------+
+| `l`                          | Length of the cooling channel | Float        |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `horizontalWidth`            | Width of the cooling channel  | Float        |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
 
 
 .. _offsets-and-tilts:

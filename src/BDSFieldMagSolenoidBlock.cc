@@ -18,7 +18,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSFieldMagSolenoidBlock.hh"
 #include "BDSMagnetStrength.hh"
-#include "BDSMaths.hh"
+#include "BDSSpecialFunctions.hh"
 #include "BDSUtilities.hh"
 #include "BDSFieldMagSolenoidSheet.hh"
 #include "BDSFieldMagVectorSum.hh"
@@ -52,7 +52,6 @@ BDSFieldMagSolenoidBlock::BDSFieldMagSolenoidBlock(G4double strength,
   B0(0),
   I(0),
   spatialLimit(1e-6*innerRadiusIn),
-  mu0OverPiTimesITimesA(1),
   coilTolerance(toleranceIn),
   nSheetsBlock(nSheetsIn)
 {
@@ -78,7 +77,7 @@ G4ThreeVector BDSFieldMagSolenoidBlock::GetField(const G4ThreeVector& position,
 {
   //G4double z = position.z();
   //G4double rho = position.perp();
-  G4double phi = position.phi(); // angle about z axis
+  //G4double phi = position.phi(); // angle about z axis
   std::unique_ptr<BDSFieldMag> field;
   G4ThreeVector blockField;
   double dr = radialThickness/nSheetsBlock;
