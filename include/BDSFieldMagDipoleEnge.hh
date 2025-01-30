@@ -74,13 +74,14 @@ public:
 private:
   /// Private default constructor to ensure use of supplied constructor
   
+  G4ThreeVector CalculateCenterField() const;
+
   G4double D;
   G4double halfLength;
   G4double B0;
   G4double engeCoeff;
   G4double spatialLimit;
-  G4double normalisationBY;
-  G4double normalisationBZ;
+  G4double normalisation;
   G4double coilTolerance;
 };
 
