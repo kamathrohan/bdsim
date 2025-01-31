@@ -49,12 +49,8 @@ BDSFieldMagDipoleEnge::BDSFieldMagDipoleEnge(G4double strength,
   B0(strength),
   engeCoeff(engeCoefficient),
   spatialLimit(std::min(1e-5*apertureRadius, 1e-5*coilLength)),
-  normalisation(1.0),
   coilTolerance(toleranceIn)
-{
-  G4ThreeVector centerField = CalculateCenterField();
-  normalisation = B0 / centerField.y();
-}
+  {;}
 
 G4ThreeVector BDSFieldMagDipoleEnge::GetField(const G4ThreeVector& position,
 					                          const G4double       /*t*/) const
@@ -62,19 +58,15 @@ G4ThreeVector BDSFieldMagDipoleEnge::GetField(const G4ThreeVector& position,
   G4double z = position.z();
   G4double y = position.y();
   G4double rho = position.perp();
-   
-  //singularities in occur in y at y = +/- l*pi*D. Protect against this.
 
   G4double zleft = z + halfLength + D;
   G4double zright = z - halfLength - D;
-  
-  //if (std::abs(OnAxisBz(zp, zm)) < coilTolerance)
-  //{ return G4ThreeVector();}
 
   G4double By = 0;
   G4double Bz = 0;
   
-  // check on-axis By and make tolerance cut TO DO
+  // check on-axis By and apply bounding box / tolerance cut TO DO
+  
   if (rho > D*0.5)
     { return G4ThreeVector();}
   else
@@ -87,7 +79,10 @@ G4ThreeVector BDSFieldMagDipoleEnge::GetField(const G4ThreeVector& position,
       G4double Bz_right = ( - std::exp(zright*engeCoeff/D) * std::sin(y*engeCoeff/D)) / (1 + 2*std::exp(zright*engeCoeff/D) * std::cos(y*engeCoeff/D) + std::exp(2*zright*engeCoeff/D));
       
       By = B0 * By_left * By_right;
-      Bz = B0 * (Bz_left + Bz_right);  
+      Bz = B0 * (Bz_left + Bz_right);
+
+      G4ThreeVector centerField = CalculateCenterField(y);
+      G4double normalisation = B0 / centerField.y();  
 
       By *= normalisation;
       Bz *= normalisation;
@@ -99,10 +94,9 @@ G4ThreeVector BDSFieldMagDipoleEnge::GetField(const G4ThreeVector& position,
 }
 
 
-G4ThreeVector BDSFieldMagDipoleEnge::CalculateCenterField() const
-{
+G4ThreeVector BDSFieldMagDipoleEnge::CalculateCenterField(G4double y) const
+{ 
   G4double z = 0.0;
-  G4double y = 0.0;
   G4double zleft = z + halfLength + D;
   G4double zright = z - halfLength - D;
 
