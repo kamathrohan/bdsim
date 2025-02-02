@@ -45,7 +45,7 @@ namespace BDS
   {
     G4double apertureRadius;
     G4double fullLengthZ;
-    G4double current;
+    G4double fieldStrength;
     G4double engeCoefficient;
     G4double offsetZ;
     G4double onAxisTolerance;

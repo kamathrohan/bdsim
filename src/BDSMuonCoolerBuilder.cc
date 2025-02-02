@@ -237,13 +237,13 @@ std::vector<BDS::MuonCoolerDipoleInfo> BDS::BuildMuonCoolerDipoleInfos(const GMA
   G4int nDipoles = definition.nDipoles;
   std::vector<std::string> dipoleParamNames = {"dipoleAperture",
                                                "dipoleLengthZ",
-                                               "dipoleCurrent",
+                                               "dipoleFieldStrength",
                                                "dipoleEngeCoefficient",
                                                "dipoleOffsetZ",
                                                "dipoleTolerance"};
   std::vector<const std::list<double>*> dipoleVars = {&(definition.dipoleAperture),
                                                       &(definition.dipoleLengthZ),
-                                                      &(definition.dipoleCurrent),
+                                                      &(definition.dipoleFieldStrength),
                                                       &(definition.dipoleEngeCoefficient),
                                                       &(definition.dipoleOffsetZ),
                                                       &(definition.dipoleTolerance)};
@@ -260,11 +260,10 @@ std::vector<BDS::MuonCoolerDipoleInfo> BDS::BuildMuonCoolerDipoleInfos(const GMA
     {
       BDS::MuonCoolerDipoleInfo info = {dipoleVarsV[0][i] * CLHEP::m,      // apertureRadius
                                         dipoleVarsV[1][i] * CLHEP::m,      // lengthZ
-                                        dipoleVarsV[2][i] * CLHEP::tesla, // current
-                                        dipoleVarsV[3][i], // enge Coeff
+                                        dipoleVarsV[2][i] * CLHEP::tesla,  // fieldStrength
+                                        dipoleVarsV[3][i],                 // enge Coeff
                                         dipoleVarsV[4][i] * CLHEP::m,      // offsetZ
-                                        dipoleVarsV[5][i]      // tolerance
-
+                                        dipoleVarsV[5][i]                  // tolerance
       };
       result.push_back(info);
     }

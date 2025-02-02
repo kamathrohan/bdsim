@@ -1,0 +1,14 @@
+include dipoleTest.gmad;
+
+!quC: query, nz=1000, zmin=-1.0*m, zmax=1.0*m, ny=1, ymin = 0.*m, ymax = 0.*m,
+!            queryMagneticField=1,
+!            outfileMagnetic="dipoleFieldQuery_onaxis.dat",
+!            referenceElement="mc1",
+!            overwriteExistingFiles=1;
+
+quC: query, nz=301, zmin=-0.9*m, zmax=0.9*m, ny=1, ymin = 0.*m, ymax = 0.*m,
+            queryMagneticField=1,
+            outfileMagnetic="dipoleFieldQuery_onaxis_A1_v3.dat",
+            referenceElement="mc1",
+            overwriteExistingFiles=1;
+

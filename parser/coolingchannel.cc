@@ -48,7 +48,7 @@ void CoolingChannel::clear()
   nDipoles = 0;
   dipoleAperture.clear();
   dipoleLengthZ.clear();
-  dipoleCurrent.clear();
+  dipoleFieldStrength.clear();
   dipoleEngeCoefficient.clear();
   dipoleOffsetZ.clear();
   dipoleTolerance.clear();
@@ -109,7 +109,7 @@ void CoolingChannel::PublishMembers()
   publish("nDipoles",             &CoolingChannel::nDipoles);
   publish("dipoleAperture",       &CoolingChannel::dipoleAperture);
   publish("dipoleLengthZ",        &CoolingChannel::dipoleLengthZ);
-  publish("dipoleCurrent",        &CoolingChannel::dipoleCurrent);
+  publish("dipoleFieldStrength",  &CoolingChannel::dipoleFieldStrength);
   publish("dipoleEngeCoefficient",&CoolingChannel::dipoleEngeCoefficient);
   publish("dipoleOffsetZ",        &CoolingChannel::dipoleOffsetZ);
   publish("dipoleTolerance",      &CoolingChannel::dipoleTolerance);
@@ -155,7 +155,7 @@ void CoolingChannel::PublishMembers()
   attribute_map_list_string["coilMaterial"]        = &coilMaterial;
   attribute_map_list_double["dipoleAperture"]      = &dipoleAperture;
   attribute_map_list_double["dipoleLengthZ"]       = &dipoleLengthZ;
-  attribute_map_list_double["dipoleCurrent"]       = &dipoleCurrent;
+  attribute_map_list_double["dipoleFieldStrength"] = &dipoleFieldStrength;
   attribute_map_list_double["dipoleEngeCoefficient"] = &dipoleEngeCoefficient;
   attribute_map_list_double["dipoleOffsetZ"]       = &dipoleOffsetZ;
   attribute_map_list_double["dipoleTolerance"]     = &dipoleTolerance;
@@ -209,7 +209,7 @@ void CoolingChannel::print()const
             << "nDipoles "                   << nDipoles                   << std::endl
             << "dipoleAperture "             << dipoleAperture             << std::endl
             << "dipoleLengthZ "              << dipoleLengthZ              << std::endl
-            << "dipoleCurrent "              << dipoleCurrent              << std::endl
+            << "dipoleFieldStrength "        << dipoleFieldStrength        << std::endl
             << "dipoleEngeCoefficient "      << dipoleEngeCoefficient      << std::endl
             << "dipoleOffsetZ "              << dipoleOffsetZ              << std::endl
             << "dipoleTolerance "            << dipoleTolerance            << std::endl

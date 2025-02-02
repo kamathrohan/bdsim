@@ -65,7 +65,7 @@ G4ThreeVector BDSFieldMagDipoleEnge::GetField(const G4ThreeVector& position,
   G4double By = 0;
   G4double Bz = 0;
   
-  // check on-axis By and apply bounding box / tolerance cut TO DO
+  // Further improvement: apply bounding box / tolerance cut
   
   if (rho > D*0.5)
     { return G4ThreeVector();}
@@ -78,8 +78,8 @@ G4ThreeVector BDSFieldMagDipoleEnge::GetField(const G4ThreeVector& position,
       G4double Bz_left = ( std::exp(-zleft*engeCoeff/D) * std::sin(y*engeCoeff/D)) / (1 + 2*std::exp(-zleft*engeCoeff/D) * std::cos(y*engeCoeff/D) + std::exp(-2*zleft*engeCoeff/D));
       G4double Bz_right = ( - std::exp(zright*engeCoeff/D) * std::sin(y*engeCoeff/D)) / (1 + 2*std::exp(zright*engeCoeff/D) * std::cos(y*engeCoeff/D) + std::exp(2*zright*engeCoeff/D));
       
-      By = B0 * By_left * By_right;
-      Bz = B0 * (Bz_left + Bz_right);
+      By = By_left * By_right;
+      Bz = Bz_left + Bz_right;
 
       G4ThreeVector centerField = CalculateCenterField(y);
       G4double normalisation = B0 / centerField.y();  

@@ -126,7 +126,7 @@ void BDSFieldEMMuonCooler::BuildDipoles(const BDSFieldInfoExtraMuonCooler* info)
         std::vector<G4ThreeVector> fieldOffsets;
         for (const auto& di : dipoleInfos)
           {
-            fields.push_back(new BDSFieldMagDipole(G4ThreeVector(0, di.current, 0))); ///> revisit; currently only y component
+            fields.push_back(new BDSFieldMagDipole(G4ThreeVector(0, di.fieldStrength, 0))); ///> currently only y component
             fieldOffsets.emplace_back(0,0,di.offsetZ);
           }
         dipoleField = new BDSFieldMagVectorSum(fields, fieldOffsets);
@@ -139,17 +139,17 @@ void BDSFieldEMMuonCooler::BuildDipoles(const BDSFieldInfoExtraMuonCooler* info)
         std::vector<G4ThreeVector> fieldOffsets;
         for (const auto& di : dipoleInfos)
           {
-            fields.push_back(new BDSFieldMagDipoleEnge(di.current,
+            fields.push_back(new BDSFieldMagDipoleEnge(di.fieldStrength,
                                                        di.apertureRadius,
                                                        di.fullLengthZ,
                                                        di.engeCoefficient,
-                                                       0.0)); ///> on axis tolerance
+                                                       di.onAxisTolerance));
             fieldOffsets.emplace_back(0,0,di.offsetZ);
           }
         dipoleField = new BDSFieldMagVectorSum(fields, fieldOffsets);
         break;
       }  
-    case BDSFieldType::none: /// fringe field model TBC
+    case BDSFieldType::none: ///> no dipole field
       {
         break;
       }

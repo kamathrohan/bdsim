@@ -59,7 +59,7 @@ namespace GMAD
     int                    nDipoles;
     std::list<double>      dipoleAperture;
     std::list<double>      dipoleLengthZ;
-    std::list<double>      dipoleCurrent;
+    std::list<double>      dipoleFieldStrength;
     std::list<double>      dipoleEngeCoefficient;
     std::list<double>      dipoleOffsetZ;
     std::list<double>      dipoleTolerance;
