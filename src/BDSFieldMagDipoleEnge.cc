@@ -48,7 +48,6 @@ BDSFieldMagDipoleEnge::BDSFieldMagDipoleEnge(G4double strength,
   halfLength(0.5*coilLength),
   B0(strength),
   engeCoeff(engeCoefficient),
-  spatialLimit(std::min(1e-5*apertureRadius, 1e-5*coilLength)),
   coilTolerance(toleranceIn)
   {;}
 
@@ -64,10 +63,8 @@ G4ThreeVector BDSFieldMagDipoleEnge::GetField(const G4ThreeVector& position,
 
   G4double By = 0;
   G4double Bz = 0;
-  
-  // Further improvement: apply bounding box / tolerance cut
-  
-  if (rho > D*0.5)
+    
+  if (rho > D*0.5)  // Further improvement: apply longitudinal bounding box / tolerance cut
     { return G4ThreeVector();}
   else
     {
@@ -81,7 +78,7 @@ G4ThreeVector BDSFieldMagDipoleEnge::GetField(const G4ThreeVector& position,
       By = By_left * By_right;
       Bz = Bz_left + Bz_right;
 
-      G4ThreeVector centerField = CalculateCenterField(y);
+      G4ThreeVector centerField = QueryField(y, 0.0); // Get By field at the center of the dipole magnet to calculate the normalisation factor
       G4double normalisation = B0 / centerField.y();  
 
       By *= normalisation;
@@ -94,9 +91,8 @@ G4ThreeVector BDSFieldMagDipoleEnge::GetField(const G4ThreeVector& position,
 }
 
 
-G4ThreeVector BDSFieldMagDipoleEnge::CalculateCenterField(G4double y) const
+G4ThreeVector BDSFieldMagDipoleEnge::QueryField(G4double y, G4double z) const
 { 
-  G4double z = 0.0;
   G4double zleft = z + halfLength + D;
   G4double zright = z - halfLength - D;
 

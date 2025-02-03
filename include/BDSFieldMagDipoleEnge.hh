@@ -27,16 +27,13 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 class BDSMagnetStrength;
 
 /**
- * @brief A dipole field with Enge fringes. Add link to paper!
+ * @brief A dipole field with Enge-type fringes.
  * 
- * This follows the parameterisation and uses the algorithm for the generalised complete
- * elliptical integral as described in:
+ * This follows the model and parameterisation described in:
  * 
- * This class represents a uniform dipole field. This may optionally be constructed
- * with a unit vector to denote a different direction. This uses the parameters
- * "angle" and "length" (the magnetic field length) from the input 
- * BDSMagnetStrength instance. MADX uses angle rather than k0, so we follow that
- * convention.
+ * https://journals.aps.org/prab/abstract/10.1103/PhysRevSTAB.18.064001
+ * 
+ * This class represents a dipole field with Enge fringes. To expand description.
  * 
  * The field is calculated in cartesian coordinates. A complete description to be added in the manual.
  * 
@@ -50,10 +47,10 @@ public:
 
   /// This constructor uses the "field" and "length" parameters
   /// from the BDSMagnetStrength instance and forwards to the next constructor.
-  BDSFieldMagDipoleEnge(BDSMagnetStrength const* strength,
-                        G4double apertureIn ,G4double engeIn = 1.0, G4double toleranceIn = 0.0);
-  /// More reasonable constructor for the internal parameterisation. 'strength'
-  /// can be either B0 
+  ///BDSFieldMagDipoleEnge(BDSMagnetStrength const* strength,
+  ///                      G4double apertureIn ,G4double engeIn = 1.0, G4double toleranceIn = 0.0);
+  
+  /// More reasonable constructor for the internal parameterisation. 'strength' represents B0
   BDSFieldMagDipoleEnge(G4double strength,
                         G4double apertureRadius,
                         G4double coilLength,
@@ -74,13 +71,12 @@ public:
 private:
   /// Private default constructor to ensure use of supplied constructor
   
-  G4ThreeVector CalculateCenterField(G4double y) const;
+  G4ThreeVector QueryField(G4double y, G4double z) const;
 
   G4double D;
   G4double halfLength;
   G4double B0;
   G4double engeCoeff;
-  G4double spatialLimit;
   G4double coilTolerance;
 };
 
