@@ -10,6 +10,15 @@ extracool:  coolingchannel, surroundingMaterial="G4_Galactic",
                 nSheets=20,
 
 
+ 			    nDipoles = 1,
+			    dipoleAperture= {0.2},
+                dipoleLengthZ = {0.1},
+                dipoleFieldStrength = {1.0},
+			    dipoleEngeCoefficient = {4},
+                dipoleOffsetZ = {0.0},
+			    dipoleTolerance = {0.0},
+
+
                 nAbsorbers = 2,
                 absorberType = {"cylinder"},
                 absorberMaterial = {"G4_LITHIUM_HYDRIDE"},
