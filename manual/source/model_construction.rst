@@ -2101,15 +2101,26 @@ muoncooler
 	    :align: center
 
 
-`muoncooler` defines a `complete` muon cooling channel, to account for fringe effects of all magnets, and to 
-allow for accurate summations of the contributions of all E and B fields of all components across the lattice.
-Upon instantiation, the muon cooler generates a logical volume of supplied horizontal width and length for the placement of the magnets, RF and absorbers.
-In the current 4D cooling implementation, the cooling channel can consist of solenoids (coils), RF cavities and absorbers. 
-Parameters can be provided as a list of values, with the same length as the number of that components specified, where the index of the parameter corresponds to the index of the component in the cooling channel, or just a single value, 
-in the case where all components have the same value. For example, if the cooling channel has 6 coils (nCoils = 6), then coilInnerRadius can be a list of 6 
-values, or a single value if all coils have the same inner radius.
+The `muoncooler` class defines a **complete** muon cooling channel, 
+ensuring that fringe effects from all magnets are accounted for and 
+allowing for accurate summation of the electric and magnetic field contributions across the entire 
+lattice.Upon instantiation,a logical volume 
+with the specified horizontal width and length is generated, providing space for the 
+placement of solenoids, dipoles, RF cavities, and absorbers.  
 
-An example of a cooling channel has been provided in /examples/components/muoncooler.gmad, and can be used as a template for development. 
+In the current 6D cooling implementation, the cooling channel can include:  
+
+- **Solenoids (coils)**  
+- **Dipoles**  
+- **RF cavities**  
+- **Absorbers**  
+
+Parameters for these components can be specified as either:  
+
+- A **single value**, applying uniformly across all instances of that component  
+- A **list of values**, where each value corresponds to the respective component's position in the cooling channel  
+
+The **solenoid field model** can be either a **sheet model** (`solenoidsheet`) or a **block model** (`solenoidblock`). For dipoles, the `dipoleenge` model has been implemented, following the treatment outlined in: Muratori, B.D. et al (2015) ‘Analytical expressions for fringe fields in multipole magnets’, *Physical Review Special Topics - Accelerators and Beams*, 18(6). https://doi.org/10.1103/physrevstab.18.064001   
 
 +------------------------------+-------------------------------+--------------+
 | **Parameter**                | **Description**               | **Type**     |
@@ -2133,8 +2144,25 @@ An example of a cooling channel has been provided in /examples/components/muonco
 +------------------------------+-------------------------------+--------------+
 | `coilMaterial`               | Materials of coils            | List[String] |
 +------------------------------+-------------------------------+--------------+
-| `onAxisTolerance`            | Tolerance for on-axis         | Float        |
-|                              | calculations                  |              |
+| `onAxisTolerance`            | on Axis Tolerance for         | Float        |
+|                              | CEL integral calculation      |              |
++------------------------------+-------------------------------+--------------+
+| `nDipoles`                   | Number of dipoles             | Integer      |
++------------------------------+-------------------------------+--------------+
+| `dipoleAperture`             |Aperture radii of dipoles [m]  | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `dipoleLengthZ`              | Lengths of dipoles along Z [m]| List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `dipoleFieldStrength`        | Peak magnetic field strengths | List[Float]  |
+|                              | of dipoles [T]                |              |
++------------------------------+-------------------------------+--------------+
+| `dipoleEngeCoefficient`      | C1 enge coefficients of       | List[Float]  |
+| `dipoleEngeCoefficient`      | dipoles                       |              |
++------------------------------+-------------------------------+--------------+
+| `dipoleOffsetZ`              | Z-positions of dipoles [m]    | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `dipoleTolerance`            | Tolerance for dipole          | Float        |
+|                              | bounding box calculations     |              |
 +------------------------------+-------------------------------+--------------+
 | `nAbsorbers`                 | Number of absorbers           | Integer      |
 +------------------------------+-------------------------------+--------------+
@@ -2182,7 +2210,9 @@ An example of a cooling channel has been provided in /examples/components/muonco
 | `rfFrequency`                | Frequencies of RF cavities    | List[Float]  |
 |                              | [Hz]                          |              |
 +------------------------------+-------------------------------+--------------+
-| `magneticFieldModel`         | Model for coil magnetic field | String       |
+| `magneticFieldModel`         | Model for solenoid field      | String       |
++------------------------------+-------------------------------+--------------+
+| `dipoleFieldModel`           | Model for dipole field        | String       |
 +------------------------------+-------------------------------+--------------+
 | `electricFieldModel`         | Model for RF electric field   | String       |
 +------------------------------+-------------------------------+--------------+
@@ -2192,6 +2222,8 @@ An example of a cooling channel has been provided in /examples/components/muonco
 | `horizontalWidth`            | Width of the cooling channel  | Float        |
 |                              | [m]                           |              |
 +------------------------------+-------------------------------+--------------+
+
+An example of a cooling channel has been provided in `/examples/components/muoncooler.gmad`, and can be used as a template for development.  
 
 
 .. _offsets-and-tilts:
