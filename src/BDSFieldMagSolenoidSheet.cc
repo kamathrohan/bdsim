@@ -81,24 +81,26 @@ G4ThreeVector BDSFieldMagSolenoidSheet::GetField(const G4ThreeVector& position,
   // the current source or at the boundary of +- halfLength
   if (std::abs(rho - a) < spatialLimit && (std::abs(z) < halfLength+2*spatialLimit))
     {return G4ThreeVector();} // close to radius and inside +- z
-  
   G4double zp = z + halfLength;
   G4double zm = z - halfLength;
   
-  if (std::abs(OnAxisBz(zp, zm)) < coilTolerance)
-    { return G4ThreeVector();}
+
   G4double Brho = 0;
   G4double Bz   = 0;
-  
-  // approximation for on-axis
-  if (std::abs(rho) < spatialLimit)
-    {Bz = OnAxisBz(zp, zm);}
-  else if (std::abs(OnAxisBz(zp, zm)) < coilTolerance){
-      Bz = 0;
-    }
-    else
-    {
 
+
+  // approximation for on-axis
+
+  if (std::abs(OnAxisBz(zp, zm))< coilTolerance*CLHEP::tesla)
+    { 
+      Brho = 0.0;
+      Bz = 0.0;
+    }
+   else if (std::abs(rho) < spatialLimit)
+    {Bz = OnAxisBz(zp, zm);
+}
+  else
+    {
       G4double zpSq = zp*zp;
       G4double zmSq = zm*zm;
       
