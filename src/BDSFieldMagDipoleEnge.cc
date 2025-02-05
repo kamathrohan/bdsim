@@ -74,7 +74,7 @@ G4ThreeVector BDSFieldMagDipoleEnge::GetField(const G4ThreeVector& position,
       G4double Bz_left = ( std::exp(-zleft*engeCoeff/D) * std::sin(y*engeCoeff/D)) / (1 + 2*std::exp(-zleft*engeCoeff/D) * std::cos(y*engeCoeff/D) + std::exp(-2*zleft*engeCoeff/D));
       G4double Bz_right = ( - std::exp(zright*engeCoeff/D) * std::sin(y*engeCoeff/D)) / (1 + 2*std::exp(zright*engeCoeff/D) * std::cos(y*engeCoeff/D) + std::exp(2*zright*engeCoeff/D));
       
-      By = By_left * By_right;
+      By = By_left + By_right - 1.0;
       Bz = Bz_left + Bz_right;
 
       G4ThreeVector centerField = QueryField(y, 0.0); // Get By field at the center of the dipole magnet to calculate the normalisation factor
@@ -98,7 +98,7 @@ G4ThreeVector BDSFieldMagDipoleEnge::QueryField(G4double y, G4double z) const
   G4double By_left = (1 + std::exp(-zleft*engeCoeff/D) * std::cos(y*engeCoeff/D)) / (1 + 2*std::exp(-zleft*engeCoeff/D) * std::cos(y*engeCoeff/D) + std::exp(-2*zleft*engeCoeff/D));
   G4double By_right = (1 + std::exp(zright*engeCoeff/D) * std::cos(y*engeCoeff/D)) / (1 + 2*std::exp(zright*engeCoeff/D) * std::cos(y*engeCoeff/D) + std::exp(2*zright*engeCoeff/D));
 
-  G4double By = By_left * By_right;
+  G4double By = By_left + By_right - 1.0;
 
   return G4ThreeVector(0, By, 0);
 }
