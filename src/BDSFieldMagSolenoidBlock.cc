@@ -79,7 +79,8 @@ G4ThreeVector BDSFieldMagSolenoidBlock::GetField(const G4ThreeVector& position,
   //G4double rho = position.perp();
   //G4double phi = position.phi(); // angle about z axis
   std::unique_ptr<BDSFieldMag> field;
-  G4ThreeVector blockField;
+  G4ThreeVector blockField = G4ThreeVector(0,0,0);
+  G4ThreeVector sheetField;
   double dr = radialThickness/nSheetsBlock;
   for (int sheet = 0; sheet < nSheetsBlock; sheet++)
           { 
@@ -88,7 +89,15 @@ G4ThreeVector BDSFieldMagSolenoidBlock::GetField(const G4ThreeVector& position,
                                                                a+(sheet*dr) + dr/2,
                                                                fullLengthZ,
                                                                coilTolerance);
-            blockField += field->GetField(position);
+            sheetField = field->GetField(position);
+            if (sheetField == G4ThreeVector(0,0,0))
+              {
+                break;
+              }
+              else
+              {
+                blockField += sheetField;
+              }
 
           }
   return blockField;
