@@ -175,7 +175,7 @@ void BDSFieldEMMuonCooler::BuildRF(const BDSFieldInfoExtraMuonCooler* info)
            ci.frequency,
            ci.phaseOffset,
            ci.cavityRadius,
-           0.0 //TODO: Check this is correct
+           0.0 // We provide a global tOffset instead
            );
       double lengthZ = ci.lengthZ;
       std::cerr << "BDSFieldEMMuonCoolder::BuildRF " << ci.offsetZ << std::endl;
