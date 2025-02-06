@@ -91,7 +91,7 @@ G4ThreeVector BDSFieldMagSolenoidSheet::GetField(const G4ThreeVector& position,
 
   // approximation for on-axis
 
-  if (std::abs(OnAxisBz(zp, zm))< coilTolerance*CLHEP::tesla)
+  if (std::abs(OnAxisBz(zp, zm))< coilTolerance)
     { 
       Brho = 0.0;
       Bz = 0.0;
