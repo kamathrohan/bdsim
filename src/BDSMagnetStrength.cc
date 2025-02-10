@@ -165,7 +165,7 @@ const std::map<G4String, BDSMagnetStrength::unitsFactors> BDSMagnetStrength::uni
     {"rmat42"        , {"",    1.0}},
     {"rmat43"        , {"",    1.0}},
     {"rmat44"        , {"",    1.0}},
-    {"coilRadialThickness", {"m", CLHEP::m}}
+    //{"coilRadialThickness", {"m", CLHEP::m}}
 };
 
 const std::vector<G4String> BDSMagnetStrength::normalComponentKeys = {
