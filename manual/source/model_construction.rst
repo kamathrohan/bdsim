@@ -2101,17 +2101,17 @@ muoncooler
 	    :align: center
 
 
-The `muoncooler` class defines a **complete** muon cooling channel, 
-ensuring that fringe effects from all magnets are accounted for and 
-allowing for accurate summation of the electric and magnetic field contributions across the entire 
-lattice.Upon instantiation,a logical volume 
+`muoncooler` defines a **complete** 6D muon cooling lattice. Upon instantiation, a logical volume 
 with the specified horizontal width and length is generated, providing space for the 
-placement of solenoids, dipoles, RF cavities, and absorbers.  
+placement of the main 6D ionisation cooling beamline elements: solenoids, dipoles, RF cavities, and absorbers. 
+The element ensures that fringe effects from all magnets are accounted for and 
+allowing for accurate summation of the electric and magnetic field contributions across the entire 
+lattice.
 
 In the current 6D cooling implementation, the cooling channel can include:  
 
 - **Solenoids (coils)**  
-- **Dipoles**  
+- **Dipoles (field only, no physical magnet)** 
 - **RF cavities**  
 - **Absorbers**  
 
@@ -2123,7 +2123,7 @@ Parameters for these components can be specified as either:
 **Electric and Magnetic Field Models**
 
 - The **solenoid field model** can be either a **sheet model** (`solenoidsheet`) or a **block model** (`solenoidblock`). 
-- For dipoles, two models exist currently: `dipole` and `dipoleenge`. The `dipole` model is a simple hard-edge dipole field, while the `dipoleenge` model follows the treatment outlined in: Muratori, B.D. et al (2015) ‘Analytical expressions for fringe fields in multipole magnets’, *Physical Review Special Topics - Accelerators and Beams*, 18(6). https://doi.org/10.1103/physrevstab.18.064001   
+- For dipoles, two models exist currently: `dipole` and `dipoleenge`. The `dipole` model is a simple hard-edge dipole field, while the `dipoleenge` model includes Enge-type fringe fields and follows the treatment outlined in: Muratori, B.D. et al (2015) ‘Analytical expressions for fringe fields in multipole magnets’, *Physical Review Special Topics - Accelerators and Beams*, 18(6). https://doi.org/10.1103/physrevstab.18.064001   
 - For the RF cavities, a simple RF pillbox (`rfpillbox`) model has been implemented.
 
 
@@ -2133,8 +2133,8 @@ Parameters for these components can be specified as either:
 +------------------------------+-------------------------------+--------------+
 | **Parameter**                | **Description**               | **Type**     |
 +==============================+===============================+==============+
-| `nCoils`                     | Number of coils in the        | Integer      |
-|                              | cooling channel               |              |
+| `nCoils`                     | Number of solenoid coils in   | Integer      |
+|                              | the cooling channel           |              |
 +------------------------------+-------------------------------+--------------+
 | `coilInnerRadius`            | Inner radii of coils [m]      | List[Float]  |
 +------------------------------+-------------------------------+--------------+
@@ -2152,8 +2152,8 @@ Parameters for these components can be specified as either:
 +------------------------------+-------------------------------+--------------+
 | `coilMaterial`               | Materials of coils            | List[String] |
 +------------------------------+-------------------------------+--------------+
-| `onAxisTolerance`            | on Axis Tolerance for         | Float        |
-|                              | CEL integral calculation      |              |
+| `onAxisTolerance`            | on-axis Tolerance for         | Float        |
+|                              | CEL integral calculation [T]  |              |
 +------------------------------+-------------------------------+--------------+
 | `nDipoles`                   | Number of dipoles             | Integer      |
 +------------------------------+-------------------------------+--------------+
@@ -2164,13 +2164,13 @@ Parameters for these components can be specified as either:
 | `dipoleFieldStrength`        | Peak magnetic field strengths | List[Float]  |
 |                              | of dipoles [T]                |              |
 +------------------------------+-------------------------------+--------------+
-| `dipoleEngeCoefficient`      | C1 enge coefficients of       | List[Float]  |
+| `dipoleEngeCoefficient`      | C1 Enge coefficients of       | List[Float]  |
 |                              | dipoles                       |              |
 +------------------------------+-------------------------------+--------------+
 | `dipoleOffsetZ`              | Z-positions of dipoles [m]    | List[Float]  |
 +------------------------------+-------------------------------+--------------+
 | `dipoleTolerance`            | Tolerance for dipole          | Float        |
-|                              | bounding box calculations     |              |
+|                              | bounding box calculations [T] |              |
 +------------------------------+-------------------------------+--------------+
 | `nAbsorbers`                 | Number of absorbers           | Integer      |
 +------------------------------+-------------------------------+--------------+
@@ -2213,7 +2213,14 @@ Parameters for these components can be specified as either:
 | `rfTimeOffset`               | Time offsets for RF cavities  | List[Float]  |
 |                              | [ns]                          |              |
 +------------------------------+-------------------------------+--------------+
-| `rfVoltage`                  | E-Field of RF cavities [MV/m] | List[Float]  |
+| `rfLength`                   | Inner lengths of RF cavities  | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `rfVoltage`                  | Peak E-Field of RF cavities   | List[Float]  |
+|                              | [MV/m]                        |              |
++------------------------------+-------------------------------+--------------+
+| `rfPhase`                    | Phases of RF cavities         | List[Float]  |
+|                              | [rad]                         |              |
 +------------------------------+-------------------------------+--------------+
 | `rfFrequency`                | Frequencies of RF cavities    | List[Float]  |
 |                              | [Hz]                          |              |
