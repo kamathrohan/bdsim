@@ -177,7 +177,6 @@ void BDSFieldEMMuonCooler::BuildRF(const BDSFieldInfoExtraMuonCooler* info)
            0.0 // We provide a global tOffset instead
            );
       double lengthZ = ci.lengthZ;
-      std::cerr << "BDSFieldEMMuonCoolder::BuildRF " << ci.offsetZ << std::endl;
       G4ThreeVector posOffset(0.0, 0.0, ci.offsetZ);
       double tOffset = ci.globalTimeOffset;
       emSum->PushBackField(posOffset, tOffset, lengthZ, rfCav);
