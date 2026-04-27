@@ -126,7 +126,18 @@ void BDSParallelWorldSampler::Construct()
       
       // use main beamline - in future, multiple beam lines
       G4Transform3D transform = BDSDetectorConstruction::CreatePlacementTransform(samplerPlacement, beamline);
-  
+
+      G4double sEnd = -1000;
+      if (!samplerPlacement.referenceElement.empty())
+	{
+	  const BDSBeamlineElement* element = beamline->GetElement(samplerPlacement.referenceElement,
+	                                                            samplerPlacement.referenceElementNumber);
+	  if (element)
+	    {
+	      sEnd = element->GetSPositionEnd() + samplerPlacement.s * CLHEP::m;
+	    }
+	}
+
       BDSSamplerType st = BDS::DetermineSamplerType(samplerPlacement.samplerType);
       AdjustTransform(transform, st); // for 'forward' samplers we add an extra rotation
       G4double radius = 0;
@@ -134,7 +145,7 @@ void BDSParallelWorldSampler::Construct()
       G4int samplerID = BDSSamplerRegistry::Instance()->RegisterSampler(sn,
 									sampler,
 									transform,
-									-1000,
+									sEnd,
 									nullptr,
 									st,
 									radius);
