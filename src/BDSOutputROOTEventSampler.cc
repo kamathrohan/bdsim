@@ -36,6 +36,8 @@ class BDSOutputROOTParticleData;
 
 templateClassImp(BDSOutputROOTEventSampler)
 
+static int globalTrackID = 0;
+
 template <class U>
 BDSOutputROOTEventSampler<U>::BDSOutputROOTEventSampler():
   samplerName("sampler")
@@ -84,7 +86,7 @@ void BDSOutputROOTEventSampler<U>::Fill(const BDSHitSampler* hit,
   weight.push_back((U) (hit->coords.weight));
   partID.push_back(hit->pdgID);
   parentID.push_back(hit->parentID);
-  trackID.push_back(hit->trackID);
+  trackID.push_back(globalTrackID);
   turnNumber.push_back(hit->turnsTaken);
 
   if (storeMass)
@@ -121,7 +123,7 @@ void BDSOutputROOTEventSampler<U>::Fill(const BDSParticleCoordsFull& coords,
 					G4int*  ionAIn,
 					G4int*  ionZIn)
 {
-  trackID.push_back(n); // we assume multiple primaries are linearly increasing in track number
+  trackID.push_back(globalTrackID);
   n++;
   energy.push_back((U) (coords.totalEnergy / CLHEP::GeV));
   x.push_back((U)  (coords.x  / CLHEP::m));
@@ -264,6 +266,7 @@ template <class U> void BDSOutputROOTEventSampler<U>::Flush()
 
 template <class U> void BDSOutputROOTEventSampler<U>::FlushLocal()
 {
+  globalTrackID++;
   n = 0;
   energy.clear();
   x.clear();
