@@ -843,14 +843,14 @@ void Parser::Store(double value)
 {
   (*call_sequence_log) << "Parser::Store s=" << value << std::endl;
 
-  tmparray.push_front(value);
+  tmparray.push_back(value);
 }
 
 void Parser::Store(const std::string& name)
 {
   (*call_sequence_log) << "Parser::Store name=" << name << std::endl;
 
-  tmpstring.push_front(name);
+  tmpstring.push_back(name);
 }
 
 void Parser::FillArray(Array* array)

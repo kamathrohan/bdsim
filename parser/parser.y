@@ -796,10 +796,10 @@ vectstr : vectstrexec
             }
         }
 
-numbers : aexpr ',' numbers { if(execute) Parser::Instance()->Store($1);} 
+numbers : numbers ',' aexpr { if(execute) Parser::Instance()->Store($3);}
         | aexpr             { if(execute) Parser::Instance()->Store($1);}
 
-letters : string ',' letters { if(execute) Parser::Instance()->Store(*$1);}
+letters : letters ',' string { if(execute) Parser::Instance()->Store(*$3);}
         | string             { if(execute) Parser::Instance()->Store(*$1);}
 
 // accept print with and without comma
