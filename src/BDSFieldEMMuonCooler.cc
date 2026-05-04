@@ -16,6 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "BDSArray3DCoords.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"
 #include "BDSFieldEMMuonCooler.hh"
@@ -27,9 +28,12 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSFieldMagDipoleHardEdgeMuonCooler.hh"
 #include "BDSFieldEMRFCavity.hh"
 #include "BDSFieldType.hh"
+#include "BDSFieldValue.hh"
+#include "BDSInterpolatorRoutines.hh"
 
 #include "G4ThreeVector.hh"
 #include "G4Types.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include <algorithm>
 #include <cmath>
@@ -44,6 +48,8 @@ BDSFieldEMMuonCooler::BDSFieldEMMuonCooler(const BDSFieldInfoExtraMuonCooler* in
   BuildDipoles(info);
   BuildRF(info);
   BuildZBins();
+  BuildPeriods();
+  BuildPeriodicMap();
 }
 
 BDSFieldEMMuonCooler::~BDSFieldEMMuonCooler()
@@ -53,6 +59,7 @@ BDSFieldEMMuonCooler::~BDSFieldEMMuonCooler()
       delete e.mag;
       delete e.em;
     }
+  delete periodicGrid;
 }
 
 void BDSFieldEMMuonCooler::BuildZBins()
@@ -103,6 +110,56 @@ void BDSFieldEMMuonCooler::BuildZBins()
       for (G4int b = binLo; b <= binHi; b++)
         zbins[b].push_back(i);
     }
+    
+}
+
+void BDSFieldEMMuonCooler::BuildPeriods()
+{
+  // hardcoded for now
+  G4double zStart = 15000*CLHEP::mm;
+  G4double zEnd   = 175000*CLHEP::mm;
+  G4double pLen   =  2000*CLHEP::mm;
+
+  // snap zStart forward so (zEnd - zStart) is an integer multiple of pLen
+  G4int nP = (G4int)std::floor((zEnd - zStart) / pLen);
+  periodicZStart  = zEnd - nP * pLen;
+  periodicZEnd    = zEnd;
+  periodLength    = pLen;
+}
+
+void BDSFieldEMMuonCooler::BuildPeriodicMap() const
+{
+  const G4int Nx = 50, Ny = 50, Nz = 200;
+  G4double xMax = 300*CLHEP::mm, yMax = 300*CLHEP::mm;
+  G4double dx = 2*xMax / (Nx - 1);
+  G4double dy = 2*yMax / (Ny - 1);
+  G4double dz = periodLength / (Nz - 1);
+
+  periodicGrid = new BDSArray3DCoords(Nx, Ny, Nz,
+                                      -xMax,  xMax,
+                                      -yMax,  yMax,
+                                       0.0,   periodLength);
+
+  for (G4int ix = 0; ix < Nx; ix++)
+    for (G4int iy = 0; iy < Ny; iy++)
+      for (G4int iz = 0; iz < Nz; iz++)
+        {
+          G4double x = -xMax + ix * dx;
+          G4double y = -yMax + iy * dy;
+          G4double z = periodicZStart + iz * dz;
+          G4ThreeVector pos(x, y, z);
+
+          G4ThreeVector B(0,0,0);
+          for (G4int i : alwaysOn)
+            B += entries[i].mag->GetField(pos - entries[i].offset, 0);
+          G4int bin = (G4int)((z - zBinMin) / binWidth);
+          if (bin >= 0 && bin < nBins)
+            for (G4int i : zbins[bin])
+              if (entries[i].type == FieldEntry::Type::Mag)
+                B += entries[i].mag->GetField(pos - entries[i].offset, 0);
+
+          (*periodicGrid)(ix, iy, iz) = BDSFieldValue(B.x(), B.y(), B.z());
+        }
 }
 
 void BDSFieldEMMuonCooler::BuildMagnets(const BDSFieldInfoExtraMuonCooler* info)
@@ -257,6 +314,43 @@ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMMuonCooler::GetField(const G4T
                                                                         const G4double       t) const
 {
   std::pair<G4ThreeVector, G4ThreeVector> result;
+
+  G4double qz = position.z();
+  if (qz >= periodicZStart && qz < periodicZEnd)
+    {
+      if (!periodicGrid) BuildPeriodicMap();  // one-time cost
+      
+      // fold position back into [0, periodLength)
+      G4double zLocal = std::fmod(qz - periodicZStart, periodLength);
+
+      BDSFieldValue localData[2][2][2];
+      G4double fx, fy, fz;
+      periodicGrid->ExtractSection2x2x2(position.x(), position.y(), zLocal, localData, fx, fy, fz);
+      BDSFieldValue r = BDS::Linear3D(localData, fx, fy, fz);
+      result.first = G4ThreeVector(r.x(), r.y(), r.z());
+      // RF (EM entries) still evaluated normally — time-dependent
+      if (nBins > 0)
+        {
+          G4int bin = (G4int)((qz - zBinMin) / binWidth);
+          if (bin >= 0 && bin < nBins)
+            {
+              for (G4int i : zbins[bin])
+                {
+                  const FieldEntry& e = entries[i];
+                  if (e.type == FieldEntry::Type::EM)
+                    {
+                      G4ThreeVector dr = position - e.offset;
+                      if (std::fabs(dr.z()) > e.zHalfExtent)
+                        {continue;}
+                      auto fe = e.em->GetField(dr, t - e.timeOffset);
+                      result.first  += fe.first;
+                      result.second += fe.second;
+                    }
+                }
+            }
+        }
+      return result;
+    }
 
   for (G4int i : alwaysOn)
     {

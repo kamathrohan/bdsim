@@ -27,6 +27,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 
+class BDSArray3DCoords;
 class BDSFieldEM;
 class BDSFieldInfoExtraMuonCooler;
 class BDSFieldMag;
@@ -68,6 +69,8 @@ private:
   };
 
   void BuildZBins();
+  void BuildPeriods();
+  void BuildPeriodicMap() const;
 
   std::vector<FieldEntry>         entries;
   G4double                        zBinMin{0};
@@ -75,6 +78,12 @@ private:
   G4int                           nBins{0};
   std::vector<std::vector<G4int>> zbins;
   std::vector<G4int>              alwaysOn;
+
+  G4double periodicZStart{0};
+  G4double periodicZEnd{0};
+  G4double periodLength{0};
+
+  mutable BDSArray3DCoords* periodicGrid{nullptr};
 };
 
 #endif
