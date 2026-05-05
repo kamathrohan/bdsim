@@ -22,6 +22,8 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSFieldType.hh"
 #include "BDSMuonCoolerStructs.hh"
 
+#include "G4Types.hh"
+
 #include <vector>
 
 /**
@@ -63,13 +65,19 @@ public:
                               BDSFieldType dipoleFieldTypeIn, ///< Revisit
                               const std::vector<BDS::MuonCoolerCoilInfo>& coilInfosIn,
                               const std::vector<BDS::MuonCoolerDipoleInfo>& dipoleInfosIn,
-                              const std::vector<BDS::MuonCoolerCavityInfo>& cavityInfosIn):
+                              const std::vector<BDS::MuonCoolerCavityInfo>& cavityInfosIn,
+                              G4double zPeriodStartIn = -999,
+                              G4double zPeriodEndIn = -999,
+                              G4double periodLengthIn = -999):
     magneticFieldType(magneticFieldTypeIn),
     electricFieldType(electricFieldTypeIn),
     dipoleFieldType(dipoleFieldTypeIn),
     coilInfos(coilInfosIn),
     dipoleInfos(dipoleInfosIn),
-    cavityInfos(cavityInfosIn)
+    cavityInfos(cavityInfosIn),
+    zPeriodStart(zPeriodStartIn),
+    zPeriodEnd(zPeriodEndIn),
+    periodLength(periodLengthIn)
   {;}
   virtual ~BDSFieldInfoExtraMuonCooler(){;}
 
@@ -79,6 +87,9 @@ public:
   std::vector<BDS::MuonCoolerCoilInfo> coilInfos;
   std::vector<BDS::MuonCoolerDipoleInfo> dipoleInfos;
   std::vector<BDS::MuonCoolerCavityInfo> cavityInfos;
+  G4double zPeriodStart{-999};
+  G4double zPeriodEnd{-999};
+  G4double periodLength{-999};
 
   virtual BDSFieldInfoExtra* Clone() const {return new BDSFieldInfoExtraMuonCooler(*this);}
 };

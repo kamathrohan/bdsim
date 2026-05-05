@@ -66,6 +66,10 @@ namespace GMAD
     int                    nSheets;
     double                 gridPointsPerMm;
 
+    double                 zPeriodStart;
+    double                 zPeriodEnd;
+    double                 periodLength;
+
     int                    nDipoles;
     std::list<double>      dipoleAperture;
     std::list<double>      dipoleLengthZ;

@@ -105,7 +105,10 @@ BDSMuonCooler* BDS::BuildMuonCooler(const G4String& elementName,
                                                      definition.dipoleFieldModel,
                                                      coilInfos,
                                                      dipoleInfos,
-                                                     cavityInfos);
+                                                     cavityInfos,
+                                                     definition.zPeriodStart > -998 ? definition.zPeriodStart * CLHEP::m : -999,
+                                                     definition.zPeriodEnd   > -998 ? definition.zPeriodEnd   * CLHEP::m : -999,
+                                                     definition.periodLength > -998 ? definition.periodLength * CLHEP::m : -999);
 
 
 
@@ -635,7 +638,10 @@ BDSFieldInfo* BDS::BuildMuonCoolerFieldRecipe(const G4String& definitionName,
                                               const G4String& dipoleFieldModel,
                                               const std::vector<BDS::MuonCoolerCoilInfo>& coilInfos,
                                               const std::vector<BDS::MuonCoolerDipoleInfo>& dipoleInfos,
-                                              const std::vector<BDS::MuonCoolerCavityInfo>& cavityInfos)
+                                              const std::vector<BDS::MuonCoolerCavityInfo>& cavityInfos,
+                                              G4double zPeriodStart,
+                                              G4double zPeriodEnd,
+                                              G4double periodLength)
 {
   try
     {
@@ -643,7 +649,7 @@ BDSFieldInfo* BDS::BuildMuonCoolerFieldRecipe(const G4String& definitionName,
       BDSFieldType mt = BDS::DetermineFieldType(magneticFieldModel);
       BDSFieldType et = BDS::DetermineFieldType(electricFieldModel);
       BDSFieldType dt = BDS::DetermineFieldType(dipoleFieldModel);
-      auto ei = new BDSFieldInfoExtraMuonCooler(mt, et, dt, coilInfos, dipoleInfos, cavityInfos);
+      auto ei = new BDSFieldInfoExtraMuonCooler(mt, et, dt, coilInfos, dipoleInfos, cavityInfos, zPeriodStart, zPeriodEnd, periodLength);
       
       auto result = new BDSFieldInfo(BDSFieldType::muoncooler, designRigidity, it);
       result->SetNameOfParserDefinition(definitionName);

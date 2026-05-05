@@ -69,7 +69,7 @@ private:
   };
 
   void BuildZBins();
-  void BuildPeriods();
+  void BuildPeriods(const BDSFieldInfoExtraMuonCooler* info);
   void BuildPeriodicMap() const;
 
   std::vector<FieldEntry>         entries;
@@ -79,9 +79,12 @@ private:
   std::vector<std::vector<G4int>> zbins;
   std::vector<G4int>              alwaysOn;
 
+  bool     periodsSpecified{false};
   G4double periodicZStart{0};
   G4double periodicZEnd{0};
   G4double periodLength{0};
+  G4double periodicXYMax{0};
+  G4double periodicGridPointsPerMm{1};
 
   mutable BDSArray3DCoords* periodicGrid{nullptr};
 };

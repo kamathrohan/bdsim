@@ -51,6 +51,10 @@ void CoolingChannel::clear()
   nSheets = 0;
   gridPointsPerMm = 1;
 
+  zPeriodStart = -999;
+  zPeriodEnd = -999;
+  periodLength = -999;
+
   nDipoles = 0;
   dipoleAperture.clear();
   dipoleLengthZ.clear();
@@ -118,6 +122,10 @@ void CoolingChannel::PublishMembers()
   publish("onAxisTolerance",      &CoolingChannel::onAxisTolerance);
   publish("nSheets",              &CoolingChannel::nSheets);
   publish("gridPointsPerMm",      &CoolingChannel::gridPointsPerMm);
+
+  publish("zPeriodStart",         &CoolingChannel::zPeriodStart);
+  publish("zPeriodEnd",           &CoolingChannel::zPeriodEnd);
+  publish("periodLength",         &CoolingChannel::periodLength);
 
   publish("nDipoles",             &CoolingChannel::nDipoles);
   publish("dipoleAperture",       &CoolingChannel::dipoleAperture);
@@ -224,6 +232,9 @@ void CoolingChannel::print()const
             << "mirrorCoils "                << mirrorCoils                << std::endl
             << "onAxisTolerance "            << onAxisTolerance            << std::endl
             << "nSheets "                    << nSheets                    << std::endl
+            << "zPeriodStart "               << zPeriodStart               << std::endl
+            << "zPeriodEnd "                 << zPeriodEnd                 << std::endl
+            << "periodLength "               << periodLength               << std::endl
             << "nDipoles "                   << nDipoles                   << std::endl
             << "dipoleAperture "             << dipoleAperture             << std::endl
             << "dipoleLengthZ "              << dipoleLengthZ              << std::endl

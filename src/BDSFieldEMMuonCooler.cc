@@ -48,8 +48,12 @@ BDSFieldEMMuonCooler::BDSFieldEMMuonCooler(const BDSFieldInfoExtraMuonCooler* in
   BuildDipoles(info);
   BuildRF(info);
   BuildZBins();
-  BuildPeriods();
-  BuildPeriodicMap();
+
+  if (info->zPeriodStart > -998 && info->zPeriodEnd > -998 && info->periodLength > -998)
+    {
+      BuildPeriods(info);
+      periodsSpecified = true;
+    }
 }
 
 BDSFieldEMMuonCooler::~BDSFieldEMMuonCooler()
@@ -113,24 +117,35 @@ void BDSFieldEMMuonCooler::BuildZBins()
     
 }
 
-void BDSFieldEMMuonCooler::BuildPeriods()
+void BDSFieldEMMuonCooler::BuildPeriods(const BDSFieldInfoExtraMuonCooler* info)
 {
-  // hardcoded for now
-  G4double zStart = 15000*CLHEP::mm;
-  G4double zEnd   = 175000*CLHEP::mm;
-  G4double pLen   =  2000*CLHEP::mm;
+  G4double zStart = info->zPeriodStart;
+  G4double zEnd   = info->zPeriodEnd;
+  G4double pLen   = info->periodLength;
 
-  // snap zStart forward so (zEnd - zStart) is an integer multiple of pLen
   G4int nP = (G4int)std::floor((zEnd - zStart) / pLen);
   periodicZStart  = zEnd - nP * pLen;
   periodicZEnd    = zEnd;
   periodLength    = pLen;
+
+  // x/y extent from the minimum coil inner radius
+  G4double minInner = std::numeric_limits<G4double>::max();
+  for (const auto& ci : info->coilInfos)
+    minInner = std::min(minInner, ci.innerRadius);
+  periodicXYMax = (minInner < std::numeric_limits<G4double>::max()) ? minInner : 300*CLHEP::mm;
+
+  // granularity from gridPointsPerMm (points per mm, CLHEP native units)
+  periodicGridPointsPerMm = info->coilInfos.empty() ? 1.0 : info->coilInfos.front().gridPointsPerMm;
 }
 
 void BDSFieldEMMuonCooler::BuildPeriodicMap() const
 {
-  const G4int Nx = 50, Ny = 50, Nz = 200;
-  G4double xMax = 300*CLHEP::mm, yMax = 300*CLHEP::mm;
+  G4double xMax = periodicXYMax;
+  G4double yMax = periodicXYMax;
+  // gridPointsPerMm is in points/mm; periodicXYMax and periodLength are in Geant4 native units (mm)
+  G4int Nx = std::max(2, (G4int)std::ceil(2.0 * xMax / CLHEP::mm * periodicGridPointsPerMm) + 1);
+  G4int Ny = Nx;
+  G4int Nz = std::max(2, (G4int)std::ceil(periodLength / CLHEP::mm * periodicGridPointsPerMm) + 1);
   G4double dx = 2*xMax / (Nx - 1);
   G4double dy = 2*yMax / (Ny - 1);
   G4double dz = periodLength / (Nz - 1);
@@ -316,7 +331,7 @@ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMMuonCooler::GetField(const G4T
   std::pair<G4ThreeVector, G4ThreeVector> result;
 
   G4double qz = position.z();
-  if (qz >= periodicZStart && qz < periodicZEnd)
+  if (periodsSpecified && qz >= periodicZStart && qz < periodicZEnd)
     {
       if (!periodicGrid) BuildPeriodicMap();  // one-time cost
       

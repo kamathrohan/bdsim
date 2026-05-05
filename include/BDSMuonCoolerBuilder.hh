@@ -131,7 +131,10 @@ namespace BDS
                                            const G4String& dipoleFieldModel,
                                            const std::vector<BDS::MuonCoolerCoilInfo>& coilInfos,
                                            const std::vector<BDS::MuonCoolerDipoleInfo>& dipoleInfos,
-                                           const std::vector<BDS::MuonCoolerCavityInfo>& cavityInfos);
+                                           const std::vector<BDS::MuonCoolerCavityInfo>& cavityInfos,
+                                           G4double zPeriodStart = -999,
+                                           G4double zPeriodEnd = -999,
+                                           G4double periodLength = -999);
 }
 
 #endif
