@@ -16,7 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "BDSArray3DCoords.hh"
+#include "BDSArray2DCoords.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"
 #include "BDSFieldEMMuonCooler.hh"
@@ -49,7 +49,8 @@ BDSFieldEMMuonCooler::BDSFieldEMMuonCooler(const BDSFieldInfoExtraMuonCooler* in
   BuildRF(info);
   BuildZBins();
 
-  if (info->zPeriodStart > -998 && info->zPeriodEnd > -998 && info->periodLength > -998)
+  const G4double unset = std::numeric_limits<G4double>::lowest();
+  if (info->zPeriodStart != unset && info->zPeriodEnd != unset && info->periodLength != unset)
     {
       BuildPeriods(info);
       periodsSpecified = true;
@@ -79,7 +80,7 @@ void BDSFieldEMMuonCooler::BuildZBins()
       G4double ze = entries[i].zHalfExtent;
       if (ze >= inf / 2.0)
         {
-          if (entries[i].type == FieldEntry::Type::Mag)
+          if (entries[i].type == FieldEntry::Type::Solenoid || entries[i].type == FieldEntry::Type::Dipole)
             {alwaysOn.push_back(i);}
           else
             {throw BDSException(__METHOD_NAME__, "EM field entry with infinite z extent is not supported in muon cooler");}
@@ -111,10 +112,11 @@ void BDSFieldEMMuonCooler::BuildZBins()
       G4double oz  = entries[i].offset.z();
       G4int binLo  = std::max(0,       (G4int)((oz - ze - zBinMin) / binWidth) - 1);
       G4int binHi  = std::min(nBins-1, (G4int)((oz + ze - zBinMin) / binWidth) + 1);
-      for (G4int b = binLo; b <= binHi; b++)
+      for (G4int b = binLo; b <= binHi; b++){
         zbins[b].push_back(i);
+      }
     }
-    
+   
 }
 
 void BDSFieldEMMuonCooler::BuildPeriods(const BDSFieldInfoExtraMuonCooler* info)
@@ -140,41 +142,35 @@ void BDSFieldEMMuonCooler::BuildPeriods(const BDSFieldInfoExtraMuonCooler* info)
 
 void BDSFieldEMMuonCooler::BuildPeriodicMap() const
 {
-  G4double xMax = periodicXYMax;
-  G4double yMax = periodicXYMax;
-  // gridPointsPerMm is in points/mm; periodicXYMax and periodLength are in Geant4 native units (mm)
-  G4int Nx = std::max(2, (G4int)std::ceil(2.0 * xMax / CLHEP::mm * periodicGridPointsPerMm) + 1);
-  G4int Ny = Nx;
-  G4int Nz = std::max(2, (G4int)std::ceil(periodLength / CLHEP::mm * periodicGridPointsPerMm) + 1);
-  G4double dx = 2*xMax / (Nx - 1);
-  G4double dy = 2*yMax / (Ny - 1);
-  G4double dz = periodLength / (Nz - 1);
+  std::cout<< __METHOD_NAME__ << ": Building periodic grid " << std::endl;
+  G4double rhoMax = periodicXYMax;
+  G4int Nrho = std::max(2, (G4int)std::ceil(rhoMax / CLHEP::mm * periodicGridPointsPerMm) + 1);
+  G4int Nz   = std::max(2, (G4int)std::ceil(periodLength / CLHEP::mm * periodicGridPointsPerMm) + 1);
+  G4double drho = rhoMax / (Nrho - 1);
+  G4double dz   = periodLength / (Nz - 1);
 
-  periodicGrid = new BDSArray3DCoords(Nx, Ny, Nz,
-                                      -xMax,  xMax,
-                                      -yMax,  yMax,
-                                       0.0,   periodLength);
+  periodicGrid = new BDSArray2DCoords(Nrho, Nz, 0.0, rhoMax, 0.0, periodLength);
 
-  for (G4int ix = 0; ix < Nx; ix++)
-    for (G4int iy = 0; iy < Ny; iy++)
-      for (G4int iz = 0; iz < Nz; iz++)
-        {
-          G4double x = -xMax + ix * dx;
-          G4double y = -yMax + iy * dy;
-          G4double z = periodicZStart + iz * dz;
-          G4ThreeVector pos(x, y, z);
+  for (G4int irho = 0; irho < Nrho; irho++)
+    for (G4int iz = 0; iz < Nz; iz++)
+      {
+        G4double rho    = irho * drho;
+        G4double zWorld = periodicZStart + iz * dz;
+        G4ThreeVector pos(rho, 0, zWorld);
 
-          G4ThreeVector B(0,0,0);
-          for (G4int i : alwaysOn)
-            B += entries[i].mag->GetField(pos - entries[i].offset, 0);
-          G4int bin = (G4int)((z - zBinMin) / binWidth);
-          if (bin >= 0 && bin < nBins)
-            for (G4int i : zbins[bin])
-              if (entries[i].type == FieldEntry::Type::Mag)
-                B += entries[i].mag->GetField(pos - entries[i].offset, 0);
+        G4double Brho = 0.0;
+        G4double Bz   = 0.0;
+        for (G4int i = 0; i < (G4int)entries.size(); i++)
+          {
+            if (entries[i].type != FieldEntry::Type::Solenoid)
+              {continue;}
+            G4ThreeVector B = entries[i].mag->GetField(pos - entries[i].offset, 0);
+            Brho += B.x(); // y=0 so Bx == Brho
+            Bz   += B.z();
+          }
 
-          (*periodicGrid)(ix, iy, iz) = BDSFieldValue(B.x(), B.y(), B.z());
-        }
+        (*periodicGrid)(irho, iz) = BDSFieldValue(Brho, 0.0, Bz);
+      }
 }
 
 void BDSFieldEMMuonCooler::BuildMagnets(const BDSFieldInfoExtraMuonCooler* info)
@@ -200,7 +196,7 @@ void BDSFieldEMMuonCooler::BuildMagnets(const BDSFieldInfoExtraMuonCooler* info)
                                                    gridPts,
                                                    ci.interpolator);
             FieldEntry e;
-            e.type        = FieldEntry::Type::Mag;
+            e.type        = FieldEntry::Type::Solenoid;
             e.mag         = f;
             e.offset      = G4ThreeVector(ci.offsetX, ci.offsetY, ci.offsetZ);
             e.zHalfExtent = f->GetZHalfExtent();
@@ -224,7 +220,7 @@ void BDSFieldEMMuonCooler::BuildMagnets(const BDSFieldInfoExtraMuonCooler* info)
                                                    gridPts,
                                                    ci.interpolator);
             FieldEntry e;
-            e.type        = FieldEntry::Type::Mag;
+            e.type        = FieldEntry::Type::Solenoid;
             e.mag         = f;
             e.offset      = G4ThreeVector(ci.offsetX, ci.offsetY, ci.offsetZ);
             e.zHalfExtent = f->GetZHalfExtent();
@@ -239,7 +235,7 @@ void BDSFieldEMMuonCooler::BuildMagnets(const BDSFieldInfoExtraMuonCooler* info)
             const G4double inf = std::numeric_limits<G4double>::max();
 
             FieldEntry e;
-            e.type        = FieldEntry::Type::Mag;
+            e.type        = FieldEntry::Type::Solenoid;
             e.mag         = new BDSFieldMagSolenoidLoop(ci.current,
                                                         true,
                                                         ci.innerRadius + 0.5*ci.radialThickness);
@@ -268,7 +264,7 @@ void BDSFieldEMMuonCooler::BuildDipoles(const BDSFieldInfoExtraMuonCooler* info)
         for (const auto& di : info->dipoleInfos)
           {
             FieldEntry e;
-            e.type        = FieldEntry::Type::Mag;
+            e.type        = FieldEntry::Type::Dipole;
             e.mag         = new BDSFieldMagDipoleHardEdgeMuonCooler(di.fieldStrength,
                                                                      di.apertureRadius,
                                                                      di.fullLengthZ);
@@ -283,7 +279,7 @@ void BDSFieldEMMuonCooler::BuildDipoles(const BDSFieldInfoExtraMuonCooler* info)
         for (const auto& di : info->dipoleInfos)
           {
             FieldEntry e;
-            e.type   = FieldEntry::Type::Mag;
+            e.type   = FieldEntry::Type::Dipole;
             auto* f  = new BDSFieldMagDipoleEnge(di.fieldStrength,
                                                   di.apertureRadius,
                                                   di.fullLengthZ,
@@ -329,21 +325,27 @@ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMMuonCooler::GetField(const G4T
                                                                         const G4double       t) const
 {
   std::pair<G4ThreeVector, G4ThreeVector> result;
-
+  
   G4double qz = position.z();
   if (periodsSpecified && qz >= periodicZStart && qz < periodicZEnd)
     {
       if (!periodicGrid) BuildPeriodicMap();  // one-time cost
-      
-      // fold position back into [0, periodLength)
-      G4double zLocal = std::fmod(qz - periodicZStart, periodLength);
 
-      BDSFieldValue localData[2][2][2];
-      G4double fx, fy, fz;
-      periodicGrid->ExtractSection2x2x2(position.x(), position.y(), zLocal, localData, fx, fy, fz);
-      BDSFieldValue r = BDS::Linear3D(localData, fx, fy, fz);
-      result.first = G4ThreeVector(r.x(), r.y(), r.z());
-      // RF (EM entries) still evaluated normally — time-dependent
+      G4double rho    = position.perp();
+      G4double zLocal = std::fmod(qz - periodicZStart, periodLength);
+      if (zLocal < 0) {zLocal += periodLength;}
+
+      BDSFieldValue localData[2][2];
+      G4double frho, fz;
+      periodicGrid->ExtractSection2x2(rho, zLocal, localData, frho, fz);
+      BDSFieldValue r = BDS::Linear2D(localData, frho, fz);
+
+      const G4double eps = 1e-9 * CLHEP::mm;
+      G4double Brho = r.x();
+      G4double Bx   = (rho > eps) ? Brho * position.x() / rho : 0.0;
+      G4double By   = (rho > eps) ? Brho * position.y() / rho : 0.0;
+      result.first  = G4ThreeVector(Bx, By, r.z());
+
       if (nBins > 0)
         {
           G4int bin = (G4int)((qz - zBinMin) / binWidth);
@@ -352,9 +354,13 @@ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMMuonCooler::GetField(const G4T
               for (G4int i : zbins[bin])
                 {
                   const FieldEntry& e = entries[i];
-                  if (e.type == FieldEntry::Type::EM)
+                  G4ThreeVector dr = position - e.offset;
+                  if (e.type == FieldEntry::Type::Dipole)
                     {
-                      G4ThreeVector dr = position - e.offset;
+                      result.first += e.mag->GetField(dr, t);
+                    }
+                  else if (e.type == FieldEntry::Type::EM)
+                    {
                       if (std::fabs(dr.z()) > e.zHalfExtent)
                         {continue;}
                       auto fe = e.em->GetField(dr, t - e.timeOffset);
@@ -383,7 +389,7 @@ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMMuonCooler::GetField(const G4T
             {
               const FieldEntry& e = entries[i];
               G4ThreeVector dr = position - e.offset;
-              if (e.type == FieldEntry::Type::Mag)
+              if (e.type == FieldEntry::Type::Solenoid || e.type == FieldEntry::Type::Dipole)
                 {result.first += e.mag->GetField(dr, t);}
               else
                 {

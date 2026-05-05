@@ -27,7 +27,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <utility>
 #include <vector>
 
-class BDSArray3DCoords;
+class BDSArray2DCoords;
 class BDSFieldEM;
 class BDSFieldInfoExtraMuonCooler;
 class BDSFieldMag;
@@ -59,12 +59,12 @@ public:
 private:
   struct FieldEntry
   {
-    enum class Type { Mag, EM };
+    enum class Type { Solenoid, Dipole, EM };
     Type          type;
-    BDSFieldMag*  mag{nullptr};  ///< non-null when type == Mag
-    BDSFieldEM*   em{nullptr};   ///< non-null when type == EM
+    BDSFieldMag*  mag{nullptr};
+    BDSFieldEM*   em{nullptr};
     G4ThreeVector offset;
-    G4double      timeOffset{0}; ///< used only for EM entries
+    G4double      timeOffset{0};
     G4double      zHalfExtent;
   };
 
@@ -86,7 +86,7 @@ private:
   G4double periodicXYMax{0};
   G4double periodicGridPointsPerMm{1};
 
-  mutable BDSArray3DCoords* periodicGrid{nullptr};
+  mutable BDSArray2DCoords* periodicGrid{nullptr};
 };
 
 #endif

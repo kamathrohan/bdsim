@@ -18,6 +18,8 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "coolingchannel.h"
 
+#include <limits>
+
 using namespace GMAD;
 
 CoolingChannel::CoolingChannel()
@@ -51,9 +53,9 @@ void CoolingChannel::clear()
   nSheets = 0;
   gridPointsPerMm = 1;
 
-  zPeriodStart = -999;
-  zPeriodEnd = -999;
-  periodLength = -999;
+  zPeriodStart = std::numeric_limits<double>::lowest();
+  zPeriodEnd = std::numeric_limits<double>::lowest();
+  periodLength = std::numeric_limits<double>::lowest();
 
   nDipoles = 0;
   dipoleAperture.clear();

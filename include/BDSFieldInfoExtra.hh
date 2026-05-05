@@ -24,6 +24,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "G4Types.hh"
 
+#include <limits>
 #include <vector>
 
 /**
@@ -66,9 +67,9 @@ public:
                               const std::vector<BDS::MuonCoolerCoilInfo>& coilInfosIn,
                               const std::vector<BDS::MuonCoolerDipoleInfo>& dipoleInfosIn,
                               const std::vector<BDS::MuonCoolerCavityInfo>& cavityInfosIn,
-                              G4double zPeriodStartIn = -999,
-                              G4double zPeriodEndIn = -999,
-                              G4double periodLengthIn = -999):
+                              G4double zPeriodStartIn = std::numeric_limits<G4double>::lowest(),
+                              G4double zPeriodEndIn = std::numeric_limits<G4double>::lowest(),
+                              G4double periodLengthIn = std::numeric_limits<G4double>::lowest()):
     magneticFieldType(magneticFieldTypeIn),
     electricFieldType(electricFieldTypeIn),
     dipoleFieldType(dipoleFieldTypeIn),
@@ -87,9 +88,9 @@ public:
   std::vector<BDS::MuonCoolerCoilInfo> coilInfos;
   std::vector<BDS::MuonCoolerDipoleInfo> dipoleInfos;
   std::vector<BDS::MuonCoolerCavityInfo> cavityInfos;
-  G4double zPeriodStart{-999};
-  G4double zPeriodEnd{-999};
-  G4double periodLength{-999};
+  G4double zPeriodStart{std::numeric_limits<G4double>::lowest()};
+  G4double zPeriodEnd{std::numeric_limits<G4double>::lowest()};
+  G4double periodLength{std::numeric_limits<G4double>::lowest()};
 
   virtual BDSFieldInfoExtra* Clone() const {return new BDSFieldInfoExtraMuonCooler(*this);}
 };
