@@ -26,6 +26,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "globals.hh"
 
 #include <ctime>
+#include <fstream>
 #include <ostream>
 #include <set>
 #include <vector>
@@ -162,6 +163,11 @@ public:
 protected:
   /// Get the next file name based on the base file name and the accrued number of files.
   G4String GetNextFileName();
+
+  /// Open the sampler text file with the given path (replaces any existing file).
+  void OpenSamplerTextFile(const G4String& filePath);
+
+  std::ofstream samplerTextFile; ///< Text file mirror of sampler hits.
 
   /// Whether to create the collimator structures in the output or not.
   inline G4bool CreateCollimatorOutputStructures() const {return createCollimatorOutputStructures;}

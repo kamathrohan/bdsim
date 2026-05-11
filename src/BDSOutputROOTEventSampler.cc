@@ -32,11 +32,17 @@ class BDSOutputROOTParticleData;
 #include "globals.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <cmath>
+#include <fstream>
 #endif
 
 templateClassImp(BDSOutputROOTEventSampler)
 
 static int globalTrackID = 0;
+#ifndef __ROOTBUILD__
+static std::ofstream* gSamplerTextFile = nullptr;
+
+void SetSamplerTextFile(std::ofstream* f) { gSamplerTextFile = f; }
+#endif
 
 template <class U>
 BDSOutputROOTEventSampler<U>::BDSOutputROOTEventSampler():
@@ -106,6 +112,27 @@ void BDSOutputROOTEventSampler<U>::Fill(const BDSHitSampler* hit,
 
   if (storeElectrons)
     {nElectrons.push_back((int)hit->nElectrons);}
+
+  if (gSamplerTextFile && gSamplerTextFile->is_open())
+    {
+      const BDSParticleCoordsFull& c = hit->coords;
+      *gSamplerTextFile << samplerName              << ","
+                        << hit->turnsTaken           << ","
+                        << globalTrackID             << ","
+                        << hit->parentID             << ","
+                        << hit->pdgID                << ","
+                        << (c.x           / CLHEP::m)   << ","
+                        << (c.y           / CLHEP::m)   << ","
+                        << c.xp                      << ","
+                        << c.yp                      << ","
+                        << (c.z           / CLHEP::m)   << ","
+                        << c.zp                      << ","
+                        << (c.totalEnergy / CLHEP::GeV) << ","
+                        << (hit->momentum / CLHEP::GeV) << ","
+                        << (c.T           / CLHEP::ns)  << ","
+                        << c.weight                  << ","
+                        << (c.s           / CLHEP::m)   << "\n";
+    }
 }
 
 template <class U>

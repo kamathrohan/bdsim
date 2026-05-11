@@ -72,6 +72,9 @@ void BDSOutputROOT::NewFile()
   theRootOutputFile = new TFile(newFileName,"RECREATE", "BDS output file");
   if (theRootOutputFile->IsZombie())
     {throw BDSException(__METHOD_NAME__, "Unable to open output file: \"" + newFileName +"\"");}
+
+  G4String textFileName = newFileName.substr(0, newFileName.size() - 5) + ".txt";
+  OpenSamplerTextFile(textFileName);
  
   if (compressionLevel > 9 || compressionLevel < -1)
     {throw BDSException(__METHOD_NAME__, "invalid ROOT compression level (" + std::to_string(compressionLevel) + ") must be 0 - 9.");}
@@ -237,6 +240,8 @@ void BDSOutputROOT::CloseFile()
 
 void BDSOutputROOT::Close()
 {
+  if (samplerTextFile.is_open())
+    {samplerTextFile.close();}
   if (theRootOutputFile)
     {
       if (theRootOutputFile->IsOpen())

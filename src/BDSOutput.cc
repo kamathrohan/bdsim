@@ -79,6 +79,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 #include <cmath>
+#include <fstream>
 #include <map>
 #include <ostream>
 #include <set>
@@ -404,6 +405,16 @@ void BDSOutput::PrintProtectedNames(std::ostream& out)
     {out << "\"" << key << "\"" << G4endl;}
 }
  
+void BDSOutput::OpenSamplerTextFile(const G4String& filePath)
+{
+  if (samplerTextFile.is_open())
+    {samplerTextFile.close();}
+  samplerTextFile.open(filePath);
+  samplerTextFile << "samplerName,turnNumber,trackID,parentID,partID,"
+                     "x,y,xp,yp,z,zp,energy,p,T,weight,S\n";
+  SetSamplerTextFile(&samplerTextFile);
+}
+
 G4String BDSOutput::GetNextFileName()
 {
   outputFileNumber++;
