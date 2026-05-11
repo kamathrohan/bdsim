@@ -134,7 +134,7 @@ void BDSParallelWorldSampler::Construct()
 	                                                            samplerPlacement.referenceElementNumber);
 	  if (element)
 	    {
-	      sEnd = element->GetSPositionEnd() + samplerPlacement.s * CLHEP::m;
+	      sEnd = element->GetSPositionMiddle() + samplerPlacement.s * CLHEP::m;
 	    }
 	}
 
