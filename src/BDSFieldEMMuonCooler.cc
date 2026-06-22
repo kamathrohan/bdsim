@@ -160,13 +160,41 @@ void BDSFieldEMMuonCooler::BuildPeriodicMap() const
 
         G4double Brho = 0.0;
         G4double Bz   = 0.0;
-        for (G4int i = 0; i < (G4int)entries.size(); i++)
+
+        for (G4int i : alwaysOn)
           {
             if (entries[i].type != FieldEntry::Type::Solenoid)
               {continue;}
             G4ThreeVector B = entries[i].mag->GetField(pos - entries[i].offset, 0);
-            Brho += B.x(); // y=0 so Bx == Brho
+            Brho += B.x();
             Bz   += B.z();
+          }
+
+        if (nBins > 0)
+          {
+            G4int bin = (G4int)((zWorld - zBinMin) / binWidth);
+            if (bin >= 0 && bin < nBins)
+              {
+                for (G4int i : zbins[bin])
+                  {
+                    if (entries[i].type != FieldEntry::Type::Solenoid)
+                      {continue;}
+                    G4ThreeVector B = entries[i].mag->GetField(pos - entries[i].offset, 0);
+                    Brho += B.x();
+                    Bz   += B.z();
+                  }
+              }
+          }
+        else
+          {
+            for (G4int i = 0; i < (G4int)entries.size(); i++)
+              {
+                if (entries[i].type != FieldEntry::Type::Solenoid)
+                  {continue;}
+                G4ThreeVector B = entries[i].mag->GetField(pos - entries[i].offset, 0);
+                Brho += B.x();
+                Bz   += B.z();
+              }
           }
 
         (*periodicGrid)(irho, iz) = BDSFieldValue(Brho, 0.0, Bz);
@@ -325,7 +353,6 @@ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMMuonCooler::GetField(const G4T
                                                                         const G4double       t) const
 {
   std::pair<G4ThreeVector, G4ThreeVector> result;
-  
   G4double qz = position.z();
   if (periodsSpecified && qz >= periodicZStart && qz < periodicZEnd)
     {
@@ -360,9 +387,11 @@ std::pair<G4ThreeVector, G4ThreeVector> BDSFieldEMMuonCooler::GetField(const G4T
                       result.first += e.mag->GetField(dr, t);
                     }
                   else if (e.type == FieldEntry::Type::EM)
-                    {
+                    {  
                       if (std::fabs(dr.z()) > e.zHalfExtent)
                         {continue;}
+                  //std::cout << __METHOD_NAME__ << ": Evaluating EM field at position " << position.z() << " and time " << t - e.timeOffset << "RF at " << e.offset <<  std::endl ;
+
                       auto fe = e.em->GetField(dr, t - e.timeOffset);
                       result.first  += fe.first;
                       result.second += fe.second;
